@@ -1,0 +1,28 @@
+/* Admin sidebar styles */
+.admin-menu .ant-menu-item {
+  margin: 4px 8px !important;
+  border-radius: 8px !important;
+  transition: all 0.3s ease !important;
+}
+
+.admin-menu .ant-menu-item:hover {
+  background: linear-gradient(135deg, rgba(200, 139, 255, 0.1), rgba(139, 192, 255, 0.1)) !important;
+  transform: translateX(4px);
+}
+
+.admin-menu .ant-menu-item-selected {
+  background: linear-gradient(135deg, rgba(200, 139, 255, 0.15), rgba(139, 192, 255, 0.15)) !important;
+  border-left: 3px solid #c88bff !important;
+  color: #6b46c1 !important;
+  font-weight: 600 !important;
+}
+
+.admin-menu .ant-menu-item-selected .anticon {
+  color: #c88bff !important;
+}
+
+/* Content area background with subtle pattern */
+.admin-content {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
+  background-attachment: fixed;
+}
