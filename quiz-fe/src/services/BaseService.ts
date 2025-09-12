@@ -1,3 +1,22 @@
+import { message } from 'antd';
+import apiClient from './api';
+import { AxiosRequestConfig } from 'axios';
+import { ApiResponse } from '@/types';
+
+export interface BaseEntity {
+  id: number | string;
+  createdAt?: string;
+  updatedAt?: string;
+  createdBy?: string;
+  updatedBy?: string;
+}
+
+export interface BaseRequest { }
+
+export interface BaseResponse extends BaseEntity { }
+
+export interface BaseView extends BaseEntity { }
+
 export interface PagingViewRequest {
   skip?: number;
   take?: number;
@@ -16,19 +35,6 @@ export interface PagingViewResponse<T> {
   total: number;
   summary: Record<string, any>;
 }
-import { message } from 'antd';
-
-export interface BaseEntity {
-  id: number | string;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export interface BaseRequest {}
-
-export interface BaseResponse extends BaseEntity {}
-
-export interface BaseView extends BaseEntity {}
 
 export interface PagingRequest {
   page?: number;
@@ -47,13 +53,6 @@ export interface PagingResponse<T> {
   first: boolean;
   last: boolean;
   numberOfElements: number;
-}
-
-export interface ApiResponse<T> {
-  success: boolean;
-  message?: string;
-  data?: T;
-  errors?: string[];
 }
 
 export class BaseService<
@@ -79,28 +78,36 @@ export class BaseService<
     options: RequestInit = {}
   ): Promise<T> {
     try {
-      const response = await fetch(url, {
-        headers: {
-          'Content-Type': 'application/json',
-          ...options.headers,
-        },
-        ...options,
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+      let mergedHeaders: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (
+        options.headers &&
+        typeof options.headers === 'object' &&
+        !Array.isArray(options.headers)
+      ) {
+        mergedHeaders = { ...mergedHeaders, ...options.headers as Record<string, string> };
       }
 
-      const result: ApiResponse<T> = await response.json();
-      
-      if (!result.success) {
+      const axiosConfig: AxiosRequestConfig = {
+        url,
+        method: options.method as any || 'GET',
+        headers: mergedHeaders,
+        data: options.body ? JSON.parse(options.body as string) : undefined,
+      };
+
+      const response = await apiClient.request<ApiResponse<T>>(axiosConfig);
+
+      console.log('API Response:', response.data);
+
+      const result = response.data;
+
+      if (result.code !== 1000) {
         throw new Error(result.message || 'API request failed');
       }
 
-      return result.data as T;
-    } catch (error) {
+      return result.result as T;
+    } catch (error: any) {
       console.error('API Error:', error);
-      message.error(error instanceof Error ? error.message : 'An error occurred');
+      message.error(error?.message || 'An error occurred');
       throw error;
     }
   }

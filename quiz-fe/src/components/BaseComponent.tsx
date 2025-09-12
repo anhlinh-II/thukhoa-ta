@@ -76,7 +76,8 @@ export function BaseComponent<
       isGetTotal: true,
       customParam: {},
     }).then((data) => {
-      setPagedData(data);
+      console.log(data);
+      setPagedData(data.data);
     }).finally(() => setIsLoading(false));
   };
 
@@ -234,7 +235,7 @@ export function BaseComponent<
         {/* Table */}
         <Table<Response>
           columns={buildColumns()}
-          dataSource={pagedData?.data || []}
+          dataSource={pagedData || []}
           rowKey="id"
           loading={isLoading}
           pagination={{

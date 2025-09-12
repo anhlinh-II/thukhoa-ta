@@ -136,12 +136,12 @@ const QuizGroupsBaseTab: React.FC = () => {
                 <div>
                   <strong>ID:</strong> {record.id}
                 </div>
-                <div>
+                {/* <div>
                   <strong>Created:</strong> {new Date(record.createdAt).toLocaleString()}
                 </div>
                 <div>
                   <strong>Updated:</strong> {new Date(record.updatedAt).toLocaleString()}
-                </div>
+                </div> */}
                 <div>
                   <strong>Status:</strong> {!record.isDeleted ? 'Active' : 'Deleted'}
                 </div>

@@ -47,13 +47,14 @@ export interface Answer {
 }
 
 export interface ApiResponse<T> {
+  code: number;
   success: boolean;
-  data: T;
+  result?: T;
   message?: string;
 }
 
 export interface PaginatedResponse<T> {
-  data: T[];
+  result?: T[];
   total: number;
   page: number;
   limit: number;
