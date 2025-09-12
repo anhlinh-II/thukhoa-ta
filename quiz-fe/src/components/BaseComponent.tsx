@@ -62,11 +62,28 @@ export function BaseComponent<
   const [form] = Form.useForm();
 
   // Queries
-  const { 
-    data: pagedData, 
-    isLoading, 
-    refetch 
-  } = hooks.useFindAllPaged(pagination);
+  const [pagedData, setPagedData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const refetch = () => {
+    setIsLoading(true);
+    service.getViewsPagedWithFilter({
+      skip: (pagination.page || 0) * (pagination.size || 10),
+      take: pagination.size || 10,
+      sort: '',
+      columns: '',
+      filter: '',
+      emptyFilter: '',
+      isGetTotal: true,
+      customParam: {},
+    }).then((data) => {
+      setPagedData(data);
+    }).finally(() => setIsLoading(false));
+  };
+
+  React.useEffect(() => {
+    refetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pagination]);
 
   // Mutations
   const createMutation = hooks.useCreate({
@@ -217,13 +234,13 @@ export function BaseComponent<
         {/* Table */}
         <Table<Response>
           columns={buildColumns()}
-          dataSource={pagedData?.content || []}
+          dataSource={pagedData?.data || []}
           rowKey="id"
           loading={isLoading}
           pagination={{
             current: (pagination.page || 0) + 1,
             pageSize: pagination.size || 10,
-            total: pagedData?.totalElements || 0,
+            total: pagedData?.total || 0,
             showSizeChanger: true,
             showQuickJumper: true,
             showTotal: (total, range) => 

@@ -1,3 +1,21 @@
+export interface PagingViewRequest {
+  skip?: number;
+  take?: number;
+  sort?: string;
+  columns?: string;
+  filter?: string;
+  emptyFilter?: string;
+  isGetTotal?: boolean;
+  customParam?: Record<string, any>;
+  aggs?: string;
+}
+
+export interface PagingViewResponse<T> {
+  empty: boolean;
+  data: T[];
+  total: number;
+  summary: Record<string, any>;
+}
 import { message } from 'antd';
 
 export interface BaseEntity {
@@ -143,8 +161,8 @@ export class BaseService<
     return this.handleRequest<PagingResponse<View>>(url);
   }
 
-  async getViewsPagedWithFilter(request: PagingRequest): Promise<PagingResponse<Record<string, any>>> {
-    return this.handleRequest<PagingResponse<Record<string, any>>>(`${this.getEndpoint()}/views/list`, {
+  async getViewsPagedWithFilter(request: PagingViewRequest): Promise<PagingViewResponse<Record<string, any>>> {
+    return this.handleRequest<PagingViewResponse<Record<string, any>>>(`${this.getEndpoint()}/views/list`, {
       method: 'POST',
       body: JSON.stringify(request),
     });
