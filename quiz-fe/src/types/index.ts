@@ -60,3 +60,33 @@ export interface PaginatedResponse<T> {
   limit: number;
   totalPages: number;
 }
+
+export interface FilterItemDto {
+    field?: string|null|undefined;
+    operator?:  FilterOperator|null|undefined;
+    value?: any;
+    ors?: Array<FilterItemDto>|null|undefined;
+    dataType?: "STRING" | "DATETIME" | "NUMBER" | "BOOL"
+}
+
+export declare type FilterOperator =
+  | "="
+  | "!="
+  | ">"
+  | ">="
+  | "<"
+  | "<="
+  | "CONTAINS"
+  | "NCONTAINS"
+  | "STARTSWITH"
+  | "ENDSWITH"
+  | "BETWEEN"
+  | "NOT BETWEEN"
+  | "IN"
+  | "NOT IN"
+  | "EMPTY"
+  | "NEMPTY"
+  | "IS NULL"
+  | "IS NOT NULL"
+  | "ORG ALL IN CHILDREN BY ID"
+  | "ORG ALL IN CHILDREN BY CODE";

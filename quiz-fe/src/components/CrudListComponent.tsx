@@ -31,7 +31,7 @@ export interface BaseComponentProps<
   onDeleteSuccess?: () => void;
 }
 
-export function BaseComponent<
+export function CrudListComponent<
   Entity extends BaseEntity = BaseEntity,
   Request extends BaseRequest = BaseRequest,
   Response extends BaseResponse = BaseResponse,
@@ -49,7 +49,7 @@ export function BaseComponent<
 }: BaseComponentProps<Entity, Request, Response, View>) {
   // Initialize hooks
   const hooks = new BaseHooks(service, config);
-  
+
   // State
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState<Response | null>(null);
@@ -130,7 +130,7 @@ export function BaseComponent<
   const handleSubmit = async () => {
     try {
       const values = await form.validateFields();
-      
+
       if (editingRecord) {
         updateMutation.mutate({ id: editingRecord.id, request: values });
       } else {
@@ -203,21 +203,16 @@ export function BaseComponent<
   );
 
   return (
-    <div className="p-6">
-      {/* Header */}
+    <div className="p-4">
       <Card>
         <div className="flex justify-between items-center mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-800 m-0">{config.title}</h2>
-            <p className="text-gray-600 mt-1">
-              Manage {config.resourceName.toLowerCase()}s in your system
-            </p>
-          </div>
+          <h2 className="text-xl font-bold text-gray-800 m-0">{config.title}</h2>
           <Space>
             <Button
               icon={<ReloadOutlined />}
               onClick={() => refetch()}
               loading={isLoading}
+              style={{ fontSize: 14 }}
             >
               Refresh
             </Button>
@@ -226,6 +221,7 @@ export function BaseComponent<
               icon={<PlusOutlined />}
               onClick={handleCreate}
               loading={createMutation.isPending}
+              style={{ fontSize: 14 }}
             >
               Create {config.resourceName}
             </Button>
@@ -244,7 +240,7 @@ export function BaseComponent<
             total: pagedData?.total || 0,
             showSizeChanger: true,
             showQuickJumper: true,
-            showTotal: (total, range) => 
+            showTotal: (total, range) =>
               `${range[0]}-${range[1]} of ${total} items`,
           }}
           onChange={handleTableChange}

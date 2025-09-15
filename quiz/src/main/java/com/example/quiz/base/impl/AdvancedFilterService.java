@@ -35,7 +35,9 @@ public class AdvancedFilterService {
             StringBuilder queryBuilder = new StringBuilder("SELECT ");
 
             // Handle column selection
-            String selectClause = buildSelectClause(viewClass, request.getColumns());
+            String selectClause = Arrays.stream(viewClass.getDeclaredFields())
+                    .map(field -> "e." + convertToSnakeCase(field.getName()))
+                    .collect(Collectors.joining(", "));
             queryBuilder.append(selectClause);
 
             // Get table name from entity
@@ -70,7 +72,9 @@ public class AdvancedFilterService {
             List<Object[]> resultList = query.getResultList();
 
             // Convert to Map format
-            String[] columnNames = getColumnNames(viewClass, request.getColumns());
+            String[] columnNames = Arrays.stream(viewClass.getDeclaredFields())
+                    .map(Field::getName)
+                    .toArray(String[]::new);
             List<Map<String, Object>> data = convertToMapList(resultList, columnNames);
 
             // Get total count if requested
