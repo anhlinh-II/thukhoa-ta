@@ -30,6 +30,13 @@ export default function TestBasePage() {
       render: (text: string) => text || 'No description',
     },
     {
+      title: 'Slug',
+      dataIndex: 'slug',
+      key: 'slug',
+      ellipsis: true,
+      render: (text: string) => text || 'No slug',
+    },
+    {
       title: 'Program Name',
       dataIndex: 'programName',
       key: 'programName',

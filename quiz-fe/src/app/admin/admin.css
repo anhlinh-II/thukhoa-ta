@@ -26,3 +26,26 @@
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e2e8f0 100%);
   background-attachment: fixed;
 }
+
+/* Reduced table size utility for CrudListComponent */
+.small-table .ant-table-cell {
+  font-size: 13px !important;
+  padding: 2px 8px !important;
+}
+
+.small-table .ant-table-thead > tr > th {
+  font-size: 13px !important;
+  padding: 4px 8px !important;
+}
+
+/* Resizable table header */
+.resizable-header {
+  position: relative;
+}
+.resizable-header .resize-handle {
+  width: 8px;
+  height: 100%;
+  display: inline-block;
+  cursor: col-resize;
+  margin-left: 6px;
+}

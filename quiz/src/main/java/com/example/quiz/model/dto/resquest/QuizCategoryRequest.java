@@ -1,8 +1,6 @@
 package com.example.quiz.model.dto.resquest;
 
-import jakarta.persistence.Column;
 import lombok.*;
-import lombok.experimental.SuperBuilder;
 
 @Data
 @Getter

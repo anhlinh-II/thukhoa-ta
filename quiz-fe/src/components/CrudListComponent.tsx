@@ -1,5 +1,6 @@
 "use client";
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
+import { Resizable } from 'react-resizable';
 import { Table, Button, Space, Modal, Form, Input, Card, Popconfirm, message } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import type { ColumnsType, TableProps } from 'antd/es/table';
@@ -70,6 +71,30 @@ export function CrudListComponent<
   // Queries
   const [pagedData, setPagedData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // table body dynamic height so pagination/footer stays visible
+  const wrapperRef = useRef<HTMLDivElement | null>(null);
+  const [tableBodyHeight, setTableBodyHeight] = useState<number>(400);
+
+  useEffect(() => {
+    const compute = () => {
+      // try to compute using the surrounding Card header height so pagination/footer stays visible
+      const wrapperEl = wrapperRef.current;
+      const top = wrapperEl?.getBoundingClientRect().top ?? 0;
+      // find closest ant-card to measure its header height
+      const cardEl = wrapperEl?.closest ? (wrapperEl.closest('.ant-card') as HTMLElement | null) : null;
+      const headEl = cardEl?.querySelector('.ant-card-head') as HTMLElement | null;
+      const headH = headEl?.getBoundingClientRect().height ?? 56;
+      // reserve space for pagination and some padding
+      const paginationReserve = 72; // pagination + margins
+      const avail = Math.max(120, window.innerHeight - top - headH - paginationReserve - 16);
+      setTableBodyHeight(avail);
+    };
+
+    compute();
+    window.addEventListener('resize', compute);
+    return () => window.removeEventListener('resize', compute);
+  }, []);
 
   const [searchText, setSearchText] = useState('');
   const searchTimer = useRef<number | null>(null);
@@ -205,7 +230,6 @@ export function CrudListComponent<
     refetch();
   };
 
-
   // Mutations
   const createMutation = hooks.useCreate({
     onSuccess: (data) => {
@@ -311,6 +335,60 @@ export function CrudListComponent<
     return [...columns, actionColumn];
   };
 
+  // --- Resizable columns state and handlers ---
+  const columnsBase = buildColumns();
+  const [columnsWidth, setColumnsWidth] = useState<number[]>(() =>
+    columnsBase.map((c) => (typeof c.width === 'number' ? c.width : 150))
+  );
+
+  // keep columnsWidth in sync when columns change
+  useEffect(() => {
+    const w = columnsBase.map((c) => (typeof c.width === 'number' ? c.width : 150));
+    setColumnsWidth((prev) => {
+      // if same length, keep existing widths where possible
+      if (prev.length === w.length) return prev;
+      return w;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(columnsBase.map(c => c.key || c.title))]);
+
+  // map columns to include header with react-resizable handle and width
+  const columnsWithResize: ColumnsType<Response> = columnsBase.map((col, idx) => {
+    const isFixed = col.fixed === 'right' || col.fixed === 'left';
+    const width = columnsWidth[idx] || (typeof col.width === 'number' ? col.width : 150);
+    const titleContent = typeof col.title === 'function' ? String(col.title) : col.title;
+
+    const titleNode = (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} className="resizable-header">
+        <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{titleContent}</span>
+        {!isFixed && (
+          <Resizable
+            width={width}
+            height={24}
+            axis="x"
+            handle={<span className="resize-handle" />}
+            onResizeStop={(_, data) => {
+              setColumnsWidth((prev) => {
+                const next = [...prev];
+                next[idx] = Math.max(60, data.size.width);
+                return next;
+              });
+            }}
+          >
+            <div style={{ width: 8 }} />
+          </Resizable>
+        )}
+      </div>
+    );
+
+    return {
+      ...(col as any),
+      title: titleNode,
+      width,
+      onHeaderCell: () => ({ style: { width } }),
+    } as any;
+  });
+
   // Default form renderer
   const defaultFormRenderer = () => (
     <Form.Item
@@ -361,7 +439,9 @@ export function CrudListComponent<
         </div>
 
         {/* Table */}
+        <div ref={wrapperRef} className="text-sm" style={{ fontSize: 13 }}>
         <Table<Response>
+          className="small-table"
           columns={buildColumns()}
           dataSource={pagedData?.data || []}
           rowKey="id"
@@ -376,10 +456,11 @@ export function CrudListComponent<
               `${range[0]}-${range[1]} of ${total} items`,
           }}
           onChange={handleTableChange}
-          scroll={{ x: 1200 }}
+          scroll={{ x: 1200, y: tableBodyHeight }}
           size="small"
           {...tableProps}
         />
+        </div>
       </Card>
 
       {/* Create/Edit Modal */}
