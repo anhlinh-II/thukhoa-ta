@@ -7,10 +7,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
-import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.Subselect;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -22,6 +21,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AdvancedFilterService {
 
     private final EntityManager entityManager;
@@ -58,6 +58,9 @@ public class AdvancedFilterService {
             }
 
             // Create the main query
+            // Log SQL and parameters for debugging
+            log.info("Filtered view SQL: {}", queryBuilder.toString());
+            log.info("Filtered view parameters: {}", parameters);
             Query query = entityManager.createNativeQuery(queryBuilder.toString());
 
             // Set parameters
@@ -294,6 +297,10 @@ public class AdvancedFilterService {
         if (StringUtils.hasText(whereClause)) {
             countQuery.append(" WHERE ").append(whereClause);
         }
+
+        // Log count SQL for debugging
+        log.info("Count SQL: {}", countQuery.toString());
+        log.info("Count parameters: {}", parameters);
 
         Query query = entityManager.createNativeQuery(countQuery.toString());
         parameters.forEach(query::setParameter);

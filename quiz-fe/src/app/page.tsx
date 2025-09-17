@@ -8,7 +8,7 @@ import FloatingBubbles from "../components/ui/FloatingBubbles";
 const { Title, Paragraph } = Typography;
 
 export default function Home() {
-  const quizCategories = [
+  const headerItems = [
     {
       id: 1,
       title: "Daily English Quiz",
@@ -16,6 +16,7 @@ export default function Home() {
       icon: <BookOutlined className="text-4xl text-green-500" />,
       color: "bg-green-50 hover:bg-green-100",
       borderColor: "border-green-200",
+      href: "/programs", // <-- thêm href cho item đầu tiên
     },
     {
       id: 2,
@@ -49,21 +50,21 @@ export default function Home() {
           </div>
 
           {/* Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
-            <Link href="/quiz" className="text-gray-700 hover:text-purple-600 transition-colors font-medium">
-              English Quiz
+          <div className="hidden md:flex items-center space-x-8 font-semibold">
+            <Link href="/programs" className="text-gray-700 hover:text-purple-600 transition-colors font-medium">
+              Chương trình ôn luyện
             </Link>
             <Link href="/grammar" className="text-gray-700 hover:text-purple-600 transition-colors font-medium">
-              Grammar
+              Ngữ pháp
             </Link>
             <Link href="/vocabulary" className="text-gray-700 hover:text-purple-600 transition-colors font-medium">
-              Vocabulary
+              Từ vựng
             </Link>
             <Link href="/leaderboard" className="text-gray-700 hover:text-purple-600 transition-colors font-medium">
-              Leaderboard
+              Bảng xếp hạng
             </Link>
             <Link href="/admin" className="text-gray-700 hover:text-purple-600 transition-colors font-medium">
-              Admin
+              Quản trị
             </Link>
           </div>
 
@@ -159,30 +160,57 @@ export default function Home() {
           <div className="max-w-6xl mx-auto">
             <div className="bg-white rounded-3xl p-8 shadow-2xl">
               <div className="grid md:grid-cols-3 gap-6">
-                {quizCategories.map((category) => (
-                  <Card
-                    key={category.id}
-                    className={`${category.color} ${category.borderColor} border-2 hover:shadow-lg transition-all duration-300 cursor-pointer group`}
-                    bodyStyle={{ padding: '24px' }}
-                  >
-                    <div className="text-center">
-                      <div className="mb-4 group-hover:scale-110 transition-transform duration-300">
-                        {category.icon}
-                      </div>
-                      <Title level={4} className="!mb-3 !text-gray-800">
-                        {category.title}
-                      </Title>
-                      <Paragraph className="!text-gray-600 !mb-4">
-                        {category.description}
-                      </Paragraph>
-                      <Button 
-                        type="link" 
-                        className="!text-purple-600 !font-semibold group-hover:!text-purple-700"
+                {headerItems.map((category) => (
+                  category.href ? (
+                    <Link key={category.id} href={category.href} className="group">
+                      <Card
+                        className={`${category.color} ${category.borderColor} border-2 hover:shadow-lg transition-all duration-300 cursor-pointer`}
+                        bodyStyle={{ padding: '24px' }}
                       >
-                        Start Now →
-                      </Button>
-                    </div>
-                  </Card>
+                        <div className="text-center">
+                          <div className="mb-4 group-hover:scale-110 transition-transform duration-300">
+                            {category.icon}
+                          </div>
+                          <Title level={4} className="!mb-3 !text-gray-800">
+                            {category.title}
+                          </Title>
+                          <Paragraph className="!text-gray-600 !mb-4">
+                            {category.description}
+                          </Paragraph>
+                          <Button 
+                            type="link" 
+                            className="!text-purple-600 !font-semibold group-hover:!text-purple-700"
+                          >
+                            Start Now →
+                          </Button>
+                        </div>
+                      </Card>
+                    </Link>
+                  ) : (
+                    <Card
+                      key={category.id}
+                      className={`${category.color} ${category.borderColor} border-2 hover:shadow-lg transition-all duration-300 cursor-pointer group`}
+                      bodyStyle={{ padding: '24px' }}
+                    >
+                      <div className="text-center">
+                        <div className="mb-4 group-hover:scale-110 transition-transform duration-300">
+                          {category.icon}
+                        </div>
+                        <Title level={4} className="!mb-3 !text-gray-800">
+                          {category.title}
+                        </Title>
+                        <Paragraph className="!text-gray-600 !mb-4">
+                          {category.description}
+                        </Paragraph>
+                        <Button 
+                          type="link" 
+                          className="!text-purple-600 !font-semibold group-hover:!text-purple-700"
+                        >
+                          Start Now →
+                        </Button>
+                      </div>
+                    </Card>
+                  )
                 ))}
               </div>
             </div>

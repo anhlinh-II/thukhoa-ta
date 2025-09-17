@@ -2,11 +2,11 @@
 import { useState } from 'react';
 import { Layout, Menu, theme } from 'antd';
 import { useRouter, usePathname } from 'next/navigation';
-import { 
-  AppstoreOutlined, 
-  BookOutlined, 
+import {
+  AppstoreOutlined,
+  BookOutlined,
   DashboardOutlined,
-  SettingOutlined 
+  SettingOutlined,
 } from '@ant-design/icons';
 import './admin.css';
 
@@ -20,7 +20,7 @@ export default function AdminLayout({
   const [collapsed, setCollapsed] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
-  
+
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken();
@@ -93,23 +93,23 @@ export default function AdminLayout({
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Sider 
-        trigger={null} 
-        collapsible 
+      <Sider
+        trigger={null}
+        collapsible
         collapsed={collapsed}
         width={240}
+        className="flex flex-col"
         style={{
           background: '#ffffff',
           boxShadow: '2px 0 8px rgba(0,0,0,0.1)',
         }}
       >
-        {/* Logo/Brand */}
         <div className="flex items-center justify-center h-16 border-b border-gray-200">
           <div className="text-gray-800 font-bold text-lg">
             {collapsed ? 'Q' : 'Quiz Admin'}
           </div>
         </div>
-        
+
         {/* Navigation Menu */}
         <Menu
           theme="light"
@@ -124,12 +124,13 @@ export default function AdminLayout({
           }}
           className="admin-menu"
         />
+
       </Sider>
-      
+
       <Layout>
-        <Header 
-          style={{ 
-            padding: 0, 
+        <Header
+          style={{
+            padding: 0,
             background: colorBgContainer,
             boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
           }}
@@ -148,7 +149,7 @@ export default function AdminLayout({
                 </h1>
               </div>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               <div className="text-sm text-gray-600">
                 Welcome, Admin
@@ -159,7 +160,7 @@ export default function AdminLayout({
             </div>
           </div>
         </Header>
-        
+
         <Content
           style={{
             margin: 0,

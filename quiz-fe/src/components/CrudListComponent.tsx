@@ -1,10 +1,11 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Table, Button, Space, Modal, Form, Input, Card, Popconfirm, message } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import type { ColumnsType, TableProps } from 'antd/es/table';
 import { BaseHooks, BaseHooksConfig } from '../hooks/BaseHooks';
-import { BaseService, BaseEntity, BaseRequest, BaseResponse, BaseView, PagingRequest } from '../services/BaseService';
+import { BaseService, BaseEntity, BaseRequest, BaseResponse, BaseView, PagingRequest, PagingViewRequest } from '../services/BaseService';
+import { FilterItemDto } from '@/types';
 
 export interface BaseComponentConfig extends BaseHooksConfig {
   title: string;
@@ -29,6 +30,9 @@ export interface BaseComponentProps<
   onCreateSuccess?: (data: Response) => void;
   onUpdateSuccess?: (data: Response) => void;
   onDeleteSuccess?: () => void;
+  filterParams?: FilterItemDto[];          // initial fixed filters passed from caller
+  searchFields?: string[];                 // fields to search over when typing
+  searchPlaceholder?: string;
 }
 
 export function CrudListComponent<
@@ -46,8 +50,10 @@ export function CrudListComponent<
   onCreateSuccess,
   onUpdateSuccess,
   onDeleteSuccess,
+  filterParams,
+  searchFields,
+  searchPlaceholder,
 }: BaseComponentProps<Entity, Request, Response, View>) {
-  // Initialize hooks
   const hooks = new BaseHooks(service, config);
 
   // State
@@ -64,27 +70,141 @@ export function CrudListComponent<
   // Queries
   const [pagedData, setPagedData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const [searchText, setSearchText] = useState('');
+  const searchTimer = useRef<number | null>(null);
+  const DEBOUNCE_MS = 350;
+
+  const normalizeOperator = (op?: string | null): string | undefined => {
+    if (!op && op !== '') return undefined;
+    const s = String(op).trim();
+    if (!s) return undefined;
+    const map: Record<string, string> = {
+      '=': 'EQUALS',
+      '==': 'EQUALS',
+      '!=': 'NOT_EQUALS',
+      '<>': 'NOT_EQUALS',
+      '>': 'GREATER_THAN',
+      '<': 'LESS_THAN',
+      '>=': 'GREATER_THAN_OR_EQUAL',
+      '<=': 'LESS_THAN_OR_EQUAL',
+      'CONTAINS': 'CONTAINS',
+      'NCONTAINS': 'NOT_CONTAINS',
+      'NOT_CONTAINS': 'NOT_CONTAINS',
+      'STARTSWITH': 'STARTS_WITH',
+      'ENDSWITH': 'ENDS_WITH',
+      'BETWEEN': 'BETWEEN',
+      'NOT BETWEEN': 'NOT_BETWEEN',
+      'IN': 'IN',
+      'NOT IN': 'NOT_IN',
+      'EMPTY': 'EMPTY',
+      'NEMPTY': 'NOT_EMPTY',
+      'NOT_EMPTY': 'NOT_EMPTY',
+      'IS NULL': 'IS_NULL',
+      'IS NOT NULL': 'IS_NOT_NULL',
+    };
+    const up = s.toUpperCase();
+    if (map[up]) return map[up];
+    return up;
+  };
+
+  const normalizeFilterItem = (item: any): FilterItemDto => {
+    const normalized: any = { ...item };
+    if ('operator' in normalized) {
+      normalized.operator = normalizeOperator(normalized.operator);
+    }
+    if (Array.isArray(normalized.ors)) {
+      normalized.ors = normalized.ors.map((o: any) => normalizeFilterItem(o));
+    }
+    return normalized as FilterItemDto;
+  };
+
   const refetch = () => {
     setIsLoading(true);
-    service.getViewsPagedWithFilter({
+    const paramPagingDto: PagingViewRequest = {
       skip: (pagination.page || 0) * (pagination.size || 10),
       take: pagination.size || 10,
       sort: '',
       columns: '',
-      filter: '',
       emptyFilter: '',
       isGetTotal: true,
       customParam: {},
-    }).then((data) => {
-      console.log(data);
-      setPagedData(data.data);
-    }).finally(() => setIsLoading(false));
+    };
+
+    // build combined filters: incoming filterParams + search filter
+    const combinedFilters: FilterItemDto[] = [];
+
+    if (filterParams && filterParams.length > 0) {
+      combinedFilters.push(...filterParams.map(fp => normalizeFilterItem(fp)));
+
+    }
+
+    const text = (searchText || '').trim();
+    if (text && (searchFields && searchFields.length > 0)) {
+      const searchOrs = searchFields.map((f) => ({
+        field: f,
+        operator: 'CONTAINS',
+        value: text,
+      } as FilterItemDto));
+      combinedFilters.unshift({ ors: searchOrs } as FilterItemDto);
+    }
+
+    paramPagingDto.filter = combinedFilters.length > 0 ? JSON.stringify(combinedFilters) : '';
+
+    service.getViewsPagedWithFilter(paramPagingDto)
+      .then((resp) => {
+        // expect resp to be PagingViewResponse<T>
+        setPagedData(resp);
+      })
+      .catch((err) => {
+        console.error('Refetch error', err);
+        message.error('Failed to load data');
+      })
+      .finally(() => setIsLoading(false));
   };
 
   React.useEffect(() => {
     refetch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pagination]);
+  }, [pagination, filterParams, searchFields, searchText]);
+
+  React.useEffect(() => {
+    if (isModalVisible && editingRecord) {
+      // copy only plain values to avoid issues with nested objects / prototype values
+      const values: Record<string, any> = {};
+      Object.keys(editingRecord as any).forEach((k) => {
+        values[k] = (editingRecord as any)[k];
+      });
+      form.setFieldsValue(values);
+    } else if (!isModalVisible) {
+      form.resetFields();
+    }
+  }, [isModalVisible, editingRecord, form]);
+
+  // search handlers
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const v = e.target.value;
+    setSearchText(v);
+
+    // debounce: reset to first page and refetch after delay
+    setPagination((p) => ({ ...p, page: 0 }));
+    if (searchTimer.current) {
+      window.clearTimeout(searchTimer.current);
+    }
+    searchTimer.current = window.setTimeout(() => {
+      refetch();
+    }, DEBOUNCE_MS);
+  };
+
+  const handleSearch = (value: string) => {
+    setSearchText(value);
+    setPagination((p) => ({ ...p, page: 0 }));
+    // immediate fetch
+    if (searchTimer.current) {
+      window.clearTimeout(searchTimer.current);
+    }
+    refetch();
+  };
+
 
   // Mutations
   const createMutation = hooks.useCreate({
@@ -119,8 +239,8 @@ export function CrudListComponent<
 
   const handleEdit = (record: Response) => {
     setEditingRecord(record);
-    form.setFieldsValue(record);
     setIsModalVisible(true);
+    // form.setFieldsValue(record);
   };
 
   const handleDelete = (id: string | number) => {
@@ -206,7 +326,19 @@ export function CrudListComponent<
     <div className="p-4">
       <Card>
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-bold text-gray-800 m-0">{config.title}</h2>
+          <div className="flex items-center gap-4">
+            <h2 className="text-xl font-bold text-gray-800 m-0">{config.title}</h2>
+            {/* Search input */}
+            <Input.Search
+              placeholder={searchPlaceholder || 'Search'}
+              allowClear
+              onSearch={handleSearch}
+              onChange={handleSearchChange}
+              style={{ width: 320 }}
+              value={searchText}
+            />
+          </div>
+
           <Space>
             <Button
               icon={<ReloadOutlined />}
@@ -231,7 +363,7 @@ export function CrudListComponent<
         {/* Table */}
         <Table<Response>
           columns={buildColumns()}
-          dataSource={pagedData || []}
+          dataSource={pagedData?.data || []}
           rowKey="id"
           loading={isLoading}
           pagination={{

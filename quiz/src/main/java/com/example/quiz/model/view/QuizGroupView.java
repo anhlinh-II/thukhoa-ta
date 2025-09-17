@@ -27,6 +27,18 @@ public class QuizGroupView {
 
     private String slug;
 
+    @Column(name = "program_name")
+    private String programName;
+
+    @Column(name = "program_slug")
+    private String programSlug;
+
+    @Column(name = "program_is_active")
+    private Boolean programIsActive;
+
+    @Column(name = "program_is_deleted")
+    private Boolean programIsDeleted;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "group_type")
     private GroupType groupType;

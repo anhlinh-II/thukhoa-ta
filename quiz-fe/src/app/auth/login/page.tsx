@@ -32,8 +32,8 @@ export default function LoginPage() {
             <div className="inline-flex items-center justify-center w-12 h-12 bg-gray-900 rounded-lg mb-4">
               <span className="text-white font-bold text-xl">Q</span>
             </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">Login to your account</h2>
-            <p className="text-gray-600">Enter your email below to login to your account</p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">Đăng nhập vào tài khoản của bạn</h2>
+            <p className="text-gray-600">Nhập email của bạn bên dưới để đăng nhập vào tài khoản</p>
           </div>
 
           {/* Form */}
@@ -53,7 +53,7 @@ export default function LoginPage() {
             >
               <Input
                 prefix={<UserOutlined className="text-gray-400" />}
-                placeholder="m@example.com"
+                placeholder="m@gmail.com"
                 size="large"
                 className="rounded-lg"
               />
@@ -62,10 +62,11 @@ export default function LoginPage() {
             <Form.Item
               name="password"
               label={
-                <div className="flex justify-between items-center w-full">
-                  <span className="text-gray-700 font-medium">Password</span>
+                <div className="flex gap-2 items-center w-full">
+                  <span className="text-gray-700 font-medium">Mật khẩu</span>
+                  <span>-</span>
                   <Link href="/forgot-password" className="text-sm text-purple-500 hover:text-purple-400">
-                    Forgot your password?
+                    Quên mật khẩu?
                   </Link>
                 </div>
               }
@@ -73,9 +74,9 @@ export default function LoginPage() {
             >
               <Input.Password
                 prefix={<LockOutlined className="text-gray-400" />}
-                placeholder="Enter your password"
+                placeholder="Nhập mật khẩu"
                 size="large"
-                className="rounded-lg"
+                className="rounded-lg text-base"
               />
             </Form.Item>
 
@@ -97,7 +98,7 @@ export default function LoginPage() {
               <div className="w-full border-t border-gray-300" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500">Or continue with</span>
+              <span className="px-2 bg-white text-gray-500">Hoặc</span>
             </div>
           </div>
 
@@ -108,14 +109,14 @@ export default function LoginPage() {
             size="large"
             className="border-gray-300 rounded-lg h-12 font-medium hover:bg-gray-50"
           >
-            Login with Google
+            Đăng nhập với Google
           </Button>
 
           {/* Sign up link */}
           <div className="text-center">
-            <span className="text-gray-600">Don't have an account? </span>
+            <span className="text-gray-600">Bạn chưa có tài khoản? </span>
             <Link href="/register" className="text-purple-500 hover:text-purple-400 font-medium">
-              Sign up
+              Đăng ký ngay
             </Link>
           </div>
         </div>
@@ -129,10 +130,10 @@ export default function LoginPage() {
         <div className="absolute inset-0 flex items-center justify-center p-12">
           <div className="text-center max-w-md">
             <h1 className="text-5xl font-bold text-gray-800 mb-4">
-              American <span className="text-orange-500">Study</span>
+              Thủ Khoa <span className="text-orange-500">TA</span>
             </h1>
             <p className="text-xl text-gray-600 font-light">
-              Great Teachers, Great Schools
+              Nền tảng luyện thi tiếng Anh trực tuyến hàng đầu Việt Nam
             </p>
           </div>
         </div>

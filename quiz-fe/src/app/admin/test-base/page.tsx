@@ -4,6 +4,7 @@ import { Form, Input, Switch } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { CrudListComponent } from '../../../components/CrudListComponent';
 import { quizGroupService, QuizGroupResponse, QuizGroupRequest } from '../../../services/quizGroupService';
+import { FilterItemDto } from '@/types';
 
 export default function TestBasePage() {
   const columns: ColumnsType<QuizGroupResponse> = [
@@ -27,6 +28,13 @@ export default function TestBasePage() {
       key: 'description',
       ellipsis: true,
       render: (text: string) => text || 'No description',
+    },
+    {
+      title: 'Program Name',
+      dataIndex: 'programName',
+      key: 'programName',
+      ellipsis: true,
+      render: (text: string) => text || 'No program name',
     },
     {
       title: 'Status',
@@ -102,57 +110,67 @@ export default function TestBasePage() {
       )}
     </>
   );
+
+  const fixedFilters: FilterItemDto[] = [
+    { field: 'is_deleted', operator: "=", value: false },
+    { field: 'is_active', operator: "=", value: true },
+    // { field: 'name', operator: "CONTAINS", value: 'and' }
+  ];
+
   return (
-      <CrudListComponent
-        config={{
-          queryKeyPrefix: 'quiz-groups-base',
-          resourceName: 'Quiz Group',
-          title: 'Quiz Groups Management',
-          createTitle: 'Create New Quiz Group',
-          editTitle: 'Edit Quiz Group',
-          pageSize: 10,
-        }}
-        service={quizGroupService}
-        columns={columns}
-        renderForm={renderForm}
-        onCreateSuccess={(data: QuizGroupResponse) => {
-          console.log('Quiz group created:', data);
-        }}
-        onUpdateSuccess={(data: QuizGroupResponse) => {
-          console.log('Quiz group updated:', data);
-        }}
-        onDeleteSuccess={() => {
-          console.log('Quiz group deleted');
-        }}
-        tableProps={{
-          bordered: true,
-          expandable: {
-            expandedRowRender: (record: QuizGroupResponse) => (
-              <div className="p-4 bg-gray-50">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <strong>ID:</strong> {record.id}
-                  </div>
-                  {/* <div>
+    <CrudListComponent
+      config={{
+        queryKeyPrefix: 'quiz-groups-base',
+        resourceName: 'Quiz Group',
+        title: 'Quiz Groups Management',
+        createTitle: 'Create New Quiz Group',
+        editTitle: 'Edit Quiz Group',
+        pageSize: 10,
+      }}
+      service={quizGroupService}
+      columns={columns}
+      renderForm={renderForm}
+      onCreateSuccess={(data: QuizGroupResponse) => {
+        console.log('Quiz group created:', data);
+      }}
+      onUpdateSuccess={(data: QuizGroupResponse) => {
+        console.log('Quiz group updated:', data);
+      }}
+      onDeleteSuccess={() => {
+        console.log('Quiz group deleted');
+      }}
+      tableProps={{
+        bordered: true,
+        expandable: {
+          expandedRowRender: (record: QuizGroupResponse) => (
+            <div className="p-4 bg-gray-50">
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <strong>ID:</strong> {record.id}
+                </div>
+                {/* <div>
                   <strong>Created:</strong> {new Date(record.createdAt).toLocaleString()}
                 </div>
                 <div>
                   <strong>Updated:</strong> {new Date(record.updatedAt).toLocaleString()}
                 </div> */}
-                  <div>
-                    <strong>Status:</strong> {!record.isDeleted ? 'Active' : 'Deleted'}
-                  </div>
-                  {record.description && (
-                    <div className="col-span-2">
-                      <strong>Full Description:</strong> {record.description}
-                    </div>
-                  )}
+                <div>
+                  <strong>Status:</strong> {!record.isDeleted ? 'Active' : 'Deleted'}
                 </div>
+                {record.description && (
+                  <div className="col-span-2">
+                    <strong>Full Description:</strong> {record.description}
+                  </div>
+                )}
               </div>
-            ),
-            rowExpandable: (record: QuizGroupResponse) => true,
-          },
-        }}
-      />
+            </div>
+          ),
+          rowExpandable: (record: QuizGroupResponse) => true,
+        },
+      }}
+      filterParams={fixedFilters}
+      searchFields={['name', 'description', 'slug', 'programName']}
+      searchPlaceholder="Search quiz groups..."
+    />
   );
 }
