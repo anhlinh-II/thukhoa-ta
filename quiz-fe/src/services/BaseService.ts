@@ -174,4 +174,16 @@ export class BaseService<
       body: JSON.stringify(request),
     });
   }
+
+  // Tree APIs: fetch hierarchical data
+  // Returns array of nodes (each node is a map/object with a 'children' array)
+  async getTree(): Promise<Record<string, any>[]> {
+    return this.handleRequest<Record<string, any>[]>(`${this.getEndpoint()}/tree`);
+  }
+
+  async getChildren(parentId: string | number | null): Promise<Record<string, any>[]> {
+    const pid = parentId === null || parentId === undefined ? '' : `?parentId=${encodeURIComponent(String(parentId))}`;
+    const url = `${this.getEndpoint()}/tree${pid}`;
+    return this.handleRequest<Record<string, any>[]>(url);
+  }
 }

@@ -97,39 +97,39 @@ public class AdvancedFilterService {
         }
     }
 
-    private <T> String buildSelectClause(Class<T> viewClass, String columns) {
-        if (!StringUtils.hasText(columns)) {
-            return "*";
-        }
+    // private <T> String buildSelectClause(Class<T> viewClass, String columns) {
+    //     if (!StringUtils.hasText(columns)) {
+    //         return "*";
+    //     }
 
-        // Parse comma-separated columns and validate against entity fields
-        String[] requestedColumns = columns.split(",");
-        Set<String> validColumns = getValidColumns(viewClass);
+    //     // Parse comma-separated columns and validate against entity fields
+    //     String[] requestedColumns = columns.split(",");
+    //     Set<String> validColumns = getValidColumns(viewClass);
 
-        return Arrays.stream(requestedColumns)
-                .map(String::trim)
-                .filter(validColumns::contains)
-                .map(col -> "e." + col)
-                .collect(Collectors.joining(", "));
-    }
+    //     return Arrays.stream(requestedColumns)
+    //             .map(String::trim)
+    //             .filter(validColumns::contains)
+    //             .map(col -> "e." + col)
+    //             .collect(Collectors.joining(", "));
+    // }
 
-    private <T> Set<String> getValidColumns(Class<T> viewClass) {
-        return Arrays.stream(viewClass.getDeclaredFields())
-                .map(Field::getName)
-                .collect(Collectors.toSet());
-    }
+    // private <T> Set<String> getValidColumns(Class<T> viewClass) {
+    //     return Arrays.stream(viewClass.getDeclaredFields())
+    //             .map(Field::getName)
+    //             .collect(Collectors.toSet());
+    // }
 
-    private <T> String[] getColumnNames(Class<T> viewClass, String columns) {
-        if (!StringUtils.hasText(columns)) {
-            return Arrays.stream(viewClass.getDeclaredFields())
-                    .map(Field::getName)
-                    .toArray(String[]::new);
-        }
+    // private <T> String[] getColumnNames(Class<T> viewClass, String columns) {
+    //     if (!StringUtils.hasText(columns)) {
+    //         return Arrays.stream(viewClass.getDeclaredFields())
+    //                 .map(Field::getName)
+    //                 .toArray(String[]::new);
+    //     }
 
-        return Arrays.stream(columns.split(","))
-                .map(String::trim)
-                .toArray(String[]::new);
-    }
+    //     return Arrays.stream(columns.split(","))
+    //             .map(String::trim)
+    //             .toArray(String[]::new);
+    // }
 
     private String buildWhereClause(String filterJson, Map<String, Object> parameters) {
         if (!StringUtils.hasText(filterJson)) {

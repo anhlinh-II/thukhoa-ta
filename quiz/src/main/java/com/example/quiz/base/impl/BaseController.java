@@ -19,6 +19,7 @@ public abstract class BaseController<E, ID, R, P, V, S> {
     protected BaseService<E, ID, R, P, V> baseService;
     protected S service;
 
+    @SuppressWarnings("unchecked")
     protected BaseController(BaseService<E, ID, R, P, V> service) {
         this.baseService = service;
         this.service = (S) service;
@@ -84,6 +85,19 @@ public abstract class BaseController<E, ID, R, P, V, S> {
     public ApiResponse<PagingResponseDto<Map<String, Object>>> getViewsPaged(@Valid @RequestBody RequestPagingDto request) {
         PagingResponseDto<Map<String, Object>> result = baseService.getViewPagingWithFilter(request);
         return ApiResponse.successOf(result);
+    }
+
+    @GetMapping("/tree")
+    @RequirePermission(resource = "", action = "READ")
+    public ApiResponse<List<Map<String, Object>>> getTree(@RequestParam(value = "parentId", required = false) String parentId) {
+        if (parentId != null) {
+            // try to pass as String - service will compare as Object
+            List<Map<String, Object>> children = baseService.getChildren(parentId);
+            return ApiResponse.successOf(children);
+        }
+
+        List<Map<String, Object>> tree = baseService.getTree();
+        return ApiResponse.successOf(tree);
     }
 }
 

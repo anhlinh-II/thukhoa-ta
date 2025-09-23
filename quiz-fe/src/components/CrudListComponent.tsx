@@ -335,60 +335,6 @@ export function CrudListComponent<
     return [...columns, actionColumn];
   };
 
-  // --- Resizable columns state and handlers ---
-  const columnsBase = buildColumns();
-  const [columnsWidth, setColumnsWidth] = useState<number[]>(() =>
-    columnsBase.map((c) => (typeof c.width === 'number' ? c.width : 150))
-  );
-
-  // keep columnsWidth in sync when columns change
-  useEffect(() => {
-    const w = columnsBase.map((c) => (typeof c.width === 'number' ? c.width : 150));
-    setColumnsWidth((prev) => {
-      // if same length, keep existing widths where possible
-      if (prev.length === w.length) return prev;
-      return w;
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(columnsBase.map(c => c.key || c.title))]);
-
-  // map columns to include header with react-resizable handle and width
-  const columnsWithResize: ColumnsType<Response> = columnsBase.map((col, idx) => {
-    const isFixed = col.fixed === 'right' || col.fixed === 'left';
-    const width = columnsWidth[idx] || (typeof col.width === 'number' ? col.width : 150);
-    const titleContent = typeof col.title === 'function' ? String(col.title) : col.title;
-
-    const titleNode = (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }} className="resizable-header">
-        <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{titleContent}</span>
-        {!isFixed && (
-          <Resizable
-            width={width}
-            height={24}
-            axis="x"
-            handle={<span className="resize-handle" />}
-            onResizeStop={(_, data) => {
-              setColumnsWidth((prev) => {
-                const next = [...prev];
-                next[idx] = Math.max(60, data.size.width);
-                return next;
-              });
-            }}
-          >
-            <div style={{ width: 8 }} />
-          </Resizable>
-        )}
-      </div>
-    );
-
-    return {
-      ...(col as any),
-      title: titleNode,
-      width,
-      onHeaderCell: () => ({ style: { width } }),
-    } as any;
-  });
-
   // Default form renderer
   const defaultFormRenderer = () => (
     <Form.Item

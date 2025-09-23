@@ -3,24 +3,27 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  /* Mirror Ant theme primary palette used in ConfigProvider for page background (darker) */
+  --brand-primary: #9a4cff; /* colorPrimary (darker) */
+  --brand-primary-2: #7a3bdf; /* colorPrimaryHover (darker) */
+  --brand-primary-3: #6f2ac5; /* colorPrimaryActive (darker) */
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* Theme tokens (kept as CSS variables in :root). If you need to sync runtime tokens from Ant ConfigProvider,
+   consider injecting them into a style tag at runtime or using a CSS-in-JS approach. */
 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --brand-primary: #5b1d8f;
+    --brand-primary-2: #244f8a;
+    --brand-primary-3: #4e1fa0;
   }
 }
 
 body {
-  background: var(--background);
+  background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-primary-2) 50%, var(--brand-primary-3) 100%);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }

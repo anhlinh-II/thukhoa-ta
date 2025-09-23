@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "QuizMaster - English Learning Platform",
-  description: "Master English with daily quizzes, grammar challenges, and vocabulary builders",
+  title: "ThuKhoaTA - Nền tảng ôn luyện tiếng Anh trực tuyến",
+  description: "ThuKhoaTA - Nền tảng ôn luyện tiếng Anh trực tuyến",
 };
 
 export default function RootLayout({
@@ -32,12 +32,13 @@ export default function RootLayout({
       >
         <ReduxProvider>
           <QueryProvider>
-            <ConfigProvider
+          <ConfigProvider
             theme={{
               token: {
-                colorPrimary: '#c88bff', // Màu tím chính từ FloatingBubbles (200, 139, 255)
-                colorPrimaryHover: '#8bc0ff', // Màu xanh hover từ FloatingBubbles (139, 192, 255)
-                colorPrimaryActive: '#a855f7', // Màu tím đậm hơn cho active
+                /* slightly darker primary to improve contrast */
+                colorPrimary: '#9a4cff',
+                colorPrimaryHover: '#7a3bdf',
+                colorPrimaryActive: '#6f2ac5',
                 borderRadius: 8,
                 fontSize: 16,
               },

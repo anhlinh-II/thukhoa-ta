@@ -37,15 +37,3 @@
   font-size: 13px !important;
   padding: 4px 8px !important;
 }
-
-/* Resizable table header */
-.resizable-header {
-  position: relative;
-}
-.resizable-header .resize-handle {
-  width: 8px;
-  height: 100%;
-  display: inline-block;
-  cursor: col-resize;
-  margin-left: 6px;
-}

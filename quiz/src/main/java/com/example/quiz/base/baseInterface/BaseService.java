@@ -34,6 +34,13 @@ public interface BaseService<E, ID, R, P, V> {
     // Advanced filtering for views
     PagingResponseDto<Map<String, Object>> getViewPagingWithFilter(RequestPagingDto request);
 
+    // Build hierarchical tree from entities that have a parentId field
+    // Returns a list of nodes in Map format: { data: P, children: List<node> }
+    List<Map<String, Object>> getTree();
+
+    // Return direct children of a given parent id (one level)
+    List<Map<String, Object>> getChildren(Object parentId);
+
     // Validation methods
     boolean validate(ID id);
 
