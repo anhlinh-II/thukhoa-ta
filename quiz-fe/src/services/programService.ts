@@ -1,7 +1,6 @@
 import { BaseEntity, BaseService } from './BaseService';
 
 export interface Program extends BaseEntity {
-
      name: string;
      description?: string | null;
      slug?: string | null;

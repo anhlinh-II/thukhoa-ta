@@ -60,6 +60,8 @@ public enum ErrorCode {
     USER_NOT_EXISTED(1023, "User with this email does not exist", HttpStatus.NOT_FOUND),
     
     FORBIDDEN(1024, "Access denied - Insufficient permissions", HttpStatus.FORBIDDEN),
+
+    ENTITY_NOT_A_TREE(1025, "Entity does not have parentId property", HttpStatus.BAD_REQUEST),
     
     // Quiz related errors
     QUIZ_GROUP_NOT_FOUND(2001, "Quiz group not found", HttpStatus.NOT_FOUND),

@@ -39,20 +39,31 @@ public abstract class BaseServiceImpl<E, ID, R, P, V> implements BaseService<E, 
     @Override
     public P create(R request) {
         validateBeforeCreate(request);
+        // lifecycle hook
+        beforeCreate(request);
         E entity = mapper.requestToEntity(request);
         E savedEntity = repository.save(entity);
-        return mapper.entityToResponse(savedEntity);
+        P response = mapper.entityToResponse(savedEntity);
+        // lifecycle hook after persistence
+        afterCreate(savedEntity, response);
+        return response;
     }
 
     @Override
     public P update(ID id, R request) {
         validateBeforeUpdate(id, request);
-        E existingEntity = repository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Entity not found with id: " + id));
+    E existingEntity = repository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException("Entity not found with id: " + id));
 
-        mapper.updateEntityFromRequest(request, existingEntity);
-        E savedEntity = repository.save(existingEntity);
-        return mapper.entityToResponse(savedEntity);
+    // lifecycle hook before update (allows inspecting existing entity)
+    beforeUpdate(id, request, existingEntity);
+
+    mapper.updateEntityFromRequest(request, existingEntity);
+    E savedEntity = repository.save(existingEntity);
+    P response = mapper.entityToResponse(savedEntity);
+    // lifecycle hook after update
+    afterUpdate(savedEntity, response);
+    return response;
     }
 
     @Override
@@ -73,10 +84,17 @@ public abstract class BaseServiceImpl<E, ID, R, P, V> implements BaseService<E, 
     @Override
     public void deleteById(ID id) {
         validateBeforeDelete(id);
-        if (!repository.existsById(id)) {
-            throw new EntityNotFoundException("Entity not found with id: " + id);
-        }
+        // fetch entity for hooks and for better error messages
+        E existingEntity = repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Entity not found with id: " + id));
+
+        // lifecycle hook before delete
+        beforeDelete(id, existingEntity);
+
         repository.deleteById(id);
+
+        // lifecycle hook after delete
+        afterDelete(id, existingEntity);
     }
 
     @Override
@@ -123,6 +141,10 @@ public abstract class BaseServiceImpl<E, ID, R, P, V> implements BaseService<E, 
 
     @Override
     public List<Map<String, Object>> getTree() {
+        if (!entityHasParent()) {
+            throw new AppException(ErrorCode.ENTITY_NOT_A_TREE);
+        }
+
         // If dataset small, build entire tree in-memory. If large (>1000), return only roots and let FE fetch children lazily.
         long total = repository.count();
         if (total <= 1000) {
@@ -176,8 +198,8 @@ public abstract class BaseServiceImpl<E, ID, R, P, V> implements BaseService<E, 
             log.warn("Failed to call viewRepository.findAllByParentIdIsNull(): {}", ex.getMessage());
         }
 
-        // Fallback: query entity roots and try to fetch corresponding view rows by id
-        java.util.List<E> rootEntities = repository.findAllByParentIdIsNull();
+        // Fallback: try repository method reflectively, otherwise scan all entities and pick roots
+        java.util.List<E> rootEntities = findEntityRootsUsingRepositoryOrScan();
         for (E ent : rootEntities) {
             Optional<ID> maybeId = extractIdFromEntity(ent);
             if (maybeId.isPresent()) {
@@ -198,6 +220,9 @@ public abstract class BaseServiceImpl<E, ID, R, P, V> implements BaseService<E, 
 
     @Override
     public List<Map<String, Object>> getChildren(Object parentId) {
+        if (!entityHasParent()) {
+            return null;
+        }
         // Use repository derived query to fetch direct children only
         List<Map<String, Object>> children = new ArrayList<>();
         // Try viewRepository.findAllByParentId(parentId) via reflection
@@ -218,8 +243,8 @@ public abstract class BaseServiceImpl<E, ID, R, P, V> implements BaseService<E, 
             log.warn("Failed to call viewRepository.findAllByParentId(...): {}", ex.getMessage());
         }
 
-        // Fallback: query entity children and map to views or response DTOs
-        java.util.List<E> ents = repository.findAllByParentId(parentId);
+        // Fallback: try repository method reflectively, otherwise scan all entities and pick matching children
+        java.util.List<E> ents = findEntityChildrenUsingRepositoryOrScan(parentId);
         for (E ent : ents) {
             Optional<ID> maybeId = extractIdFromEntity(ent);
             if (maybeId.isPresent()) {
@@ -234,6 +259,151 @@ public abstract class BaseServiceImpl<E, ID, R, P, V> implements BaseService<E, 
             children.add(toMapWithChildren(resp));
         }
         return children;
+    }
+
+    /**
+     * Try to call repository.findAllByParentIdIsNull() reflectively. If not available, scan all
+     * entities and return those whose parent is null.
+     */
+    @SuppressWarnings("unchecked")
+    private java.util.List<E> findEntityRootsUsingRepositoryOrScan() {
+        try {
+            Method m = repository.getClass().getMethod("findAllByParentIdIsNull");
+            Object res = m.invoke(repository);
+            if (res instanceof java.util.Collection) {
+                return new ArrayList<>((java.util.Collection<E>) res);
+            }
+        } catch (NoSuchMethodException ignored) {
+            // fall through to scan
+        } catch (Exception ex) {
+            log.warn("Failed to call repository.findAllByParentIdIsNull(): {}", ex.getMessage());
+        }
+
+        // Scan all and filter where parent is null
+        java.util.List<E> all = repository.findAll();
+        java.util.List<E> roots = new ArrayList<>();
+        for (E ent : all) {
+            Optional<Object> parent = extractParentIdFromEntity(ent);
+            if (parent.isEmpty() || parent.get() == null) {
+                roots.add(ent);
+            }
+        }
+        return roots;
+    }
+
+    /**
+     * Try to call repository.findAllByParentId(parentId) reflectively. If not available, scan all
+     * entities and return those whose parent equals parentId.
+     */
+    @SuppressWarnings("unchecked")
+    private java.util.List<E> findEntityChildrenUsingRepositoryOrScan(Object parentId) {
+        try {
+            Method m = repository.getClass().getMethod("findAllByParentId", Object.class);
+            Object res = m.invoke(repository, parentId);
+            if (res instanceof java.util.Collection) {
+                return new ArrayList<>((java.util.Collection<E>) res);
+            }
+        } catch (NoSuchMethodException ignored) {
+            // fall through to scan
+        } catch (Exception ex) {
+            log.warn("Failed to call repository.findAllByParentId(...): {}", ex.getMessage());
+        }
+
+        java.util.List<E> all = repository.findAll();
+        java.util.List<E> children = new ArrayList<>();
+        for (E ent : all) {
+            Optional<Object> p = extractParentIdFromEntity(ent);
+            if (p.isPresent() && p.get() != null) {
+                Object pid = p.get();
+                if (pid.equals(parentId) || pid.toString().equals(String.valueOf(parentId))) {
+                    children.add(ent);
+                }
+            }
+        }
+        return children;
+    }
+
+    /**
+     * Extract parent id value from an entity by checking getParentId/getParent, or fields named parentId/parent.
+     */
+    @SuppressWarnings("unchecked")
+    private Optional<Object> extractParentIdFromEntity(E ent) {
+        try {
+            Method m = ent.getClass().getMethod("getParentId");
+            Object val = m.invoke(ent);
+            return Optional.ofNullable(val);
+        } catch (NoSuchMethodException ignored) {
+            // try getParent()
+        } catch (Exception ex) {
+            log.debug("getParentId failed: {}", ex.getMessage());
+        }
+
+        try {
+            Method m2 = ent.getClass().getMethod("getParent");
+            Object parentObj = m2.invoke(ent);
+            if (parentObj == null) return Optional.empty();
+            Optional<ID> pid = extractIdFromEntity((E) parentObj);
+            return pid.map(id -> (Object) id);
+        } catch (NoSuchMethodException ignored) {
+            // try fields
+        } catch (Exception ex) {
+            log.debug("getParent failed: {}", ex.getMessage());
+        }
+
+        try {
+            for (Field f : ent.getClass().getDeclaredFields()) {
+                if (f.getName().equals("parentId")) {
+                    f.setAccessible(true);
+                    Object val = f.get(ent);
+                    return Optional.ofNullable(val);
+                }
+                if (f.getName().equals("parent")) {
+                    f.setAccessible(true);
+                    Object parentObj = f.get(ent);
+                    if (parentObj == null) return Optional.empty();
+                    // try to extract id from parent object
+                    Optional<ID> pid = extractIdFromEntity((E) parentObj);
+                    return pid.map(id -> (Object) id);
+                }
+            }
+        } catch (Exception ex) {
+            log.debug("field parent extraction failed: {}", ex.getMessage());
+        }
+
+        return Optional.empty();
+    }
+
+    /**
+     * Heuristic: inspect the mapper's entityToResponse return type (response DTO P) to detect
+     * if there is a parent or parentId property. We prefer checking the response DTO because
+     * the tree API returns maps built from response objects.
+     */
+    private boolean entityHasParent() {
+        try {
+            Method[] methods = mapper.getClass().getMethods();
+            for (Method m : methods) {
+                if ("entityToResponse".equals(m.getName()) && m.getParameterCount() == 1) {
+                    Class<?> respClass = m.getReturnType();
+                    // check for getters
+                    for (Method gm : respClass.getMethods()) {
+                        String name = gm.getName();
+                        if ((name.equals("getParentId") || name.equals("getParent")) && gm.getParameterCount() == 0) {
+                            return true;
+                        }
+                    }
+                    // check fields
+                    for (Field f : respClass.getDeclaredFields()) {
+                        String fname = f.getName();
+                        if (fname.equals("parentId") || fname.equals("parent")) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.debug("entityHasParent check failed: {}", e.getMessage());
+        }
+        return false;
     }
 
     /**
@@ -314,6 +484,37 @@ public abstract class BaseServiceImpl<E, ID, R, P, V> implements BaseService<E, 
     // Helper method to check if entity exists
     protected boolean exists(ID id) {
         return repository.existsById(id);
+    }
+
+    /* -------------------- Lifecycle hooks (override in subclasses) -------------------- */
+    /** Called before creating an entity. Can be overridden to validate/modify request. */
+    protected void beforeCreate(R request) {
+        // no-op by default
+    }
+
+    /** Called after an entity has been created. Receives the persisted entity and response DTO. */
+    protected void afterCreate(E entity, P response) {
+        // no-op by default
+    }
+
+    /** Called before updating an entity. Receives id, request and the existing entity instance. */
+    protected void beforeUpdate(ID id, R request, E existingEntity) {
+        // no-op by default
+    }
+
+    /** Called after updating an entity. Receives the persisted entity and response DTO. */
+    protected void afterUpdate(E entity, P response) {
+        // no-op by default
+    }
+
+    /** Called before deleting an entity. Receives id and existing entity. */
+    protected void beforeDelete(ID id, E existingEntity) {
+        // no-op by default
+    }
+
+    /** Called after deleting an entity. Receives id and the deleted entity snapshot. */
+    protected void afterDelete(ID id, E deletedEntitySnapshot) {
+        // no-op by default
     }
 
     // Default validation methods - override in specific implementations

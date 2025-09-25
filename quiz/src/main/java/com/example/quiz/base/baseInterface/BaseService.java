@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface BaseService<E, ID, R, P, V> {
-    // CRUD operations with Request/Response
     P create(R request);
     P update(ID id, R request);
     P getById(ID id);

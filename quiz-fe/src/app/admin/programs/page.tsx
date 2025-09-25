@@ -1,6 +1,6 @@
 "use client";
 import { useState } from 'react';
-import { Table, Button, Card, message, Space, Tag } from 'antd';
+import { Table, Button, Card, message, Space, Tag, Row, Col } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined, ReloadOutlined } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import { 
@@ -10,6 +10,8 @@ import {
   usePrefetchProgram,
   type Program 
 } from '../../../hooks/usePrograms';
+import TreeView from '../../../components/TreeView';
+import { programService } from '../../../services/programService';
 
 export default function ProgramsPage() {
   const [testingApi, setTestingApi] = useState(false);
@@ -250,42 +252,51 @@ export default function ProgramsPage() {
         </Space>
       </Card>
 
-      {/* Data Table */}
-      <Card>
-        <Table
-          columns={columns}
-          dataSource={programs}
-          rowKey="id"
-          loading={isLoading}
-          pagination={{
-            total: programs.length,
-            pageSize: 10,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
-          }}
-          scroll={{ x: 1200 }}
-          size="small"
-          expandable={{
-            expandedRowRender: (record) => (
-              <div className="p-4 bg-gray-50">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <strong>Created:</strong> {new Date(record.createdAt).toLocaleDateString()}
+      {/* Tree + Data Table */}
+      <Row gutter={16}>
+        <Col xs={24} md={8} lg={6}>
+          <Card title="Programs Tree">
+            <TreeView service={programService} titleField="name" idField="id" />
+          </Card>
+        </Col>
+        <Col xs={24} md={16} lg={18}>
+          <Card>
+            <Table
+              columns={columns}
+              dataSource={programs}
+              rowKey="id"
+              loading={isLoading}
+              pagination={{
+                total: programs.length,
+                pageSize: 10,
+                showSizeChanger: true,
+                showQuickJumper: true,
+                showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
+              }}
+              scroll={{ x: 1200 }}
+              size="small"
+              expandable={{
+                expandedRowRender: (record) => (
+                  <div className="p-4 bg-gray-50">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <strong>Created:</strong> {new Date(record.createdAt).toLocaleDateString()}
+                      </div>
+                      <div>
+                        <strong>Updated:</strong> {new Date(record.updatedAt).toLocaleDateString()}
+                      </div>
+                      <div className="col-span-2">
+                        <strong>Full Description:</strong> {record.description}
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <strong>Updated:</strong> {new Date(record.updatedAt).toLocaleDateString()}
-                  </div>
-                  <div className="col-span-2">
-                    <strong>Full Description:</strong> {record.description}
-                  </div>
-                </div>
-              </div>
-            ),
-            rowExpandable: (record) => !!record.description,
-          }}
-        />
-      </Card>
+                ),
+                rowExpandable: (record) => !!record.description,
+              }}
+            />
+          </Card>
+        </Col>
+      </Row>
     </div>
   );
 }
