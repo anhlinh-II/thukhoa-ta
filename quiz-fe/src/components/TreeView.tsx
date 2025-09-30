@@ -13,10 +13,15 @@ export interface TreeViewProps {
 }
 
 function toTreeNode(obj: Record<string, any>, titleField = 'name', idField = 'id'): DataNode {
+  const children = Array.isArray(obj.children) && obj.children.length > 0
+    ? obj.children.map((c: any) => toTreeNode(c as Record<string, any>, titleField, idField))
+    : undefined;
+
   return {
     title: obj[titleField] ?? String(obj[idField] ?? '•'),
     key: String(obj[idField] ?? Math.random()),
-    isLeaf: !(obj.children && obj.children.length > 0),
+    isLeaf: !(children && children.length > 0),
+    children,
     dataRef: obj,
   } as DataNode;
 }
@@ -26,17 +31,52 @@ export default function TreeView({ service, titleField = 'name', idField = 'id' 
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
+    // API now returns a flat list. We fetch the flat list via service.getTree()
+    // and build the parent-child hierarchy client-side using the `parentId` field.
     let mounted = true;
     setLoading(true);
-    service.getTree()
+    service.findAll()
       .then((nodes) => {
         if (!mounted) return;
         if (!nodes) {
           setTreeData([]);
-          setLoading(false);
           return;
         }
-        const converted = nodes.map(n => toTreeNode(n as Record<string, any>, titleField, idField));
+
+        // Build map of id -> node (with children array)
+        const idKey = idField;
+        const nodesById = new Map<string, Record<string, any>>();
+        nodes.forEach((n: any) => {
+          const key = String(n[idKey] ?? Math.random());
+          // clone and ensure children array
+          nodesById.set(key, { ...n, children: [] });
+        });
+
+        // Attach children to parents
+        const roots: Record<string, any>[] = [];
+        nodes.forEach((n: any) => {
+          const key = String(n[idKey]);
+          const parentId = n.parentId;
+          const nodeRef = nodesById.get(key);
+          if (!nodeRef) return; // defensive
+          // treat null/undefined/empty string as root
+          if (parentId === null || parentId === undefined || parentId === '') {
+            roots.push(nodeRef);
+            return;
+          }
+          const parentKey = String(parentId);
+          const parentRef = nodesById.get(parentKey);
+          if (parentRef) {
+            parentRef.children = parentRef.children || [];
+            parentRef.children.push(nodeRef);
+          } else {
+            // parent missing (or filtered out) -> treat as root
+            roots.push(nodeRef);
+          }
+        });
+
+        // Convert to DataNode structure
+        const converted = roots.map(r => toTreeNode(r as Record<string, any>, titleField, idField));
         setTreeData(converted);
       })
       .catch(() => {
@@ -47,30 +87,7 @@ export default function TreeView({ service, titleField = 'name', idField = 'id' 
     return () => { mounted = false; };
   }, [service, titleField, idField]);
 
-  const onLoadData = async (treeNode: any) => {
-    const nodeData = treeNode.dataRef as Record<string, any>;
-    const parentId = nodeData[idField];
-    treeNode.loading = true;
-    try {
-      const children = await service.getChildren(parentId);
-      const childNodes = (children || []).map((c: any) => toTreeNode(c, titleField, idField));
-      // attach children to the dataRef and update tree nodes
-      treeNode.dataRef.children = children;
-      const update = (list: DataNode[]): DataNode[] =>
-        list.map(n => {
-          if (n.key === treeNode.key) {
-            return { ...n, children: childNodes, isLeaf: childNodes.length === 0 } as DataNode;
-          }
-          if (n.children) {
-            return { ...n, children: update(n.children) } as DataNode;
-          }
-          return n;
-        });
-      setTreeData(prev => prev ? update(prev) : prev);
-    } finally {
-      treeNode.loading = false;
-    }
-  };
+  // API returns full flat list; we build children client-side so no lazy loading needed.
 
   if (loading) return <Spin />;
   if (!treeData || treeData.length === 0) return <Empty description="No hierarchical data" />;
@@ -78,8 +95,7 @@ export default function TreeView({ service, titleField = 'name', idField = 'id' 
   return (
     <Tree
       treeData={treeData}
-      loadData={onLoadData}
-      defaultExpandAll={false}
+      defaultExpandAll={true}
     />
   );
 }

@@ -430,7 +430,7 @@ public abstract class BaseServiceImpl<E, ID, R, P, V> implements BaseService<E, 
     /**
      * Try to extract the ID value from the entity via a getId() method or by reading a field annotated with @Id.
      */
-    @SuppressWarnings("unchecked") 
+    @SuppressWarnings("unchecked")
     private Optional<ID> extractIdFromEntity(E ent) {
         try {
             Method getId = ent.getClass().getMethod("getId");

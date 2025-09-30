@@ -53,7 +53,7 @@ public class ProgramView {
     Integer depth;
 
     @Column(name = "path")
-    String path; // Full path from root to current
+    String path;
 
     @Column(name = "children_count")
     Integer childrenCount;
