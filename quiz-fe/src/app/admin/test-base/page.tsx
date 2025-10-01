@@ -9,7 +9,7 @@ import { quizGroupService, QuizGroupResponse, QuizGroupRequest } from '../../../
 import { FilterItemDto } from '@/types';
 
 export default function TestBasePage() {
-  const [selectedProgramId, setSelectedProgramId] = useState<string | number | null>(null);
+  const [selectedProgramIds, setSelectedProgramIds] = useState<Array<string | number> | null>(null);
   const columns: ColumnsType<QuizGroupResponse> = [
     {
       title: 'ID',
@@ -131,14 +131,18 @@ export default function TestBasePage() {
     // { field: 'name', operator: "CONTAINS", value: 'and' }
   ];
 
-  // merge program filter when a program is selected
+  // merge program filter when a program (or program + descendants) is selected
   const mergedFilters = React.useMemo(() => {
     const base = [...fixedFilters];
-    if (selectedProgramId !== null && selectedProgramId !== undefined && selectedProgramId !== '') {
-      base.push({ field: 'program_id', operator: '=', value: Number(selectedProgramId) });
+    if (selectedProgramIds && selectedProgramIds.length > 0) {
+      if (selectedProgramIds.length === 1) {
+        base.push({ field: 'program_id', operator: '=', value: Number(selectedProgramIds[0]) });
+      } else {
+        base.push({ field: 'program_id', operator: 'IN', value: selectedProgramIds.map((v) => Number(v)) });
+      }
     }
     return base;
-  }, [selectedProgramId]);
+  }, [selectedProgramIds]);
 
   return (
     <div style={{ height: 'calc(100vh - 64px)', background: 'transparent' }}>
@@ -147,18 +151,23 @@ export default function TestBasePage() {
           <div className='p-1 mt-1 h-full'>
             <div className='h-full'>
               <TreeView
+                getChildren={true}
                 title="Chương trình ôn luyện"
                 service={programService}
                 titleField="name"
                 idField="id"
-                onSelect={(id) => setSelectedProgramId(id)}
+                onSelect={(id, node, idList) => {
+                  if (idList && idList.length > 0) setSelectedProgramIds(idList);
+                  else if (id !== null && id !== undefined) setSelectedProgramIds([id]);
+                  else setSelectedProgramIds(null);
+                }}
               />
             </div>
           </div>
         </Splitter.Panel>
 
         <Splitter.Panel>
-          <div className='h-full'>
+          <div className='p-1 mt-1'>
             <CrudListComponent
               config={{
                 queryKeyPrefix: 'quiz-groups-base',
