@@ -10,6 +10,8 @@ export interface TreeViewProps {
   titleField?: string; // the property name to show as title
   idField?: string; // the property name that contains id
   rootParams?: Record<string, any> | null; // optional params to send for roots (not currently used)
+  onSelect?: (id: string | number | null, node?: Record<string, any>) => void;
+  title?: React.ReactNode;
 }
 
 function toTreeNode(obj: Record<string, any>, titleField = 'name', idField = 'id'): DataNode {
@@ -26,7 +28,7 @@ function toTreeNode(obj: Record<string, any>, titleField = 'name', idField = 'id
   } as DataNode;
 }
 
-export default function TreeView({ service, titleField = 'name', idField = 'id' }: TreeViewProps) {
+export default function TreeView({ service, titleField = 'name', idField = 'id', onSelect, title }: TreeViewProps) {
   const [treeData, setTreeData] = useState<DataNode[] | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -93,9 +95,19 @@ export default function TreeView({ service, titleField = 'name', idField = 'id' 
   if (!treeData || treeData.length === 0) return <Empty description="No hierarchical data" />;
 
   return (
-    <Tree
-      treeData={treeData}
-      defaultExpandAll={true}
-    />
+    <div>
+  {title && <div className="py-1 bg-gray-200 text-sm font-semibold text-center">{title}</div>}
+      <Tree
+        treeData={treeData}
+        defaultExpandAll={true}
+        selectable={true}
+        onSelect={(selectedKeys, info) => {
+          const rawKey = selectedKeys && selectedKeys.length > 0 ? selectedKeys[0] : null;
+          const key: string | number | null = rawKey === null ? null : String(rawKey);
+          const dataRef = (info.node as any)?.dataRef as Record<string, any> | undefined;
+          if (onSelect) onSelect(key, dataRef);
+        }}
+      />
+    </div>
   );
 }

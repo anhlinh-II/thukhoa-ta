@@ -9,7 +9,6 @@ import { BaseService, BaseEntity, BaseRequest, BaseResponse, BaseView, PagingReq
 import { FilterItemDto } from '@/types';
 
 export interface BaseComponentConfig extends BaseHooksConfig {
-  title: string;
   createTitle?: string;
   editTitle?: string;
   showViewColumn?: boolean;
@@ -347,11 +346,10 @@ export function CrudListComponent<
   );
 
   return (
-    <div className="p-4">
-      <Card>
-        <div className="flex justify-between items-center mb-6">
+    <div className="p-1 h-fit">
+      <div className='p-1 bg-white rounded shadow-sm'>
+        <div className="flex justify-between h-full items-center mb-2">
           <div className="flex items-center gap-4">
-            <h2 className="text-xl font-bold text-gray-800 m-0">{config.title}</h2>
             {/* Search input */}
             <Input.Search
               placeholder={searchPlaceholder || 'Search'}
@@ -407,7 +405,7 @@ export function CrudListComponent<
           {...tableProps}
         />
         </div>
-      </Card>
+      </div>
 
       {/* Create/Edit Modal */}
       <Modal

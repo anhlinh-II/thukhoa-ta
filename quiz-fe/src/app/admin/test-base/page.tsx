@@ -1,12 +1,15 @@
 "use client";
-import React from 'react';
-import { Form, Input, Switch } from 'antd';
+import React, { useState, useRef } from 'react';
+import { Form, Input, Switch, Splitter } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { CrudListComponent } from '../../../components/CrudListComponent';
+import TreeView from '../../../components/TreeView';
+import { programService } from '../../../services/programService';
 import { quizGroupService, QuizGroupResponse, QuizGroupRequest } from '../../../services/quizGroupService';
 import { FilterItemDto } from '@/types';
 
 export default function TestBasePage() {
+  const [selectedProgramId, setSelectedProgramId] = useState<string | number | null>(null);
   const columns: ColumnsType<QuizGroupResponse> = [
     {
       title: 'ID',
@@ -128,60 +131,83 @@ export default function TestBasePage() {
     // { field: 'name', operator: "CONTAINS", value: 'and' }
   ];
 
+  // merge program filter when a program is selected
+  const mergedFilters = React.useMemo(() => {
+    const base = [...fixedFilters];
+    if (selectedProgramId !== null && selectedProgramId !== undefined && selectedProgramId !== '') {
+      base.push({ field: 'program_id', operator: '=', value: Number(selectedProgramId) });
+    }
+    return base;
+  }, [selectedProgramId]);
+
   return (
-    <CrudListComponent
-      config={{
-        queryKeyPrefix: 'quiz-groups-base',
-        resourceName: 'Quiz Group',
-        title: 'Quiz Groups Management',
-        createTitle: 'Create New Quiz Group',
-        editTitle: 'Edit Quiz Group',
-        pageSize: 10,
-      }}
-      service={quizGroupService}
-      columns={columns}
-      renderForm={renderForm}
-      onCreateSuccess={(data: QuizGroupResponse) => {
-        console.log('Quiz group created:', data);
-      }}
-      onUpdateSuccess={(data: QuizGroupResponse) => {
-        console.log('Quiz group updated:', data);
-      }}
-      onDeleteSuccess={() => {
-        console.log('Quiz group deleted');
-      }}
-      tableProps={{
-        bordered: true,
-        expandable: {
-          expandedRowRender: (record: QuizGroupResponse) => (
-            <div className="p-4 bg-gray-50">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <strong>ID:</strong> {record.id}
-                </div>
-                {/* <div>
-                  <strong>Created:</strong> {new Date(record.createdAt).toLocaleString()}
-                </div>
-                <div>
-                  <strong>Updated:</strong> {new Date(record.updatedAt).toLocaleString()}
-                </div> */}
-                <div>
-                  <strong>Status:</strong> {!record.isDeleted ? 'Active' : 'Deleted'}
-                </div>
-                {record.description && (
-                  <div className="col-span-2">
-                    <strong>Full Description:</strong> {record.description}
-                  </div>
-                )}
-              </div>
+    <div style={{ height: 'calc(100vh - 64px)', background: 'transparent' }}>
+      <Splitter layout="horizontal" style={{ height: '100%' }}>
+        <Splitter.Panel size={320} min={200} max={640}>
+          <div className='p-1 mt-1 h-full'>
+            <div className='h-full'>
+              <TreeView
+                title="Chương trình ôn luyện"
+                service={programService}
+                titleField="name"
+                idField="id"
+                onSelect={(id) => setSelectedProgramId(id)}
+              />
             </div>
-          ),
-          rowExpandable: (record: QuizGroupResponse) => true,
-        },
-      }}
-      filterParams={fixedFilters}
-      searchFields={['name', 'description', 'slug', 'programName']}
-      searchPlaceholder="Search quiz groups..."
-    />
+          </div>
+        </Splitter.Panel>
+
+        <Splitter.Panel>
+          <div className='h-full'>
+            <CrudListComponent
+              config={{
+                queryKeyPrefix: 'quiz-groups-base',
+                resourceName: 'Quiz Group',
+                createTitle: 'Create New Quiz Group',
+                editTitle: 'Edit Quiz Group',
+                pageSize: 10,
+              }}
+              service={quizGroupService}
+              columns={columns}
+              renderForm={renderForm}
+              onCreateSuccess={(data: QuizGroupResponse) => {
+                console.log('Quiz group created:', data);
+              }}
+              onUpdateSuccess={(data: QuizGroupResponse) => {
+                console.log('Quiz group updated:', data);
+              }}
+              onDeleteSuccess={() => {
+                console.log('Quiz group deleted');
+              }}
+              tableProps={{
+                bordered: true,
+                style: { tableLayout: 'auto' },
+                expandable: {
+                  expandedRowRender: (record: QuizGroupResponse) => (
+                    <div className="p-4 bg-gray-50">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <strong>Created:</strong> {record.createdAt ? new Date(record.createdAt).toLocaleDateString() : ''}
+                        </div>
+                        <div>
+                          <strong>Updated:</strong> {record.updatedAt ? new Date(record.updatedAt).toLocaleDateString() : ''}
+                        </div>
+                        <div className="col-span-2">
+                          <strong>Full Description:</strong> {record.description}
+                        </div>
+                      </div>
+                    </div>
+                  ),
+                  rowExpandable: (record: QuizGroupResponse) => !!record.description,
+                },
+              }}
+              filterParams={mergedFilters}
+              searchFields={['name', 'description', 'slug', 'programName']}
+              searchPlaceholder="Search quiz groups..."
+            />
+          </div>
+        </Splitter.Panel>
+      </Splitter>
+    </div>
   );
 }
