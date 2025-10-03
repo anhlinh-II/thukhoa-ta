@@ -299,7 +299,8 @@ public class AdvancedFilterService {
             return "";
         }
 
-        String field = "e." + parts[0];
+        // Convert field name to snake_case to match database columns
+        String field = "e." + convertToSnakeCase(parts[0]);
         String direction = parts.length > 1 && "desc".equalsIgnoreCase(parts[1]) ? "DESC" : "ASC";
 
         return field + " " + direction;

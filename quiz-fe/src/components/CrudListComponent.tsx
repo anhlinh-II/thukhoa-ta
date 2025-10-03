@@ -62,6 +62,7 @@ export function CrudListComponent<
   const [pagination, setPagination] = useState<PagingRequest>({
     page: 0,
     size: config.pageSize || 10,
+    sort: '',
   });
 
   // Form
@@ -155,7 +156,7 @@ export function CrudListComponent<
     const paramPagingDto: PagingViewRequest = {
       skip: (pagination.page || 0) * (pagination.size || 10),
       take: pagination.size || 10,
-      sort: '',
+      sort: pagination.sort || '',
       columns: '',
       emptyFilter: '',
       isGetTotal: true,
@@ -313,11 +314,30 @@ export function CrudListComponent<
     form.resetFields();
   };
 
-  const handleTableChange = (tablePagination: any) => {
-    setPagination({
+  const handleTableChange = (tablePagination: any, filters: any, sorter: any) => {
+    // Handle pagination
+    const newPagination = {
       page: tablePagination.current - 1,
       size: tablePagination.pageSize,
-    });
+      sort: '', // will be built from sorter
+    };
+
+    // Handle sorting
+    if (sorter) {
+      if (Array.isArray(sorter)) {
+        // Multiple column sort
+        const sortStrings = sorter
+          .filter((s: any) => s.field && s.order)
+          .map((s: any) => `${s.field} ${s.order === 'descend' ? 'desc' : 'asc'}`);
+        newPagination.sort = sortStrings.join(', ');
+      } else if (sorter.field && sorter.order) {
+        // Single column sort
+        const direction = sorter.order === 'descend' ? 'desc' : 'asc';
+        newPagination.sort = `${sorter.field} ${direction}`;
+      }
+    }
+
+    setPagination(newPagination);
   };
 
   // Build columns with actions

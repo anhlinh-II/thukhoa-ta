@@ -128,7 +128,7 @@ export default function TestBasePage() {
   const fixedFilters: FilterItemDto[] = [
     { field: 'is_deleted', operator: "=", value: false },
     { field: 'is_active', operator: "=", value: true },
-    // { field: 'name', operator: "CONTAINS", value: 'classes' }
+    // { field: 'id', operator: "CONTAINS", value: 'classes' }
   ];
 
   // merge program filter when a program (or program + descendants) is selected
@@ -191,6 +191,7 @@ export default function TestBasePage() {
               tableProps={{
                 bordered: true,
                 style: { tableLayout: 'auto' },
+                showSorterTooltip: { target: 'sorter-icon' },
                 expandable: {
                   expandedRowRender: (record: QuizGroupResponse) => (
                     <div className="p-4 bg-gray-50">
