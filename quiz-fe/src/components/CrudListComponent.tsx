@@ -30,8 +30,8 @@ export interface BaseComponentProps<
   onCreateSuccess?: (data: Response) => void;
   onUpdateSuccess?: (data: Response) => void;
   onDeleteSuccess?: () => void;
-  filterParams?: FilterItemDto[];          // initial fixed filters passed from caller
-  searchFields?: string[];                 // fields to search over when typing
+  filterParams?: FilterItemDto[];
+  searchFields?: string[];
   searchPlaceholder?: string;
 }
 
@@ -92,11 +92,18 @@ export function CrudListComponent<
 
     compute();
     window.addEventListener('resize', compute);
-    return () => window.removeEventListener('resize', compute);
+    return () => {
+      window.removeEventListener('resize', compute);
+      // cleanup search timer
+      if (searchTimer.current) {
+        window.clearTimeout(searchTimer.current);
+      }
+    };
   }, []);
 
   const [searchText, setSearchText] = useState('');
   const searchTimer = useRef<number | null>(null);
+  const isSearchUpdateRef = useRef(false); // Flag to prevent double API calls during search
   const DEBOUNCE_MS = 350;
 
   const normalizeOperator = (op?: string | null): string | undefined => {
@@ -143,7 +150,7 @@ export function CrudListComponent<
     return normalized as FilterItemDto;
   };
 
-  const refetch = () => {
+  const refetch = (searchValue?: string) => {
     setIsLoading(true);
     const paramPagingDto: PagingViewRequest = {
       skip: (pagination.page || 0) * (pagination.size || 10),
@@ -160,10 +167,10 @@ export function CrudListComponent<
 
     if (filterParams && filterParams.length > 0) {
       combinedFilters.push(...filterParams.map(fp => normalizeFilterItem(fp)));
-
     }
 
-    const text = (searchText || '').trim();
+    // Use provided searchValue or current searchText state
+    const text = (searchValue !== undefined ? searchValue : searchText || '').trim();
     if (text && (searchFields && searchFields.length > 0)) {
       const searchOrs = searchFields.map((f) => ({
         field: f,
@@ -188,8 +195,13 @@ export function CrudListComponent<
   };
 
   React.useEffect(() => {
+    // Skip refetch if this is a search-triggered pagination update
+    if (isSearchUpdateRef.current) {
+      isSearchUpdateRef.current = false;
+      return;
+    }
     refetch();
-  }, [pagination, filterParams, searchFields, searchText]);
+  }, [pagination, filterParams, searchFields]);
 
   React.useEffect(() => {
     if (isModalVisible && editingRecord) {
@@ -209,24 +221,35 @@ export function CrudListComponent<
     const v = e.target.value;
     setSearchText(v);
 
-    // debounce: reset to first page and refetch after delay
-    setPagination((p) => ({ ...p, page: 0 }));
+    // clear existing timer
     if (searchTimer.current) {
       window.clearTimeout(searchTimer.current);
     }
+
+    // debounce: refetch after delay (pagination will be reset in refetch if needed)
     searchTimer.current = window.setTimeout(() => {
-      refetch();
+      // Set flag to prevent useEffect from triggering extra API call
+      isSearchUpdateRef.current = true;
+      // Reset to first page and refetch
+      setPagination((p) => ({ ...p, page: 0 }));
+      // Use setTimeout to ensure pagination state is updated before refetch
+      // Pass the search value to ensure we use the latest value, not closure
+      setTimeout(() => refetch(v), 0);
     }, DEBOUNCE_MS);
   };
 
   const handleSearch = (value: string) => {
     setSearchText(value);
-    setPagination((p) => ({ ...p, page: 0 }));
-    // immediate fetch
+    
+    // clear debounce timer since we want immediate search
     if (searchTimer.current) {
       window.clearTimeout(searchTimer.current);
     }
-    refetch();
+    
+    // Set flag to prevent useEffect from triggering extra API call
+    isSearchUpdateRef.current = true;
+    setPagination((p) => ({ ...p, page: 0 }));
+    setTimeout(() => refetch(value), 0);
   };
 
   // Mutations

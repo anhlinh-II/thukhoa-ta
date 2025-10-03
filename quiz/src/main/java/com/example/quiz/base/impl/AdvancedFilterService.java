@@ -152,12 +152,27 @@ public class AdvancedFilterService {
     }
 
     private String buildSingleFilter(FilterItemDto filter, Map<String, Object> parameters) {
+        // Handle OR conditions when field/operator are null but ors is present
+        if ((filter.getField() == null || filter.getOperator() == null) && 
+            filter.getOrs() != null && !filter.getOrs().isEmpty()) {
+            
+            List<String> orConditions = filter.getOrs().stream()
+                    .map(orFilter -> buildSingleFilter(orFilter, parameters))
+                    .filter(StringUtils::hasText)
+                    .collect(Collectors.toList());
+            
+            if (!orConditions.isEmpty()) {
+                return "(" + String.join(" OR ", orConditions) + ")";
+            }
+            return "";
+        }
+        
         if (filter.getField() == null || filter.getOperator() == null) {
             return "";
         }
 
         String paramName = "param" + parameters.size();
-        String fieldName = "e." + filter.getField();
+        String fieldName = "e." + convertToSnakeCase(filter.getField());
 
         switch (filter.getOperator()) {
             case EQUALS:

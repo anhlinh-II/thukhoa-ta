@@ -128,7 +128,7 @@ export default function TestBasePage() {
   const fixedFilters: FilterItemDto[] = [
     { field: 'is_deleted', operator: "=", value: false },
     { field: 'is_active', operator: "=", value: true },
-    // { field: 'name', operator: "CONTAINS", value: 'and' }
+    // { field: 'name', operator: "CONTAINS", value: 'classes' }
   ];
 
   // merge program filter when a program (or program + descendants) is selected
