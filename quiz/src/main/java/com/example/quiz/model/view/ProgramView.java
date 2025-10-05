@@ -34,9 +34,6 @@ public class ProgramView {
     @Column(name = "level")
     Integer level;
 
-    @Column(name = "level_name")
-    String levelName;
-
     @Column(name = "is_active")
     Boolean isActive;
 
@@ -46,23 +43,11 @@ public class ProgramView {
     @Column(name = "parent_id")
     Long parentId;
 
-    @Column(name = "parent_name")
-    String parentName;
-
     @Column(name = "depth")
     Integer depth;
 
     @Column(name = "path")
     String path;
-
-    @Column(name = "children_count")
-    Integer childrenCount;
-
-    @Column(name = "quiz_count")
-    Integer quizCount;
-
-    @Column(name = "is_leaf")
-    Boolean isLeaf;
 
     @Column(name = "created_at")
     Instant createdAt;

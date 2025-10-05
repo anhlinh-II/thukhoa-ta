@@ -40,8 +40,10 @@ public interface BaseService<E, ID, R, P, V> {
     PagingResponseDto<Map<String, Object>> getViewPagingWithFilter(RequestPagingDto request);
 
     // Build hierarchical tree from entities that have a parentId field
-    // Returns a list of nodes in Map format: { data: P, children: List<node> }
-    List<Map<String, Object>> getTree();
+    // Returns a list of nodes in Map format as flat list
+    // If request has filter, returns matched nodes + all ancestors
+    // If request is null or has no filter, returns all nodes (if <=1000) or roots only (if >1000)
+    List<Map<String, Object>> getTree(RequestPagingDto request);
 
     // Return direct children of a given parent id (one level)
     List<Map<String, Object>> getChildren(Object parentId);

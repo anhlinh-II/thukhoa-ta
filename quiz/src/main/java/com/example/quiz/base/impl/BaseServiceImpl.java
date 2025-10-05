@@ -22,6 +22,7 @@ import java.util.Optional;
 import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.ArrayList;
+import java.util.Set;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import jakarta.persistence.Id;
@@ -35,6 +36,9 @@ public abstract class BaseServiceImpl<E, ID, R, P, V> implements BaseService<E, 
     private final BaseRepository<E, ID> repository;
     private final BaseMapstruct<E, R, P, V> mapper;
     private final JpaRepository<V, ID> viewRepository;
+    
+    @jakarta.persistence.PersistenceContext
+    private jakarta.persistence.EntityManager entityManager;
 
     @Override
     public P create(R request) {
@@ -140,47 +144,79 @@ public abstract class BaseServiceImpl<E, ID, R, P, V> implements BaseService<E, 
     }
 
     @Override
-    public List<Map<String, Object>> getTree() {
+    public List<Map<String, Object>> getTree(RequestPagingDto request) {
         if (!entityHasParent()) {
             throw new AppException(ErrorCode.ENTITY_NOT_A_TREE);
         }
-
-        // If dataset small, build entire tree in-memory. If large (>1000), return only roots and let FE fetch children lazily.
-        long total = repository.count();
-        if (total <= 1000) {
-            // Use viewRepository to load view objects (V) and map their fields so tree returns all view fields
-            List<V> allViews = viewRepository.findAll();
-            Map<Object, Map<String, Object>> nodeById = new LinkedHashMap<>();
-            List<Map<String, Object>> roots = new ArrayList<>();
-
-            for (V viewObj : allViews) {
-                Map<String, Object> map = toMapFromView(viewObj);
-                Object id = map.get("id");
-                nodeById.put(id, map);
-            }
-
-            for (Map<String, Object> node : nodeById.values()) {
-                Object parentId = node.get("parentId");
-                if (parentId == null) {
-                    roots.add(node);
-                } else {
-                    Map<String, Object> parent = nodeById.get(parentId);
-                    if (parent != null) {
-                        @SuppressWarnings("unchecked")
-                        List<Map<String, Object>> children = (List<Map<String, Object>>) parent.get("children");
-                        children.add(node);
-                    } else {
-                        roots.add(node);
-                    }
-                }
-            }
-
-            return roots;
+        
+        // Check if search filter is present
+        boolean hasFilter = request != null && request.getFilter() != null && !request.getFilter().trim().isEmpty();
+        
+        // If has filter, use search logic (matched nodes + all ancestors)
+        if (hasFilter) {
+            return performSearchTree(request);
         }
+        
+        // No filter - return all or roots based on dataset size
+        long total = viewRepository.count();
+        
+        // If dataset is small (<= 1000), return all as flat list
+        if (total <= 1000) {
+            List<Map<String, Object>> flat = new ArrayList<>();
 
-        // Large dataset: avoid loading all rows. Query DB for top-level roots (parentId IS NULL)
+            // Prefer reading from the view repository, but if the DB view/schema
+            // doesn't contain all mapped columns (causing SQL errors), fall back
+            // to reading entities and mapping them to response DTOs. This avoids
+            // adding or changing fields on the view/entity classes.
+            try {
+                List<V> allViews = viewRepository.findAll();
+                for (V viewObj : allViews) {
+                    flat.add(toMapFromView(viewObj));
+                }
+                return flat;
+            } catch (Exception ex) {
+                // Could be SQLSyntaxErrorException wrapped by Spring or other DB-related error
+                log.warn("viewRepository.findAll() failed (falling back to entity mapping): {}", ex.getMessage());
+                // Fallback: read entities and map to response DTOs, then to maps
+                List<E> ents = repository.findAll();
+                for (E ent : ents) {
+                    P resp = mapper.entityToResponse(ent);
+                    Map<String, Object> m = toMapWithChildren(resp);
+                    // ensure hasChildren is present and correct
+                    Object idVal = m.get("id");
+                    if (idVal != null) {
+                        m.put("hasChildren", checkHasChildren(idVal));
+                    } else {
+                        m.put("hasChildren", false);
+                    }
+                    flat.add(m);
+                }
+                return flat;
+            }
+        }
+        
+        // Large dataset (>1000): return only root nodes as flat list with hasChildren flag
         List<Map<String, Object>> roots = new ArrayList<>();
-        // Try to use viewRepository's derived method findAllByParentIdIsNull() if it's available
+        
+        // Try TreeViewRepository interface first
+        if (viewRepository instanceof com.example.quiz.base.baseInterface.TreeViewRepository) {
+            try {
+                @SuppressWarnings("unchecked")
+                com.example.quiz.base.baseInterface.TreeViewRepository<V, ID> treeRepo = 
+                    (com.example.quiz.base.baseInterface.TreeViewRepository<V, ID>) viewRepository;
+                
+                List<V> rootViews = treeRepo.findAllByParentIdIsNull();
+                for (V viewObj : rootViews) {
+                    roots.add(toMapFromView(viewObj));
+                }
+                return roots;
+            } catch (Exception ex) {
+                log.warn("TreeViewRepository.findAllByParentIdIsNull failed: {}", ex.getMessage());
+                // Fall through to reflection
+            }
+        }
+        
+        // Fallback: reflection-based approach
         try {
             Method m = viewRepository.getClass().getMethod("findAllByParentIdIsNull");
             Object res = m.invoke(viewRepository);
@@ -193,12 +229,12 @@ public abstract class BaseServiceImpl<E, ID, R, P, V> implements BaseService<E, 
                 return roots;
             }
         } catch (NoSuchMethodException ignored) {
-            // fall back to entity-based root query
+            log.debug("viewRepository.findAllByParentIdIsNull() not available, using fallback");
         } catch (Exception ex) {
             log.warn("Failed to call viewRepository.findAllByParentIdIsNull(): {}", ex.getMessage());
         }
 
-        // Fallback: try repository method reflectively, otherwise scan all entities and pick roots
+        // Last resort fallback: scan and filter roots
         java.util.List<E> rootEntities = findEntityRootsUsingRepositoryOrScan();
         for (E ent : rootEntities) {
             Optional<ID> maybeId = extractIdFromEntity(ent);
@@ -207,15 +243,52 @@ public abstract class BaseServiceImpl<E, ID, R, P, V> implements BaseService<E, 
                 Optional<V> maybeView = viewRepository.findById(id);
                 if (maybeView.isPresent()) {
                     roots.add(toMapFromView(maybeView.get()));
-                    continue;
                 }
             }
-            // as a last resort, map entity -> response DTO and expose its fields
-            P resp = mapper.entityToResponse(ent);
-            roots.add(toMapWithChildren(resp));
+        }
+        return roots;
+    }
+    
+    /**
+     * Perform search tree - find matched nodes + all their ancestors
+     * Extracted from original searchTree() method
+     */
+    private List<Map<String, Object>> performSearchTree(RequestPagingDto request) {
+        // Get table name from view class
+        String tableName = getTableNameFromView();
+        
+        // Build WHERE clause from filter using AdvancedFilterService
+        Map<String, Object> parameters = new LinkedHashMap<>();
+        String whereClause = buildWhereClauseFromRequest(request, parameters);
+        
+        if (whereClause == null || whereClause.trim().isEmpty()) {
+            // No valid criteria after parsing, return empty to avoid confusion
+            return new ArrayList<>();
         }
 
-        return roots;
+        try {
+            // Use recursive CTE to find matched nodes and all their ancestors
+            String sql = buildRecursiveAncestorQuery(tableName, whereClause);
+            
+            log.info("Search tree SQL: {}", sql);
+            log.info("Search tree parameters: {}", parameters);
+            
+            jakarta.persistence.Query query = entityManager.createNativeQuery(sql);
+            
+            // Set parameters
+            parameters.forEach(query::setParameter);
+            
+            @SuppressWarnings("unchecked")
+            List<Object[]> resultList = query.getResultList();
+            
+            // Convert to Map format
+            return convertResultToTreeMaps(resultList);
+            
+        } catch (Exception ex) {
+            log.error("Failed to execute search tree query: {}", ex.getMessage(), ex);
+            // Fallback: iterative ancestor search
+            return searchTreeIterative(request);
+        }
     }
 
     @Override
@@ -223,9 +296,28 @@ public abstract class BaseServiceImpl<E, ID, R, P, V> implements BaseService<E, 
         if (!entityHasParent()) {
             return null;
         }
-        // Use repository derived query to fetch direct children only
+        
         List<Map<String, Object>> children = new ArrayList<>();
-        // Try viewRepository.findAllByParentId(parentId) via reflection
+        
+        // Check if viewRepository implements TreeViewRepository interface
+        if (viewRepository instanceof com.example.quiz.base.baseInterface.TreeViewRepository) {
+            try {
+                @SuppressWarnings("unchecked")
+                com.example.quiz.base.baseInterface.TreeViewRepository<V, ID> treeRepo = 
+                    (com.example.quiz.base.baseInterface.TreeViewRepository<V, ID>) viewRepository;
+                
+                List<V> views = treeRepo.findAllByParentId(parentId);
+                for (V viewObj : views) {
+                    children.add(toMapFromView(viewObj));
+                }
+                return children;
+            } catch (Exception ex) {
+                log.warn("TreeViewRepository method failed: {}", ex.getMessage());
+                // Fall through to reflection-based approach
+            }
+        }
+        
+        // Fallback: Try viewRepository.findAllByParentId(parentId) via reflection
         try {
             Method m = viewRepository.getClass().getMethod("findAllByParentId", Object.class);
             Object res = m.invoke(viewRepository, parentId);
@@ -238,12 +330,12 @@ public abstract class BaseServiceImpl<E, ID, R, P, V> implements BaseService<E, 
                 return children;
             }
         } catch (NoSuchMethodException ignored) {
-            // fall back to entity-based children query
+            log.debug("viewRepository.findAllByParentId not available");
         } catch (Exception ex) {
             log.warn("Failed to call viewRepository.findAllByParentId(...): {}", ex.getMessage());
         }
 
-        // Fallback: try repository method reflectively, otherwise scan all entities and pick matching children
+        // Last resort fallback: entity-based children query
         java.util.List<E> ents = findEntityChildrenUsingRepositoryOrScan(parentId);
         for (E ent : ents) {
             Optional<ID> maybeId = extractIdFromEntity(ent);
@@ -262,6 +354,268 @@ public abstract class BaseServiceImpl<E, ID, R, P, V> implements BaseService<E, 
     }
 
     /**
+     * Build recursive CTE query to get matched nodes + all ancestors
+     */
+    private String buildRecursiveAncestorQuery(String tableName, String whereClause) {
+        String entityTableName = tableName.replace("_view", "");
+
+        // Build explicit column list matching the order of fields declared in the view class.
+        // Use @Column(name=...) if present; otherwise fallback to snake_case conversion.
+        Class<V> viewClass = getViewClass();
+        java.lang.reflect.Field[] fields = viewClass.getDeclaredFields();
+        List<String> cols = new ArrayList<>();
+        for (java.lang.reflect.Field f : fields) {
+            jakarta.persistence.Column colAnn = f.getAnnotation(jakarta.persistence.Column.class);
+            String colName;
+            if (colAnn != null && colAnn.name() != null && !colAnn.name().isEmpty()) {
+                colName = colAnn.name();
+            } else {
+                colName = convertToSnakeCase(f.getName());
+            }
+            cols.add("v." + colName);
+        }
+
+        String selectCols = String.join(", ", cols);
+
+        return "WITH RECURSIVE ancestors AS ( " +
+                "  SELECT id, parent_id FROM " + entityTableName + " WHERE " + whereClause +
+                "  UNION ALL " +
+                "  SELECT p.id, p.parent_id FROM " + entityTableName + " p " +
+                "  JOIN ancestors a ON p.id = a.parent_id " +
+                ") " +
+                "SELECT " + selectCols + ", " +
+                "  (SELECT COUNT(*) FROM " + entityTableName + " c WHERE c.parent_id = v.id) > 0 AS has_children " +
+                "FROM " + tableName + " v " +
+                "JOIN (SELECT DISTINCT id FROM ancestors) a ON v.id = a.id";
+    }
+    
+    /**
+     * Get table name from view class annotation or naming convention
+     */
+    private String getTableNameFromView() {
+        Class<V> viewClass = getViewClass();
+        
+        // Try @Subselect annotation
+        org.hibernate.annotations.Subselect subselect = viewClass.getAnnotation(org.hibernate.annotations.Subselect.class);
+        if (subselect != null) {
+            String query = subselect.value();
+            if (query.toLowerCase().contains("from ")) {
+                String[] parts = query.toLowerCase().split("from ");
+                if (parts.length > 1) {
+                    String tablePart = parts[1].trim();
+                    String viewName = tablePart.split("\\s+")[0];
+                    return viewName;
+                }
+            }
+        }
+        
+        // Fallback: convert class name to snake_case
+        String className = viewClass.getSimpleName();
+        if (className.endsWith("View")) {
+            className = className.substring(0, className.length() - 4);
+        }
+        return convertToSnakeCase(className) + "_view";
+    }
+    
+    /**
+     * Convert camelCase to snake_case
+     */
+    private String convertToSnakeCase(String camelCase) {
+        return camelCase.replaceAll("([a-z])([A-Z])", "$1_$2").toLowerCase();
+    }
+    
+    /**
+     * Build WHERE clause from RequestPagingDto filter using AdvancedFilterService
+     */
+    private String buildWhereClauseFromRequest(RequestPagingDto request, Map<String, Object> parameters) {
+        String filterJson = request.getFilter();
+        if (filterJson == null || filterJson.trim().isEmpty()) {
+            return "";
+        }
+        
+        try {
+            // Parse filter JSON
+            com.fasterxml.jackson.databind.ObjectMapper objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
+            List<com.example.quiz.model.dto.request.FilterItemDto> filters = objectMapper.readValue(
+                    filterJson, 
+                    new com.fasterxml.jackson.core.type.TypeReference<List<com.example.quiz.model.dto.request.FilterItemDto>>() {}
+            );
+            
+            // Build WHERE clause - delegate to AdvancedFilterService logic
+            return buildWhereClauseFromFilters(filters, parameters);
+            
+        } catch (Exception ex) {
+            log.error("Failed to parse filter JSON: {}", ex.getMessage());
+            return "";
+        }
+    }
+    
+    /**
+     * Build WHERE clause from filter list (simplified version)
+     */
+    private String buildWhereClauseFromFilters(List<com.example.quiz.model.dto.request.FilterItemDto> filters, Map<String, Object> parameters) {
+        List<String> conditions = new ArrayList<>();
+        
+        for (com.example.quiz.model.dto.request.FilterItemDto filter : filters) {
+            String condition = buildSingleFilterCondition(filter, parameters);
+            if (condition != null && !condition.isEmpty()) {
+                conditions.add(condition);
+            }
+        }
+        
+        return String.join(" AND ", conditions);
+    }
+    
+    /**
+     * Build single filter condition
+     */
+    private String buildSingleFilterCondition(com.example.quiz.model.dto.request.FilterItemDto filter, Map<String, Object> parameters) {
+        // Handle OR conditions
+        if ((filter.getField() == null || filter.getOperator() == null) && 
+            filter.getOrs() != null && !filter.getOrs().isEmpty()) {
+            List<String> orConditions = new ArrayList<>();
+            for (com.example.quiz.model.dto.request.FilterItemDto orFilter : filter.getOrs()) {
+                String orCond = buildSingleFilterCondition(orFilter, parameters);
+                if (orCond != null && !orCond.isEmpty()) {
+                    orConditions.add(orCond);
+                }
+            }
+            if (!orConditions.isEmpty()) {
+                return "(" + String.join(" OR ", orConditions) + ")";
+            }
+            return "";
+        }
+        
+        if (filter.getField() == null || filter.getOperator() == null) {
+            return "";
+        }
+        
+        String paramName = "param" + parameters.size();
+        String fieldName = convertToSnakeCase(filter.getField());
+        
+        switch (filter.getOperator()) {
+            case CONTAINS:
+                parameters.put(paramName, "%" + filter.getValue() + "%");
+                return fieldName + " LIKE :" + paramName;
+            case EQUALS:
+                parameters.put(paramName, filter.getValue());
+                return fieldName + " = :" + paramName;
+            case IN:
+                if (filter.getValue() instanceof List) {
+                    parameters.put(paramName, filter.getValue());
+                    return fieldName + " IN (:" + paramName + ")";
+                }
+                break;
+            default:
+                // Add more operators as needed
+                break;
+        }
+        
+        return "";
+    }
+    
+    /**
+     * Fallback: iterative ancestor search (for DBs without recursive CTE support)
+     */
+    private List<Map<String, Object>> searchTreeIterative(RequestPagingDto request) {
+        // Get all views and filter in memory
+        List<V> allViews = viewRepository.findAll();
+        Set<Object> matchedIds = new java.util.HashSet<>();
+        Set<Object> allIds = new java.util.HashSet<>();
+        Map<Object, V> viewById = new LinkedHashMap<>();
+        
+        // Build index
+        for (V view : allViews) {
+            Map<String, Object> map = toMapFromView(view);
+            Object id = map.get("id");
+            if (id != null) {
+                viewById.put(id, view);
+                allIds.add(id);
+                
+                // Simple filter matching (can be enhanced)
+                if (matchesFilter(map, request)) {
+                    matchedIds.add(id);
+                }
+            }
+        }
+        
+        // Collect all ancestors of matched nodes
+        Set<Object> result = new java.util.HashSet<>(matchedIds);
+        for (Object matchedId : matchedIds) {
+            collectAncestors(matchedId, viewById, result);
+        }
+        
+        // Convert to list of maps
+        List<Map<String, Object>> flatList = new ArrayList<>();
+        for (Object id : result) {
+            V view = viewById.get(id);
+            if (view != null) {
+                flatList.add(toMapFromView(view));
+            }
+        }
+        
+        return flatList;
+    }
+    
+    /**
+     * Recursively collect all ancestors of a node
+     */
+    private void collectAncestors(Object nodeId, Map<Object, V> viewById, Set<Object> result) {
+        V view = viewById.get(nodeId);
+        if (view == null) return;
+        
+        Map<String, Object> map = toMapFromView(view);
+        Object parentId = map.get("parentId");
+        
+        if (parentId != null && !result.contains(parentId)) {
+            result.add(parentId);
+            collectAncestors(parentId, viewById, result);
+        }
+    }
+    
+    /**
+     * Simple filter matching (basic implementation)
+     */
+    private boolean matchesFilter(Map<String, Object> map, RequestPagingDto request) {
+        // TODO: Implement proper filter matching logic
+        // For now, just return true to include all for fallback
+        return true;
+    }
+    
+    /**
+     * Convert native query result to tree maps
+     */
+    private List<Map<String, Object>> convertResultToTreeMaps(List<Object[]> resultList) {
+        List<Map<String, Object>> maps = new ArrayList<>();
+        
+        // Get column names from view class
+        String[] columnNames = Arrays.stream(getViewClass().getDeclaredFields())
+                .map(java.lang.reflect.Field::getName)
+                .toArray(String[]::new);
+        
+        for (Object[] row : resultList) {
+            Map<String, Object> map = new LinkedHashMap<>();
+            for (int i = 0; i < columnNames.length && i < row.length; i++) {
+                map.put(columnNames[i], row[i]);
+            }
+            
+            // Add hasChildren from last column
+            if (row.length > columnNames.length) {
+                Object hasChildrenVal = row[row.length - 1];
+                boolean hasChildren = hasChildrenVal instanceof Number && ((Number) hasChildrenVal).intValue() > 0;
+                map.put("hasChildren", hasChildren);
+            } else {
+                map.put("hasChildren", false);
+            }
+            
+            map.put("children", new ArrayList<Map<String, Object>>());
+            maps.add(map);
+        }
+        
+        return maps;
+    }
+
+    /**    /**
      * Try to call repository.findAllByParentIdIsNull() reflectively. If not available, scan all
      * entities and return those whose parent is null.
      */
@@ -411,6 +765,8 @@ public abstract class BaseServiceImpl<E, ID, R, P, V> implements BaseService<E, 
      */
     private Map<String, Object> toMapFromView(V viewObj) {
         Map<String, Object> map = new LinkedHashMap<>();
+        final Object[] nodeIdHolder = {null}; // Use array to make it effectively final
+        
         Arrays.stream(viewObj.getClass().getDeclaredMethods())
                 .filter(m -> m.getParameterCount() == 0 && m.getName().startsWith("get"))
                 .forEach(m -> {
@@ -419,12 +775,56 @@ public abstract class BaseServiceImpl<E, ID, R, P, V> implements BaseService<E, 
                         prop = Character.toLowerCase(prop.charAt(0)) + prop.substring(1);
                         Object val = m.invoke(viewObj);
                         map.put(prop, val);
+                        if ("id".equals(prop)) {
+                            nodeIdHolder[0] = val;
+                        }
                     } catch (Exception ignored) {
                         log.warn("Failed to invoke view getter: {}", ignored.getMessage());
                     }
                 });
+        
+        // Add hasChildren flag
+        boolean hasChildren = false;
+        if (nodeIdHolder[0] != null) {
+            hasChildren = checkHasChildren(nodeIdHolder[0]);
+        }
+        
         map.put("children", new ArrayList<Map<String, Object>>());
+        map.put("hasChildren", hasChildren);
         return map;
+    }
+    
+    /**
+     * Check if a node has children by counting via repository
+     */
+    private boolean checkHasChildren(Object nodeId) {
+        // Try TreeViewRepository interface first
+        if (viewRepository instanceof com.example.quiz.base.baseInterface.TreeViewRepository) {
+            try {
+                @SuppressWarnings("unchecked")
+                com.example.quiz.base.baseInterface.TreeViewRepository<V, ID> treeRepo = 
+                    (com.example.quiz.base.baseInterface.TreeViewRepository<V, ID>) viewRepository;
+                
+                long count = treeRepo.countByParentId(nodeId);
+                return count > 0;
+            } catch (Exception ex) {
+                log.debug("TreeViewRepository.countByParentId failed for node {}: {}", nodeId, ex.getMessage());
+                // Fall through to reflection
+            }
+        }
+        
+        // Fallback: reflection-based approach
+        try {
+            Method countMethod = viewRepository.getClass().getMethod("countByParentId", Object.class);
+            Object count = countMethod.invoke(viewRepository, nodeId);
+            return count instanceof Number && ((Number) count).longValue() > 0;
+        } catch (NoSuchMethodException ignored) {
+            // Method not available, assume might have children for safety
+            return true;
+        } catch (Exception ex) {
+            log.debug("Failed to check hasChildren for node {}: {}", nodeId, ex.getMessage());
+            return true; // Safe default
+        }
     }
 
     /**

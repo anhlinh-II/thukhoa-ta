@@ -83,12 +83,6 @@ public class QuizGroupServiceImpl extends BaseServiceImpl<QuizGroup, Long, QuizG
     }
 
     @Override
-    public QuizGroupResponseDto create(QuizGroupRequestDto requestDto) {
-        validateCreateRequest(requestDto);
-        return super.create(requestDto);
-    }
-
-    @Override
     public QuizGroupResponseDto update(Long id, QuizGroupRequestDto requestDto) {
         validateUpdateRequest(requestDto, id);
         return super.update(id, requestDto);
@@ -121,24 +115,20 @@ public class QuizGroupServiceImpl extends BaseServiceImpl<QuizGroup, Long, QuizG
     }
 
     @Override
-    public void validateBeforeCreate(QuizGroupRequestDto requestDto) {
-        validateCreateRequest(requestDto);
-    }
-
-    @Override
     public void validateBeforeUpdate(Long id, QuizGroupRequestDto requestDto) {
         super.validateBeforeUpdate(id, requestDto);
         validateUpdateRequest(requestDto, id);
     }
 
-    private void validateCreateRequest(QuizGroupRequestDto requestDto) {
-        if (existsBySlug(requestDto.getSlug())) {
-            throw new AppException(ErrorCode.SLUG_ALREADY_EXISTS);
-        }
-        
-        if (!programRepository.existsById(requestDto.getProgramId())) {
-            throw new AppException(ErrorCode.PROGRAM_NOT_FOUND);
-        }
+    @Override
+    public void validateBeforeCreate(QuizGroupRequestDto requestDto) {
+//        if (existsBySlug(requestDto.getSlug())) {
+//            throw new AppException(ErrorCode.SLUG_ALREADY_EXISTS);
+//        }
+//
+//        if (!programRepository.existsById(requestDto.getProgramId())) {
+//            throw new AppException(ErrorCode.PROGRAM_NOT_FOUND);
+//        }
     }
 
     private void validateUpdateRequest(QuizGroupRequestDto requestDto, Long id) {

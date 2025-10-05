@@ -274,6 +274,13 @@ export function CrudListComponent<
   const deleteMutation = hooks.useDelete({
     onSuccess: () => {
       onDeleteSuccess?.();
+      // reload current page data after deletion
+      try {
+        refetch();
+      } catch (err) {
+        // swallow - refetch should not throw, but guard anyway
+        console.error('Refetch after delete failed', err);
+      }
     },
   });
 

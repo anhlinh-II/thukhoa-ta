@@ -42,11 +42,6 @@ public interface ProgramMapper extends BaseMapstruct<Program, ProgramRequestDto,
 
     @Override
     @Mapping(target = "parentId", source = "parentId")
-    @Mapping(target = "parentName", source = "parentName")
-    @Mapping(target = "levelName", source = "levelName")
-    @Mapping(target = "childrenCount", source = "childrenCount")
-    @Mapping(target = "quizCount", source = "quizCount")
-    @Mapping(target = "isLeaf", source = "isLeaf")
     @Mapping(target = "isRoot", expression = "java(view.getParentId() == null)")
     @Mapping(target = "depth", source = "depth")
     @Mapping(target = "path", source = "path")

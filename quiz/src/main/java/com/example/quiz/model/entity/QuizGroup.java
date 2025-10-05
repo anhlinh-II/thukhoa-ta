@@ -32,7 +32,7 @@ public class QuizGroup extends BaseEntity {
     private String slug;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "group_type", nullable = false)
+    @Column(name = "group_type")
     private GroupType groupType;
 
     @Column(name = "display_order")

@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class QuizGroupRequestDto {
 
-    @NotNull(message = "Program ID is required")
     private Long programId;
 
     @NotBlank(message = "Name is required")
@@ -23,11 +22,8 @@ public class QuizGroupRequestDto {
     @Size(max = 1000, message = "Description must not exceed 1000 characters")
     private String description;
 
-    @NotBlank(message = "Slug is required")
-    @Size(max = 255, message = "Slug must not exceed 255 characters")
     private String slug;
 
-    @NotNull(message = "Group type is required")
     private QuizGroup.GroupType groupType;
 
     private Integer displayOrder = 0;

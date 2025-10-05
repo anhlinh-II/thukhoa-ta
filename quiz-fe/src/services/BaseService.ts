@@ -177,8 +177,10 @@ export class BaseService<
 
   // Tree APIs: fetch hierarchical data
   // Returns array of nodes (each node is a map/object with a 'children' array)
-  async getTree(): Promise<Record<string, any>[]> {
-    return this.handleRequest<Record<string, any>[]>(`${this.getEndpoint()}/tree`);
+  // Now supports optional filter parameter for search
+  async getTree(filter?: string): Promise<Record<string, any>[]> {
+    const params = filter ? `?filter=${encodeURIComponent(filter)}` : '';
+    return this.handleRequest<Record<string, any>[]>(`${this.getEndpoint()}/tree${params}`);
   }
 
   async getChildren(parentId: string | number | null): Promise<Record<string, any>[]> {

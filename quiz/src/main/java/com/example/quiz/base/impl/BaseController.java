@@ -61,11 +61,10 @@ public abstract class BaseController<E, ID, R, P, V, S> {
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @RequirePermission(resource = "", action = "DELETE")
-    public ApiResponse<Void> delete(@PathVariable ID id) {
+    public ApiResponse<Boolean> delete(@PathVariable ID id) {
         baseService.delete(id);
-        return ApiResponse.success();
+        return ApiResponse.successOf(Boolean.TRUE);
     }
 
     @GetMapping("/views/{id}")
@@ -89,14 +88,24 @@ public abstract class BaseController<E, ID, R, P, V, S> {
 
     @GetMapping("/tree")
     @RequirePermission(resource = "", action = "READ")
-    public ApiResponse<List<Map<String, Object>>> getTree(@RequestParam(value = "parentId", required = false) String parentId) {
+    public ApiResponse<List<Map<String, Object>>> getTree(
+            @RequestParam(required = false) String parentId,
+            @RequestParam(required = false) String filter) {
+        
+        // If parentId is provided, get direct children
         if (parentId != null) {
-            // try to pass as String - service will compare as Object
             List<Map<String, Object>> children = baseService.getChildren(parentId);
             return ApiResponse.successOf(children);
         }
 
-        List<Map<String, Object>> tree = baseService.getTree();
+        // Build request with filter if present
+        RequestPagingDto request = new RequestPagingDto();
+        if (filter != null && !filter.trim().isEmpty()) {
+            request.setFilter(filter);
+        }
+
+        // Call unified getTree() - it handles both list all and search
+        List<Map<String, Object>> tree = baseService.getTree(request);
         return ApiResponse.successOf(tree);
     }
 }

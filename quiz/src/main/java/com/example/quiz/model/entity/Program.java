@@ -1,6 +1,8 @@
 package com.example.quiz.model.entity;
 
 import com.example.quiz.base.BaseEntity;
+import com.example.quiz.util.Sluggable;
+import com.example.quiz.util.SlugEntityListener;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -9,6 +11,7 @@ import lombok.experimental.SuperBuilder;
 import java.util.List;
 
 @Entity
+@EntityListeners(SlugEntityListener.class)
 @Getter
 @Setter
 @NoArgsConstructor
@@ -16,7 +19,7 @@ import java.util.List;
 @SuperBuilder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "programs")
-public class Program extends BaseEntity {
+public class Program extends BaseEntity implements Sluggable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -77,21 +80,20 @@ public class Program extends BaseEntity {
         return depth;
     }
     
-    // Override to ensure slug is properly handled
-    @PrePersist
-    @PreUpdate
-    private void generateSlugIfNeeded() {
-        if (this.slug == null || this.slug.isEmpty()) {
-            this.slug = generateSlugFromName(this.name);
-        }
+    // Sluggable implementation - use 'name' as the slug source
+    @Override
+    public String getSlugSource() {
+        return this.name;
     }
-    
-    private String generateSlugFromName(String name) {
-        if (name == null) return "";
-        return name.toLowerCase()
-                  .replaceAll("[^a-z0-9\\s-]", "")
-                  .replaceAll("\\s+", "-")
-                  .replaceAll("-+", "-")
-                  .replaceAll("^-|-$", "");
+
+    @Override
+    public void setSlug(String slug) {
+        this.slug = slug;
     }
+
+    @Override
+    public String getSlug() {
+        return this.slug;
+    }
+
 }

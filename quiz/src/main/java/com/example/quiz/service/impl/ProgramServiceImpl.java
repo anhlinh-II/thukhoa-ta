@@ -72,8 +72,9 @@ public class ProgramServiceImpl extends BaseServiceImpl<Program, Long, ProgramRe
     public void validateBeforeUpdate(Long id, ProgramRequestDto request) {
         super.validateBeforeUpdate(id, request);
         
-        Program existingProgram = programRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_EXISTED));
+    // Ensure the program exists
+    programRepository.findById(id)
+        .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_EXISTED));
         
         // Check for duplicate names (excluding current program)
         if (request.getParentId() != null) {
