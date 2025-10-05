@@ -482,38 +482,44 @@ public abstract class BaseServiceImpl<E, ID, R, P, V> implements BaseService<E, 
     }
 
     // Helper method to check if entity exists
-    protected boolean exists(ID id) {
+    public boolean exists(ID id) {
         return repository.existsById(id);
     }
 
     /* -------------------- Lifecycle hooks (override in subclasses) -------------------- */
     /** Called before creating an entity. Can be overridden to validate/modify request. */
-    protected void beforeCreate(R request) {
+    @Override
+    public void beforeCreate(R request) {
         // no-op by default
     }
 
     /** Called after an entity has been created. Receives the persisted entity and response DTO. */
-    protected void afterCreate(E entity, P response) {
+    @Override
+    public void afterCreate(E entity, P response) {
         // no-op by default
     }
 
     /** Called before updating an entity. Receives id, request and the existing entity instance. */
-    protected void beforeUpdate(ID id, R request, E existingEntity) {
+    @Override
+    public void beforeUpdate(ID id, R request, E existingEntity) {
         // no-op by default
     }
 
     /** Called after updating an entity. Receives the persisted entity and response DTO. */
-    protected void afterUpdate(E entity, P response) {
+    @Override
+    public void afterUpdate(E entity, P response) {
         // no-op by default
     }
 
     /** Called before deleting an entity. Receives id and existing entity. */
-    protected void beforeDelete(ID id, E existingEntity) {
+    @Override
+    public void beforeDelete(ID id, E existingEntity) {
         // no-op by default
     }
 
     /** Called after deleting an entity. Receives id and the deleted entity snapshot. */
-    protected void afterDelete(ID id, E deletedEntitySnapshot) {
+    @Override
+    public void afterDelete(ID id, E deletedEntitySnapshot) {
         // no-op by default
     }
 

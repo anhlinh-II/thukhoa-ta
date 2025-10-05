@@ -11,9 +11,13 @@ import java.util.Optional;
 
 public interface BaseService<E, ID, R, P, V> {
     P create(R request);
+
     P update(ID id, R request);
+
     P getById(ID id);
+
     Page<P> getAll(Pageable pageable);
+
     void delete(ID id);
 
     E findById(ID id);
@@ -24,10 +28,12 @@ public interface BaseService<E, ID, R, P, V> {
 
     // View operations
     V getViewById(ID id);
+
     Page<V> getViewPaging(Pageable pageable);
 
     // Additional common operations (optional)
     List<P> findAll();
+
     Optional<E> findEntityById(ID id);
 
     // Advanced filtering for views
@@ -48,4 +54,16 @@ public interface BaseService<E, ID, R, P, V> {
     void validateBeforeUpdate(ID id, R request);
 
     void validateBeforeDelete(ID id);
+
+    void beforeCreate(R request);
+
+    void afterCreate(E entity, P response);
+
+    void beforeUpdate(ID id, R request, E existingEntity);
+
+    void afterUpdate(E entity, P response);
+
+    void beforeDelete(ID id, E existingEntity);
+
+    void afterDelete(ID id, E deletedEntitySnapshot);
 }
