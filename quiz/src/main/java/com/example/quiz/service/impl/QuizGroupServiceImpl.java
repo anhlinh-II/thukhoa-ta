@@ -6,7 +6,6 @@ import com.example.quiz.exception.ErrorCode;
 import com.example.quiz.mapper.QuizGroupMapper;
 import com.example.quiz.model.dto.request.QuizGroupRequestDto;
 import com.example.quiz.model.dto.response.QuizGroupResponseDto;
-import com.example.quiz.model.entity.Program;
 import com.example.quiz.model.entity.QuizGroup;
 import com.example.quiz.model.view.QuizGroupView;
 import com.example.quiz.repository.ProgramRepository;
@@ -148,7 +147,7 @@ public class QuizGroupServiceImpl extends BaseServiceImpl<QuizGroup, Long, QuizG
         if (targetSlug != null && !java.util.Objects.equals(existingEntity.getSlug(), targetSlug) && existsBySlug(targetSlug)) {
             throw new AppException(ErrorCode.SLUG_ALREADY_EXISTS);
         }
-        
+
         if (requestDto.getProgramId() != null && !programRepository.existsById(requestDto.getProgramId())) {
             throw new AppException(ErrorCode.PROGRAM_NOT_FOUND);
         }

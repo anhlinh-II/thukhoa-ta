@@ -18,15 +18,8 @@ public class SlugEntityListener {
         try {
             if (entity instanceof Sluggable) {
                 Sluggable s = (Sluggable) entity;
-                String current = s.getSlug();
-                String source = s.getSlugSource();
-                if ((current == null || current.isBlank()) && source != null && !source.isBlank()) {
-                    String generated = SlugUtils.generateSlug(source);
-                    s.setSlug(generated);
-                    log.debug("Generated slug='{}' for entity {}", generated, entity.getClass().getSimpleName());
-                } else {
-                    log.debug("Slug unchanged for entity {} - current='{}'", entity.getClass().getSimpleName(), current);
-                }
+                s.applyComputedSlugIfEmpty();
+                log.debug("Applied computed slug for entity {} - slug='{}'", entity.getClass().getSimpleName(), s.getSlug());
             }
         } catch (Exception ex) {
             // Don't fail the persistence because slug generation failed; log instead

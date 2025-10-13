@@ -26,6 +26,9 @@ import java.util.Set;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import jakarta.persistence.Id;
+import org.springframework.dao.DataIntegrityViolationException;
+import com.example.quiz.util.Sluggable;
+import com.example.quiz.util.SlugService;
 
 @RequiredArgsConstructor
 @SuperBuilder
@@ -46,7 +49,44 @@ public abstract class BaseServiceImpl<E, ID, R, P, V> implements BaseService<E, 
         // lifecycle hook
         beforeCreate(request);
         E entity = mapper.requestToEntity(request);
-        E savedEntity = repository.save(entity);
+        E savedEntity;
+        try {
+            savedEntity = repository.save(entity);
+        } catch (DataIntegrityViolationException dive) {
+            // If the entity is sluggable, try to generate a unique slug and retry once.
+            if (entity instanceof Sluggable) {
+                Sluggable s = (Sluggable) entity;
+                String base = s.computeSlugFromSource();
+                if (base != null && !base.isBlank()) {
+                    try {
+                        // Try to get a repository-backed uniqueness predicate: we will attempt
+                        // to call `existsBySlugAndIsDeletedFalse` on the repository if present.
+                        java.util.function.Predicate<String> existsPredicate = slug -> {
+                            try {
+                                java.lang.reflect.Method m = repository.getClass().getMethod("existsBySlugAndIsDeletedFalse", String.class);
+                                Object res = m.invoke(repository, slug);
+                                if (res instanceof Boolean) return (Boolean) res;
+                            } catch (NoSuchMethodException ignored) {
+                            } catch (Exception ex) {
+                                log.debug("existsBySlug predicate reflection failed: {}", ex.getMessage());
+                            }
+                            return false;
+                        };
+
+                        String unique = SlugService.ensureUniqueSlug(existsPredicate::test, base);
+                        s.setSlug(unique);
+                        savedEntity = repository.save(entity);
+                    } catch (DataIntegrityViolationException dive2) {
+                        // give up and rethrow original or new exception
+                        throw dive2;
+                    }
+                } else {
+                    throw dive;
+                }
+            } else {
+                throw dive;
+            }
+        }
         P response = mapper.entityToResponse(savedEntity);
         // lifecycle hook after persistence
         afterCreate(savedEntity, response);

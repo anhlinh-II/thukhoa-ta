@@ -36,4 +36,37 @@ public interface Sluggable {
         String computed = computeSlugFromSource();
         return !java.util.Objects.equals(current, computed);
     }
+
+    /**
+     * Compute the slug from the source and set it on the entity when the
+     * current slug is null/blank. This is useful for listeners or services
+     * that want a simple, non-db-checked fill-in behavior.
+     */
+    default void applyComputedSlugIfEmpty() {
+        String current = getSlug();
+        if (current != null && !current.isBlank()) return;
+        String computed = computeSlugFromSource();
+        if (computed != null && !computed.isBlank()) setSlug(computed);
+    }
+
+    /**
+     * Compute the slug from the source and set a unique slug using the provided
+     * resolver. The resolver should accept a base slug and return a slug that is
+     * unique according to repository checks (for example, SlugService.ensureUniqueSlug).
+     * If the current slug is non-empty, this method does nothing.
+     *
+     * @param uniqueResolver function that returns a unique slug given a base slug
+     */
+    default void applyComputedSlugIfEmpty(java.util.function.Function<String, String> uniqueResolver) {
+        String current = getSlug();
+        if (current != null && !current.isBlank()) return;
+        String computed = computeSlugFromSource();
+        if (computed == null || computed.isBlank()) return;
+        if (uniqueResolver == null) {
+            setSlug(computed);
+        } else {
+            String unique = uniqueResolver.apply(computed);
+            if (unique != null && !unique.isBlank()) setSlug(unique);
+        }
+    }
 }
