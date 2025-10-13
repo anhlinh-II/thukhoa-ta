@@ -33,6 +33,7 @@ public class ProgramResponseDto {
     private Boolean isRoot;
     private Integer depth;
     private String path; // Full path from root
+    private String slug;
     
     private Instant createdAt;
     private String createdBy;

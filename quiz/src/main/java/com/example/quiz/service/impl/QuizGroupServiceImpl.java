@@ -12,6 +12,7 @@ import com.example.quiz.model.view.QuizGroupView;
 import com.example.quiz.repository.ProgramRepository;
 import com.example.quiz.repository.QuizGroupRepository;
 import com.example.quiz.repository.QuizGroupViewRepository;
+import com.example.quiz.util.SlugUtils;
 import com.example.quiz.base.impl.AdvancedFilterService;
 import com.example.quiz.service.QuizGroupService;
 import org.springframework.stereotype.Service;
@@ -135,13 +136,31 @@ public class QuizGroupServiceImpl extends BaseServiceImpl<QuizGroup, Long, QuizG
         QuizGroup existingEntity = findEntityById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.QUIZ_GROUP_NOT_FOUND));
         
-        // Check slug uniqueness if changed
-        if (!existingEntity.getSlug().equals(requestDto.getSlug()) && existsBySlug(requestDto.getSlug())) {
+        // Determine target slug: if request provides a slug use it, otherwise generate from the new name
+        String targetSlug = null;
+        if (requestDto.getSlug() != null && !requestDto.getSlug().isBlank()) {
+            targetSlug = requestDto.getSlug();
+        } else if (requestDto.getName() != null && !requestDto.getName().isBlank()) {
+            targetSlug = SlugUtils.generateSlug(requestDto.getName());
+        }
+
+        // Check slug uniqueness if changed (null-safe). If targetSlug is null, skip uniqueness check.
+        if (targetSlug != null && !java.util.Objects.equals(existingEntity.getSlug(), targetSlug) && existsBySlug(targetSlug)) {
             throw new AppException(ErrorCode.SLUG_ALREADY_EXISTS);
         }
         
-        if (!programRepository.existsById(requestDto.getProgramId())) {
+        if (requestDto.getProgramId() != null && !programRepository.existsById(requestDto.getProgramId())) {
             throw new AppException(ErrorCode.PROGRAM_NOT_FOUND);
+        }
+    }
+
+    @Override
+    public void beforeUpdate(Long id, QuizGroupRequestDto requestDto, QuizGroup existingEntity) {
+        // If request does not provide a slug, generate one from the (new) name and set it on the entity so
+        // the slug follows the updated name. If request provides slug, leave it to mapper to set it.
+        if ((requestDto.getSlug() == null || requestDto.getSlug().isBlank()) && requestDto.getName() != null) {
+            String generated = SlugUtils.generateSlug(requestDto.getName());
+            existingEntity.setSlug(generated);
         }
     }
 

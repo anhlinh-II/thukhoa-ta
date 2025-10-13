@@ -268,6 +268,11 @@ export function CrudListComponent<
       setEditingRecord(null);
       form.resetFields();
       onUpdateSuccess?.(data);
+      try {
+        refetch();
+      } catch (err) {
+        console.error('Refetch after update failed', err);
+      }
     },
   });
 
@@ -293,8 +298,24 @@ export function CrudListComponent<
 
   const handleEdit = (record: Response) => {
     setEditingRecord(record);
+    console.log('handleEdit record', record);
+    // populate form immediately to avoid race when modal mounts/destroys
+    try {
+      form.setFieldsValue({ ...(record as any) });
+    } catch (err) {
+      // ignore if form not yet ready; useEffect will set values when modal opens
+      // console.debug('form.setFieldsValue during handleEdit failed', err);
+    }
     setIsModalVisible(true);
-    // form.setFieldsValue(record);
+    // Retry shortly after opening in case the form wasn't mounted yet
+    setTimeout(() => {
+      try {
+        form.setFieldsValue({ ...(record as any) });
+        console.debug('[CrudList] retry setFieldsValue, form values:', form.getFieldsValue());
+      } catch (e) {
+        console.debug('[CrudList] retry setFieldsValue failed', e);
+      }
+    }, 50);
   };
 
   const handleDelete = (id: string | number) => {
@@ -396,8 +417,8 @@ export function CrudListComponent<
   );
 
   return (
-    <div className="p-1 h-fit">
-      <div className='p-1 bg-white rounded shadow-sm'>
+    <div className="p-1 h-[100%]">
+      <div className='p-1 h-full bg-white rounded shadow-sm'>
         <div className="flex justify-between h-full items-center mb-2">
           <div className="flex items-center gap-4">
             {/* Search input */}
@@ -471,6 +492,7 @@ export function CrudListComponent<
           form={form}
           layout="vertical"
           preserve={false}
+          initialValues={editingRecord ? (editingRecord as any) : undefined}
         >
           {renderForm ? renderForm(form, (editingRecord as unknown as Partial<Request>) || {}, !!editingRecord) : defaultFormRenderer()}
         </Form>

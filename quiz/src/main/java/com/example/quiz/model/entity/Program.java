@@ -80,7 +80,6 @@ public class Program extends BaseEntity implements Sluggable {
         return depth;
     }
     
-    // Sluggable implementation - use 'name' as the slug source
     @Override
     public String getSlugSource() {
         return this.name;

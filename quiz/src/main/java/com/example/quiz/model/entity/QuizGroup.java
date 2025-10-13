@@ -1,6 +1,7 @@
 package com.example.quiz.model.entity;
 
 import com.example.quiz.base.BaseEntity;
+import com.example.quiz.util.Sluggable;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -12,7 +13,7 @@ import lombok.experimental.SuperBuilder;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class QuizGroup extends BaseEntity {
+public class QuizGroup extends BaseEntity implements Sluggable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,6 +47,11 @@ public class QuizGroup extends BaseEntity {
     @Column(name = "is_deleted")
     @Builder.Default
     private Boolean isDeleted = false;
+
+    @Override
+    public String getSlugSource() {
+        return this.name;
+    }
 
     public enum GroupType {
         FORMAT, TOPIC, MOCK_TEST, OTHER

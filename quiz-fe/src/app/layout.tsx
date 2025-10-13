@@ -35,7 +35,6 @@ export default function RootLayout({
           <ConfigProvider
             theme={{
               token: {
-                /* slightly darker primary to improve contrast */
                 colorPrimary: '#9a4cff',
                 colorPrimaryHover: '#7a3bdf',
                 colorPrimaryActive: '#6f2ac5',
