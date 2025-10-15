@@ -28,6 +28,7 @@ export default function AdminLayout({
   // Determine active key based on pathname
   const getActiveKey = () => {
     if (pathname.includes('/admin/quiz-groups')) return 'quiz-groups';
+    if (pathname.includes('/admin/quiz-mocktests')) return 'quiz-mock-tests';
     if (pathname.includes('/admin/programs')) return 'programs';
     if (pathname.includes('/admin/dashboard')) return 'dashboard';
     if (pathname.includes('/admin/settings')) return 'settings';
@@ -40,6 +41,11 @@ export default function AdminLayout({
       key: 'quiz-groups',
       icon: <AppstoreOutlined />,
       label: 'Quiz Groups',
+    },
+    {
+      key: 'quiz-mock-tests',
+      icon: <BookOutlined />,
+      label: 'Quiz Mock Tests',
     },
     {
       key: 'programs',
@@ -71,14 +77,14 @@ export default function AdminLayout({
       case 'programs':
         router.push('/admin/programs');
         break;
+      case 'quiz-mock-tests':
+        router.push('/admin/quiz-mocktests');
+        break;
       case 'dashboard':
         router.push('/admin/dashboard');
-        break;
+        break;  
       case 'settings':
         router.push('/admin/settings');
-        break;
-      case 'test-base':
-        router.push('/admin/test-base');
         break;
       default:
         router.push('/admin/quiz-groups');

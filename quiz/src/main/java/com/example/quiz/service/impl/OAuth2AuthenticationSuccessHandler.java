@@ -1,7 +1,7 @@
 package com.example.quiz.service.impl;
 
 import com.example.quiz.model.dto.response.LoginResponse;
-import com.example.quiz.model.entity.User;
+import com.example.quiz.model.entity.user.User;
 import com.example.quiz.service.interfaces.UserService;
 import com.example.quiz.utils.SecurityUtils;
 import jakarta.servlet.ServletException;

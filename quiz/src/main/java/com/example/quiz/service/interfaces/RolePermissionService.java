@@ -1,8 +1,8 @@
 package com.example.quiz.service.interfaces;
 
-import com.example.quiz.model.entity.Permission;
-import com.example.quiz.model.entity.Role;
-import com.example.quiz.model.entity.User;
+import com.example.quiz.model.entity.role_permission.Permission;
+import com.example.quiz.model.entity.role_permission.Role;
+import com.example.quiz.model.entity.user.User;
 
 import java.util.List;
 import java.util.Set;

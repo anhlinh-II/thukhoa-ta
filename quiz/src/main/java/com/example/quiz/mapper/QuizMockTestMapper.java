@@ -1,10 +1,10 @@
 package com.example.quiz.mapper;
 
 import com.example.quiz.base.baseInterface.BaseMapstruct;
-import com.example.quiz.model.dto.request.QuizMockTestRequestDto;
-import com.example.quiz.model.dto.response.QuizMockTestResponseDto;
-import com.example.quiz.model.entity.QuizMockTest;
-import com.example.quiz.model.view.QuizMockTestView;
+import com.example.quiz.model.entity.quiz_mock_test.QuizMockTestRequestDto;
+import com.example.quiz.model.entity.quiz_mock_test.QuizMockTestResponseDto;
+import com.example.quiz.model.entity.quiz_mock_test.QuizMockTest;
+import com.example.quiz.model.entity.quiz_mock_test.QuizMockTestView;
 import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
@@ -12,7 +12,6 @@ public interface QuizMockTestMapper extends BaseMapstruct<QuizMockTest, QuizMock
 
     @Override
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "program", ignore = true)
     @Mapping(target = "quizGroup", ignore = true)
     @Mapping(target = "isDeleted", constant = "false")
     @Mapping(target = "createdAt", ignore = true)
@@ -22,8 +21,7 @@ public interface QuizMockTestMapper extends BaseMapstruct<QuizMockTest, QuizMock
     QuizMockTest requestToEntity(QuizMockTestRequestDto request);
 
     @Override
-    @Mapping(source = "program.id", target = "programId")
-    @Mapping(source = "quizGroup.id", target = "quizGroupId")
+    @Mapping(source = "quizGroup.id", target = "quizGroup")
     QuizMockTestResponseDto entityToResponse(QuizMockTest entity);
 
     @Override
@@ -32,7 +30,6 @@ public interface QuizMockTestMapper extends BaseMapstruct<QuizMockTest, QuizMock
     @Override
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "program", ignore = true)
     @Mapping(target = "quizGroup", ignore = true)
     @Mapping(target = "isDeleted", ignore = true)
     @Mapping(target = "createdAt", ignore = true)

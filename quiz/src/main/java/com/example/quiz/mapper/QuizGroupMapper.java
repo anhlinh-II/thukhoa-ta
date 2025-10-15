@@ -1,10 +1,10 @@
 package com.example.quiz.mapper;
 
 import com.example.quiz.base.baseInterface.BaseMapstruct;
-import com.example.quiz.model.dto.request.QuizGroupRequestDto;
-import com.example.quiz.model.dto.response.QuizGroupResponseDto;
-import com.example.quiz.model.entity.QuizGroup;
-import com.example.quiz.model.view.QuizGroupView;
+import com.example.quiz.model.entity.quiz_group.QuizGroupRequestDto;
+import com.example.quiz.model.entity.quiz_group.QuizGroupResponseDto;
+import com.example.quiz.model.entity.quiz_group.QuizGroup;
+import com.example.quiz.model.entity.quiz_group.QuizGroupView;
 import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")

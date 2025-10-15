@@ -1,6 +1,6 @@
 package com.example.quiz.model.dto.response;
 
-import com.example.quiz.model.entity.Role;
+import com.example.quiz.model.entity.role_permission.Role;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;

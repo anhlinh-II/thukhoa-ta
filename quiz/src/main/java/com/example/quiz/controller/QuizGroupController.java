@@ -3,17 +3,15 @@ package com.example.quiz.controller;
 import com.example.quiz.base.impl.BaseController;
 import com.example.quiz.validators.requirePermission.RequirePermission;
 import com.example.quiz.validators.requirePermission.ResourceController;
-import com.example.quiz.model.dto.request.QuizGroupRequestDto;
+import com.example.quiz.model.entity.quiz_group.QuizGroupRequestDto;
 import com.example.quiz.model.dto.response.ApiResponse;
-import com.example.quiz.model.dto.response.QuizGroupResponseDto;
-import com.example.quiz.model.entity.QuizGroup;
-import com.example.quiz.model.view.QuizGroupView;
-import com.example.quiz.service.QuizGroupService;
+import com.example.quiz.model.entity.quiz_group.QuizGroupResponseDto;
+import com.example.quiz.model.entity.quiz_group.QuizGroup;
+import com.example.quiz.model.entity.quiz_group.QuizGroupView;
+import com.example.quiz.service.quiz_group.QuizGroupService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/quiz-groups")

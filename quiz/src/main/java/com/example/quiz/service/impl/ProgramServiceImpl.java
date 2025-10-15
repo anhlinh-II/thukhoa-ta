@@ -5,13 +5,13 @@ import com.example.quiz.base.impl.BaseServiceImpl;
 import com.example.quiz.exception.AppException;
 import com.example.quiz.exception.ErrorCode;
 import com.example.quiz.mapper.ProgramMapper;
-import com.example.quiz.model.dto.request.ProgramRequestDto;
-import com.example.quiz.model.dto.response.ProgramResponseDto;
-import com.example.quiz.model.entity.Program;
-import com.example.quiz.model.view.ProgramView;
-import com.example.quiz.repository.ProgramRepository;
-import com.example.quiz.repository.ProgramViewRepository;
-import com.example.quiz.service.ProgramService;
+import com.example.quiz.model.entity.program.ProgramRequestDto;
+import com.example.quiz.model.entity.program.ProgramResponseDto;
+import com.example.quiz.model.entity.program.Program;
+import com.example.quiz.model.entity.program.ProgramView;
+import com.example.quiz.repository.program.ProgramRepository;
+import com.example.quiz.repository.program.ProgramViewRepository;
+import com.example.quiz.service.program.ProgramService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -114,11 +114,6 @@ public class ProgramServiceImpl extends BaseServiceImpl<Program, Long, ProgramRe
         
         // Cannot delete if has children
         if (!program.isLeaf()) {
-            throw new AppException(ErrorCode.INVALID_ACTION);
-        }
-        
-        // Cannot delete if has quizzes
-        if (program.getQuizzes() != null && !program.getQuizzes().isEmpty()) {
             throw new AppException(ErrorCode.INVALID_ACTION);
         }
     }

@@ -26,10 +26,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+    <html lang="en" className="mdl-js">
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}> 
         <ReduxProvider>
           <QueryProvider>
           <ConfigProvider

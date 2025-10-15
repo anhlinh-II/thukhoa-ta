@@ -1,204 +1,184 @@
 "use client";
-import { useState } from 'react';
-import { Table, Button, Card, message, Space, Tag, Row, Col } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined, ReloadOutlined } from '@ant-design/icons';
-import type { ColumnsType } from 'antd/es/table';
-import { 
-  usePrograms, 
-  useRootPrograms, 
+
+import React, { useMemo, useState } from "react";
+import {
+  Table,
+  Button,
+  Card,
+  Space,
+  Tag,
+  Row,
+  Col,
+  Modal,
+  Form,
+  Input,
+  Tooltip,
+  Popconfirm,
+  Switch,
+  TreeSelect,
+} from "antd";
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  EyeOutlined,
+  ReloadOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+import type { ColumnsType } from "antd/es/table";
+import {
+  usePrograms,
+  useRootPrograms,
+  useCreateProgram,
+  useUpdateProgram,
   useDeleteProgram,
   usePrefetchProgram,
-  type Program 
-} from '../../../hooks/usePrograms';
-import TreeView from '../../../components/TreeView';
-import { programService } from '../../../services/programService';
+  type Program,
+} from "../../../hooks/usePrograms";
 
 export default function ProgramsPage() {
-  const [testingApi, setTestingApi] = useState(false);
-  
-  // React Query hooks
-  const { 
-    data: programs = [], 
-    isLoading, 
-    isError, 
-    error, 
-    refetch 
-  } = usePrograms();
-  
-  const { 
-    data: rootPrograms = [], 
-    isLoading: isLoadingRoots 
-  } = useRootPrograms();
-  
+  const [search, setSearch] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editing, setEditing] = useState<Program | null>(null);
+  const [form] = Form.useForm();
+
+  const { data: programs = [], isLoading, refetch } = usePrograms();
+  const { data: rootPrograms = [] } = useRootPrograms();
+
+  const createProgram = useCreateProgram();
+  const updateProgram = useUpdateProgram();
   const deleteProgram = useDeleteProgram();
   const prefetchProgram = usePrefetchProgram();
 
-  // Handle delete
-  const handleDelete = (id: number) => {
-    deleteProgram.mutate(id);
+  const treeData = useMemo(() => {
+    const map = new Map<number, any>();
+    programs.forEach((p) => map.set(p.id, { ...p, key: p.id }));
+    const roots: any[] = [];
+    map.forEach((node) => {
+      if (node.parentId) {
+        const parent = map.get(node.parentId);
+        if (parent) {
+          parent.children = parent.children || [];
+          parent.children.push(node);
+        } else {
+          roots.push(node);
+        }
+      } else {
+        roots.push(node);
+      }
+    });
+    const sortRec = (arr: any[]) => {
+      arr.sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
+      arr.forEach((c) => c.children && sortRec(c.children));
+    };
+    sortRec(roots);
+    return roots;
+  }, [programs]);
+
+  const filteredTree = useMemo(() => {
+    if (!search.trim()) return treeData;
+    const programMap = new Map<number, Program>();
+    programs.forEach((p) => programMap.set(p.id, p));
+    const include = new Set<number>();
+    programs.forEach((p) => {
+      if (p.name.toLowerCase().includes(search.toLowerCase())) {
+        let cur: Program | undefined = p;
+        include.add(cur.id);
+        while (cur && cur.parentId) {
+          include.add(cur.parentId);
+          cur = programMap.get(cur.parentId);
+        }
+      }
+    });
+    const nodeMap = new Map<number, any>();
+    programs.forEach((p) => {
+      if (include.has(p.id)) nodeMap.set(p.id, { ...p, key: p.id });
+    });
+    const roots: any[] = [];
+    nodeMap.forEach((node) => {
+      if (node.parentId && nodeMap.has(node.parentId)) {
+        const parent = nodeMap.get(node.parentId);
+        parent.children = parent.children || [];
+        parent.children.push(node);
+      } else {
+        roots.push(node);
+      }
+    });
+    const sortRec = (arr: any[]) => {
+      arr.sort((a, b) => (a.displayOrder ?? 0) - (b.displayOrder ?? 0));
+      arr.forEach((c) => c.children && sortRec(c.children));
+    };
+    sortRec(roots);
+    return roots;
+  }, [search, treeData, programs]);
+
+  const openCreate = () => {
+    setEditing(null);
+    form.resetFields();
+    setModalOpen(true);
   };
 
-  // Handle row hover - prefetch data
-  const handleRowHover = (record: Program) => {
-    prefetchProgram(record.id);
+  const openEdit = (record: Program) => {
+    setEditing(record);
+    form.setFieldsValue({
+      name: record.name,
+      description: record.description,
+      slug: record.slug,
+      level: record.level,
+      displayOrder: record.displayOrder,
+      isActive: record.isActive,
+      parentId: record.parentId ?? null,
+    });
+    setModalOpen(true);
   };
 
-  // Test API endpoints
-  const testApiEndpoints = async () => {
-    setTestingApi(true);
-    try {
-      message.info('Testing Programs APIs...');
-      await refetch();
-      message.success(`Programs API: ${programs.length} total items, ${rootPrograms.length} root programs`);
-    } catch (error) {
-      message.error('Programs API test failed');
-    } finally {
-      setTestingApi(false);
+  const handleDelete = async (id: number) => {
+    await deleteProgram.mutateAsync(id);
+    refetch();
+  };
+
+  const handleSubmit = async () => {
+    const values = await form.validateFields();
+    if (editing) {
+      await updateProgram.mutateAsync({ id: editing.id, data: values });
+    } else {
+      await createProgram.mutateAsync(values);
     }
+    setModalOpen(false);
+    form.resetFields();
+    refetch();
   };
 
-  const getLevelName = (level: number) => {
-    switch (level) {
-      case 1: return 'Beginner';
-      case 2: return 'Intermediate';
-      case 3: return 'Advanced';
-      default: return 'Unknown';
-    }
-  };
+  const parentOptions = useMemo(() => rootPrograms.map((r) => ({ title: r.name, value: r.id, key: r.id })), [rootPrograms]);
 
-  const getLevelColor = (level: number) => {
-    switch (level) {
-      case 1: return 'green';
-      case 2: return 'orange';
-      case 3: return 'red';
-      default: return 'default';
-    }
-  };
-
-  const columns: ColumnsType<Program> = [
+  const columns: ColumnsType<any> = [
+    { title: "Name", dataIndex: "name", key: "name", ellipsis: true },
     {
-      title: 'ID',
-      dataIndex: 'id',
-      key: 'id',
-      width: 80,
-      sorter: (a, b) => a.id - b.id,
-    },
-    {
-      title: 'Name',
-      dataIndex: 'name',
-      key: 'name',
-      ellipsis: true,
-      sorter: (a, b) => a.name.localeCompare(b.name),
-      render: (text, record) => (
-        <div>
-          <div className="font-medium">{text}</div>
-          {record.parentId && (
-            <div className="text-xs text-gray-500">
-              Child of Program #{record.parentId}
-            </div>
-          )}
-        </div>
-      ),
-    },
-    {
-      title: 'Description',
-      dataIndex: 'description',
-      key: 'description',
-      ellipsis: true,
-      width: 250,
-    },
-    {
-      title: 'Slug',
-      dataIndex: 'slug',
-      key: 'slug',
-      ellipsis: true,
-      render: (slug: string) => (
-        <code className="text-xs bg-gray-100 px-1 rounded">{slug}</code>
-      ),
-    },
-    {
-      title: 'Level',
-      dataIndex: 'level',
-      key: 'level',
+      title: "Level",
+      dataIndex: "level",
+      key: "level",
       width: 120,
-      filters: [
-        { text: 'Beginner', value: 1 },
-        { text: 'Intermediate', value: 2 },
-        { text: 'Advanced', value: 3 },
-      ],
-      onFilter: (value, record) => record.level === value,
-      render: (level: number) => (
-        <Tag color={getLevelColor(level)}>
-          {getLevelName(level)}
-        </Tag>
-      ),
+      render: (lvl: number) => <Tag color={lvl === 1 ? "green" : lvl === 2 ? "orange" : "red"}>{lvl === 1 ? "Beginner" : lvl === 2 ? "Intermediate" : "Advanced"}</Tag>,
     },
+    { title: "Order", dataIndex: "displayOrder", key: "displayOrder", width: 90 },
+    { title: "Status", dataIndex: "isActive", key: "isActive", width: 110, render: (v: boolean) => <Tag color={v ? "success" : "error"}>{v ? "Active" : "Inactive"}</Tag> },
     {
-      title: 'Type',
-      key: 'type',
-      width: 100,
-      render: (_, record) => (
-        <Tag color={record.parentId ? 'blue' : 'purple'}>
-          {record.parentId ? 'Child' : 'Root'}
-        </Tag>
-      ),
-    },
-    {
-      title: 'Order',
-      dataIndex: 'displayOrder',
-      key: 'displayOrder',
-      width: 80,
-      sorter: (a, b) => a.displayOrder - b.displayOrder,
-    },
-    {
-      title: 'Status',
-      dataIndex: 'isActive',
-      key: 'isActive',
-      width: 100,
-      filters: [
-        { text: 'Active', value: true },
-        { text: 'Inactive', value: false },
-      ],
-      onFilter: (value, record) => record.isActive === value,
-      render: (isActive: boolean) => (
-        <Tag color={isActive ? 'success' : 'error'}>
-          {isActive ? 'Active' : 'Inactive'}
-        </Tag>
-      ),
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      width: 150,
-      render: (_, record) => (
-        <Space size="small">
-          <Button 
-            type="link" 
-            icon={<EyeOutlined />} 
-            size="small"
-            onClick={() => message.info(`View program ${record.id}: ${record.name}`)}
-            onMouseEnter={() => handleRowHover(record)}
-          >
-            View
-          </Button>
-          <Button 
-            type="link" 
-            icon={<EditOutlined />} 
-            size="small"
-            onClick={() => message.info(`Edit program ${record.id}`)}
-          >
-            Edit
-          </Button>
-          <Button 
-            type="link" 
-            danger 
-            icon={<DeleteOutlined />} 
-            size="small"
-            loading={deleteProgram.isPending}
-            onClick={() => handleDelete(record.id)}
-          >
-            Delete
-          </Button>
+      title: "Actions",
+      key: "actions",
+      width: 140,
+      render: (_: any, record: Program) => (
+        <Space>
+          <Tooltip title="View">
+            <Button type="text" icon={<EyeOutlined />} onMouseEnter={() => prefetchProgram(record.id)} />
+          </Tooltip>
+          <Tooltip title="Edit">
+            <Button type="text" icon={<EditOutlined />} onClick={() => openEdit(record)} />
+          </Tooltip>
+          <Tooltip title="Delete">
+            <Popconfirm title={`Delete ${record.name}?`} onConfirm={() => handleDelete(record.id)} okText="Delete" cancelText="Cancel">
+              <Button type="text" danger icon={<DeleteOutlined />} />
+            </Popconfirm>
+          </Tooltip>
         </Space>
       ),
     },
@@ -211,92 +191,58 @@ export default function ProgramsPage() {
         <p className="text-gray-600">Manage learning programs and curriculum structure</p>
       </div>
 
-      {/* Program Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <Card className="text-center">
-          <div className="text-2xl font-bold text-blue-600">{programs.length}</div>
-          <div className="text-gray-600">Total Programs</div>
-        </Card>
-        <Card className="text-center">
-          <div className="text-2xl font-bold text-green-600">
-            {programs.filter(p => !p.parentId).length}
-          </div>
-          <div className="text-gray-600">Root Programs</div>
-        </Card>
-        <Card className="text-center">
-          <div className="text-2xl font-bold text-purple-600">
-            {programs.filter(p => p.parentId).length}
-          </div>
-          <div className="text-gray-600">Child Programs</div>
-        </Card>
-        <Card className="text-center">
-          <div className="text-2xl font-bold text-orange-600">
-            {programs.filter(p => p.isActive).length}
-          </div>
-          <div className="text-gray-600">Active Programs</div>
-        </Card>
-      </div>
-
-      {/* Actions */}
-      <Card className="mb-6">
-        <Space>
-          <Button type="primary" icon={<PlusOutlined />}>
-            Add Program
-          </Button>
-          <Button type="default" onClick={() => refetch()} loading={isLoading}>
-            Reload Programs
-          </Button>
-          <Button type="default" icon={<ReloadOutlined />} onClick={testApiEndpoints} loading={testingApi}>
-            Test APIs
-          </Button>
-        </Space>
-      </Card>
-
-      {/* Tree + Data Table */}
-      <Row gutter={16}>
-        <Col xs={24} md={8} lg={6}>
-          <Card title="Programs Tree">
-            <TreeView service={programService} titleField="name" idField="id" />
-          </Card>
+      <Row gutter={16} className="mb-4">
+        <Col flex="auto">
+          <Input
+            prefix={<SearchOutlined />}
+            placeholder="Search programs by name"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            allowClear
+            style={{ width: 400 }}
+          />
         </Col>
-        <Col xs={24} md={16} lg={18}>
-          <Card>
-            <Table
-              columns={columns}
-              dataSource={programs}
-              rowKey="id"
-              loading={isLoading}
-              pagination={{
-                total: programs.length,
-                pageSize: 10,
-                showSizeChanger: true,
-                showQuickJumper: true,
-                showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
-              }}
-              scroll={{ x: 1200 }}
-              size="small"
-              expandable={{
-                expandedRowRender: (record) => (
-                  <div className="p-4 bg-gray-50">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <strong>Created:</strong> {new Date(record.createdAt).toLocaleDateString()}
-                      </div>
-                      <div>
-                        <strong>Updated:</strong> {new Date(record.updatedAt).toLocaleDateString()}
-                      </div>
-                      <div className="col-span-2">
-                        <strong>Full Description:</strong> {record.description}
-                      </div>
-                    </div>
-                  </div>
-                ),
-                rowExpandable: (record) => !!record.description,
-              }}
-            />
-          </Card>
+        <Col>
+          <Space>
+            <Tooltip title="Add program">
+              <Button type="primary" icon={<PlusOutlined />} onClick={openCreate} />
+            </Tooltip>
+            <Tooltip title="Reload list">
+              <Button icon={<ReloadOutlined />} onClick={() => refetch()} loading={isLoading} />
+            </Tooltip>
+          </Space>
         </Col>
       </Row>
+
+      <Card>
+        <Table columns={columns} dataSource={filteredTree} rowKey="id" loading={isLoading} pagination={false} size="small" />
+      </Card>
+
+      <Modal title={editing ? "Edit Program" : "Create Program"} open={modalOpen} onOk={handleSubmit} onCancel={() => setModalOpen(false)} okText={editing ? "Update" : "Create"}>
+        <Form layout="vertical" form={form} initialValues={{ level: 1, isActive: true }}>
+          <Form.Item name="name" label="Name" rules={[{ required: true, message: "Please enter a name" }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item name="description" label="Description">
+            <Input.TextArea rows={3} />
+          </Form.Item>
+          <Form.Item name="slug" label="Slug">
+            <Input />
+          </Form.Item>
+          <Form.Item name="level" label="Level">
+            <Input type="number" />
+          </Form.Item>
+          <Form.Item name="displayOrder" label="Display Order">
+            <Input type="number" />
+          </Form.Item>
+          <Form.Item name="isActive" label="Active" valuePropName="checked">
+            <Switch />
+          </Form.Item>
+          <Form.Item name="parentId" label="Parent Program">
+            <TreeSelect treeDefaultExpandAll allowClear treeData={parentOptions} placeholder="Select parent program (root only)" />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 }

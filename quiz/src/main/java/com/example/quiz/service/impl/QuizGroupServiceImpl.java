@@ -4,20 +4,22 @@ import com.example.quiz.base.impl.BaseServiceImpl;
 import com.example.quiz.exception.AppException;
 import com.example.quiz.exception.ErrorCode;
 import com.example.quiz.mapper.QuizGroupMapper;
-import com.example.quiz.model.dto.request.QuizGroupRequestDto;
-import com.example.quiz.model.dto.response.QuizGroupResponseDto;
-import com.example.quiz.model.entity.QuizGroup;
-import com.example.quiz.model.view.QuizGroupView;
-import com.example.quiz.repository.ProgramRepository;
-import com.example.quiz.repository.QuizGroupRepository;
-import com.example.quiz.repository.QuizGroupViewRepository;
-import com.example.quiz.util.SlugUtils;
+import com.example.quiz.model.entity.quiz_group.QuizGroupRequestDto;
+import com.example.quiz.model.entity.quiz_group.QuizGroupResponseDto;
+import com.example.quiz.model.entity.quiz_group.QuizGroup;
+import com.example.quiz.model.entity.quiz_group.QuizGroupView;
+import com.example.quiz.repository.program.ProgramRepository;
+import com.example.quiz.repository.quiz_group.QuizGroupRepository;
+import com.example.quiz.repository.quiz_group.QuizGroupViewRepository;
+import com.example.quiz.utils.SlugUtils;
 import com.example.quiz.base.impl.AdvancedFilterService;
-import com.example.quiz.service.QuizGroupService;
+import com.example.quiz.service.quiz_group.QuizGroupService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @Transactional
@@ -27,6 +29,7 @@ public class QuizGroupServiceImpl extends BaseServiceImpl<QuizGroup, Long, QuizG
     private final QuizGroupViewRepository quizGroupViewRepository;
     private final ProgramRepository programRepository;
 
+    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     public QuizGroupServiceImpl(
             AdvancedFilterService advancedFilterService,
             QuizGroupRepository quizGroupRepository,
@@ -144,7 +147,7 @@ public class QuizGroupServiceImpl extends BaseServiceImpl<QuizGroup, Long, QuizG
         }
 
         // Check slug uniqueness if changed (null-safe). If targetSlug is null, skip uniqueness check.
-        if (targetSlug != null && !java.util.Objects.equals(existingEntity.getSlug(), targetSlug) && existsBySlug(targetSlug)) {
+        if (targetSlug != null && !Objects.equals(existingEntity.getSlug(), targetSlug) && existsBySlug(targetSlug)) {
             throw new AppException(ErrorCode.SLUG_ALREADY_EXISTS);
         }
 

@@ -1,9 +1,9 @@
 package com.example.quiz.service.impl;
 
-import com.example.quiz.model.entity.Permission;
-import com.example.quiz.model.entity.Role;
-import com.example.quiz.repository.PermissionRepository;
-import com.example.quiz.repository.RoleRepository;
+import com.example.quiz.model.entity.role_permission.Permission;
+import com.example.quiz.model.entity.role_permission.Role;
+import com.example.quiz.repository.role_permission.PermissionRepository;
+import com.example.quiz.repository.role_permission.RoleRepository;
 import com.example.quiz.service.interfaces.AuthorizationService;
 import com.example.quiz.utils.SecurityUtils;
 import lombok.RequiredArgsConstructor;

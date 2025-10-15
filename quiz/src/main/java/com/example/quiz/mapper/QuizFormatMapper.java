@@ -1,10 +1,10 @@
 package com.example.quiz.mapper;
 
 import com.example.quiz.base.baseInterface.BaseMapstruct;
-import com.example.quiz.model.dto.request.QuizFormatRequestDto;
-import com.example.quiz.model.dto.response.QuizFormatResponseDto;
-import com.example.quiz.model.entity.QuizFormat;
-import com.example.quiz.model.view.QuizFormatView;
+import com.example.quiz.model.entity.quiz_format.QuizFormatRequestDto;
+import com.example.quiz.model.entity.quiz_format.QuizFormatResponseDto;
+import com.example.quiz.model.entity.quiz_format.QuizFormat;
+import com.example.quiz.model.entity.quiz_format.QuizFormatView;
 import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
@@ -12,7 +12,6 @@ public interface QuizFormatMapper extends BaseMapstruct<QuizFormat, QuizFormatRe
 
     @Override
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "program", ignore = true)
     @Mapping(target = "quizGroup", ignore = true)
     @Mapping(target = "isDeleted", constant = "false")
     @Mapping(target = "createdAt", ignore = true)
@@ -22,7 +21,6 @@ public interface QuizFormatMapper extends BaseMapstruct<QuizFormat, QuizFormatRe
     QuizFormat requestToEntity(QuizFormatRequestDto request);
 
     @Override
-    @Mapping(source = "program.id", target = "programId")
     @Mapping(source = "quizGroup.id", target = "quizGroupId")
     QuizFormatResponseDto entityToResponse(QuizFormat entity);
 
@@ -32,7 +30,6 @@ public interface QuizFormatMapper extends BaseMapstruct<QuizFormat, QuizFormatRe
     @Override
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "program", ignore = true)
     @Mapping(target = "quizGroup", ignore = true)
     @Mapping(target = "isDeleted", ignore = true)
     @Mapping(target = "createdAt", ignore = true)

@@ -2,8 +2,8 @@ package com.example.quiz.configuration.security;
 
 import com.example.quiz.exception.AppException;
 import com.example.quiz.exception.ErrorCode;
-import com.example.quiz.model.entity.User;
-import com.example.quiz.repository.UserRepository;
+import com.example.quiz.model.entity.user.User;
+import com.example.quiz.repository.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

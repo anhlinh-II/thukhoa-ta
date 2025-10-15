@@ -4,12 +4,12 @@ import com.example.quiz.base.baseInterface.BaseService;
 import com.example.quiz.model.dto.request.ForgotPasswordRequest;
 import com.example.quiz.model.dto.request.LoginRequest;
 import com.example.quiz.model.dto.request.ResetPasswordRequest;
-import com.example.quiz.model.dto.request.UserRequest;
-import com.example.quiz.model.dto.response.UserResponse;
+import com.example.quiz.model.entity.user.UserRequest;
+import com.example.quiz.model.entity.user.UserResponse;
 import com.example.quiz.model.dto.response.LoginResponse;
 import com.example.quiz.model.dto.response.ApiResponse;
-import com.example.quiz.model.entity.User;
-import com.example.quiz.model.view.UserView;
+import com.example.quiz.model.entity.user.User;
+import com.example.quiz.model.entity.user.UserView;
 
 public interface UserService extends BaseService<User, Long, UserRequest, UserResponse, UserView> {
 

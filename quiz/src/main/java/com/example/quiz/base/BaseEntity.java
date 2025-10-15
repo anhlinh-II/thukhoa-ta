@@ -13,7 +13,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import com.example.quiz.util.SlugEntityListener;
+import com.example.quiz.utils.SlugEntityListener;
 
 import java.time.Instant;
 

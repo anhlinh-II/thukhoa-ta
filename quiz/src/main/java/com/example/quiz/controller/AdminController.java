@@ -2,9 +2,9 @@ package com.example.quiz.controller;
 
 import com.example.quiz.validators.requirePermission.RequirePermission;
 import com.example.quiz.model.dto.response.ApiResponse;
-import com.example.quiz.model.entity.Permission;
-import com.example.quiz.model.entity.Role;
-import com.example.quiz.model.entity.User;
+import com.example.quiz.model.entity.role_permission.Permission;
+import com.example.quiz.model.entity.role_permission.Role;
+import com.example.quiz.model.entity.user.User;
 import com.example.quiz.service.interfaces.RolePermissionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

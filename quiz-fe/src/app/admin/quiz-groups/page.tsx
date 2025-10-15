@@ -1,279 +1,222 @@
 "use client";
-import { useState } from 'react';
-import { Table, Button, Card, message, Space, Tag, Spin, Alert } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, EyeOutlined, ReloadOutlined } from '@ant-design/icons';
+import React, { useState, useRef } from 'react';
+import { Form, Input, Switch, Splitter } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { 
-  useQuizGroups, 
-  useQuizGroupsPaged, 
-  useQuizGroupsByProgram,
-  useSlugExists,
-  useDeleteQuizGroup,
-  usePrefetchQuizGroup 
-} from '../../../hooks/useQuizGroups';
-import type { QuizGroup } from '../../../services/quizGroupApi';
+import { CrudListComponent } from '../../../components/CrudListComponent';
+import TreeView from '../../../components/TreeView';
+import { programService } from '../../../services/programService';
+import { quizGroupService, QuizGroupResponse, QuizGroupRequest } from '../../../services/quizGroupService';
+import { FilterItemDto } from '@/types';
 
-export default function QuizGroupsPage() {
-  const [testingApi, setTestingApi] = useState(false);
-  
-  // React Query hooks
-  const { 
-    data: quizGroups = [], 
-    isLoading, 
-    isError, 
-    error, 
-    refetch 
-  } = useQuizGroups();
-  
-  const { 
-    data: pagedData, 
-    isLoading: isLoadingPaged 
-  } = useQuizGroupsPaged(0, 5);
-  
-  const { 
-    data: programQuizGroups = [], 
-    isLoading: isLoadingByProgram 
-  } = useQuizGroupsByProgram(1);
-  
-  const { 
-    data: slugExists, 
-    isLoading: isCheckingSlug 
-  } = useSlugExists('test-slug');
-  
-  const deleteQuizGroupMutation = useDeleteQuizGroup();
-  const prefetchQuizGroup = usePrefetchQuizGroup();
-
-  // Test different API endpoints
-  const testApiEndpoints = async () => {
-    setTestingApi(true);
-    try {
-      message.info('Testing all APIs...');
-      
-      // Test 1: Refetch all quiz groups
-      console.log('Testing GET /api/v1/quiz-groups/all...');
-      await refetch();
-      message.success(`All Quiz Groups: ${quizGroups.length} items`);
-
-      // Test 2: Check paged results
-      console.log('Testing paged results...');
-      if (pagedData) {
-        message.success(`Paged API: ${pagedData.content?.length || 0} items`);
-      }
-
-      // Test 3: Check by program ID
-      console.log('Testing by program ID...');
-      message.success(`Program API: ${programQuizGroups.length} items for program 1`);
-
-      // Test 4: Check slug exists
-      console.log('Testing slug check...');
-      message.success(`Slug API: 'test-slug' exists: ${slugExists}`);
-
-    } catch (error) {
-      console.error('API test failed:', error);
-      message.error('Some API tests failed - check console for details');
-    } finally {
-      setTestingApi(false);
-    }
-  };
-
-  // Handle delete with optimistic update
-  const handleDelete = (id: number) => {
-    deleteQuizGroupMutation.mutate(id);
-  };
-
-  // Handle row hover - prefetch data
-  const handleRowHover = (record: QuizGroup) => {
-    prefetchQuizGroup(record.id);
-  };
-
-  const columns: ColumnsType<QuizGroup> = [
+export default function QuizGroup() {
+  const [selectedProgramIds, setSelectedProgramIds] = useState<Array<string | number> | null>(null);
+  const columns: ColumnsType<QuizGroupResponse> = [
     {
       title: 'ID',
       dataIndex: 'id',
       key: 'id',
       width: 80,
-      sorter: (a, b) => a.id - b.id,
+      sorter: true,
     },
     {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
       ellipsis: true,
-      sorter: (a, b) => (a.name || '').localeCompare(b.name || ''),
+      sorter: true,
+      width: 300,
     },
     {
       title: 'Description',
       dataIndex: 'description',
       key: 'description',
       ellipsis: true,
-      width: 200,
+      width: 300,
+      render: (text: string) => text || 'No description',
     },
     {
       title: 'Slug',
       dataIndex: 'slug',
       key: 'slug',
+      width: 300,
       ellipsis: true,
-      render: (slug: string) => <code className="text-xs bg-gray-100 px-1 rounded">{slug || 'N/A'}</code>,
+      render: (text: string) => text || 'No slug',
     },
     {
-      title: 'Type',
-      dataIndex: 'groupType',
-      key: 'groupType',
-      filters: [
-        { text: 'Topic', value: 'TOPIC' },
-        { text: 'Format', value: 'FORMAT' },
-        { text: 'Mock Test', value: 'MOCK_TEST' },
-      ],
-      onFilter: (value, record) => record.groupType === value,
-      render: (type: string) => (
-        <Tag color={
-          type === 'TOPIC' ? 'blue' : 
-          type === 'FORMAT' ? 'orange' : 
-          type === 'MOCK_TEST' ? 'green' : 'default'
-        }>
-          {type}
-        </Tag>
-      ),
-    },
-    {
-      title: 'Program ID',
-      dataIndex: 'programId',
-      key: 'programId',
-      width: 100,
-      sorter: (a, b) => a.programId - b.programId,
-    },
-    {
-      title: 'Order',
-      dataIndex: 'displayOrder',
-      key: 'displayOrder',
-      width: 80,
-      sorter: (a, b) => a.displayOrder - b.displayOrder,
+      title: 'Program Name',
+      dataIndex: 'programName',
+      width: 300,
+      key: 'programName',
+      ellipsis: true,
+      render: (text: string) => text || 'No program name',
     },
     {
       title: 'Status',
-      dataIndex: 'isActive',
-      key: 'isActive',
+      dataIndex: 'isDeleted',
+      key: 'isDeleted',
       width: 100,
-      filters: [
-        { text: 'Active', value: true },
-        { text: 'Inactive', value: false },
-      ],
-      onFilter: (value, record) => record.isActive === value,
-      render: (isActive: boolean) => (
-        <Tag color={isActive ? 'success' : 'error'}>
-          {isActive ? 'Active' : 'Inactive'}
-        </Tag>
+      render: (isDeleted: boolean) => (
+        <span className={`px-2 py-1 rounded-full text-xs ${!isDeleted ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+          }`}>
+          {!isDeleted ? 'Active' : 'Deleted'}
+        </span>
       ),
     },
     {
-      title: 'Actions',
-      key: 'actions',
-      width: 150,
-      render: (_, record) => (
-        <Space size="small">
-          <Button 
-            type="link" 
-            icon={<EyeOutlined />} 
-            size="small"
-            onClick={() => message.info(`View quiz group ${record.id}: ${record.name}`)}
-            onMouseEnter={() => handleRowHover(record)}
-          >
-            View
-          </Button>
-          <Button 
-            type="link" 
-            icon={<EditOutlined />} 
-            size="small"
-            onClick={() => message.info(`Edit quiz group ${record.id}`)}
-          >
-            Edit
-          </Button>
-          <Button 
-            type="link" 
-            danger 
-            icon={<DeleteOutlined />} 
-            size="small"
-            loading={deleteQuizGroupMutation.isPending}
-            onClick={() => handleDelete(record.id)}
-          >
-            Delete
-          </Button>
-        </Space>
-      ),
+      title: 'Created',
+      dataIndex: 'createdAt',
+      key: 'createdAt',
+      width: 120,
+      render: (date: string) => new Date(date).toLocaleDateString(),
+      sorter: true,
+    },
+    {
+      title: 'Updated',
+      dataIndex: 'updatedAt',
+      key: 'updatedAt',
+      width: 120,
+      render: (date: string) => new Date(date).toLocaleDateString(),
+      sorter: true,
     },
   ];
 
-  return (
-    <div className="p-6 min-h-full">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">Quiz Groups Management</h1>
-        <p className="text-gray-600">Manage quiz groups and test API connectivity</p>
-      </div>
+  // Render form for create/edit
+  const renderForm = (form: any, initialValues?: Partial<QuizGroupRequest>, isEdit?: boolean) => (
+    <>
+      <Form.Item
+        label="Name"
+        name="name"
+        rules={[
+          { required: true, message: 'Please input quiz group name!' },
+          { min: 2, message: 'Name must be at least 2 characters!' },
+          { max: 100, message: 'Name must not exceed 100 characters!' },
+        ]}
+      >
+        <Input placeholder="Enter quiz group name" />
+      </Form.Item>
 
-      {/* Connection Status */}
-      <Card className="mb-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <h3 className="text-lg font-semibold">API Connection Status:</h3>
-            <Tag color={
-              !isLoading && !isError ? 'success' : 
-              isError ? 'error' : 'processing'
-            }>
-              {!isLoading && !isError ? '✅ Connected' : 
-               isError ? '❌ Connection Error' : '🔄 Loading...'}
-            </Tag>
-            {isError && <span className="text-red-500 text-sm">{error?.message}</span>}
-          </div>
-          <Space>
-            <Button 
-              type="primary" 
-              icon={<ReloadOutlined />}
-              onClick={() => refetch()}
-              loading={isLoading}
-            >
-              Refresh Data
-            </Button>
-            <Button 
-              type="default"
-              onClick={testApiEndpoints}
-              loading={testingApi}
-            >
-              Test All APIs
-            </Button>
-          </Space>
-        </div>
-      </Card>
-
-      {/* Actions */}
-      <Card className="mb-6">
-        <Space>
-          <Button type="primary" icon={<PlusOutlined />}>
-            Add Quiz Group
-          </Button>
-          <Button type="default" onClick={() => refetch()}>
-            Reload Table
-          </Button>
-        </Space>
-      </Card>
-
-      {/* Data Table */}
-      <Card>
-        <Table
-          columns={columns}
-          dataSource={quizGroups}
-          rowKey="id"
-          loading={isLoading}
-          pagination={{
-            total: quizGroups.length,
-            pageSize: 10,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total, range) => `${range[0]}-${range[1]} of ${total} items`,
-          }}
-          scroll={{ x: 1200 }}
-          size="small"
+      <Form.Item
+        label="Description"
+        name="description"
+        rules={[
+          { max: 500, message: 'Description must not exceed 500 characters!' },
+        ]}
+      >
+        <Input.TextArea
+          placeholder="Enter description (optional)"
+          rows={4}
+          showCount
+          maxLength={500}
         />
-      </Card>
+      </Form.Item>
+
+      {isEdit && (
+        <Form.Item
+          label="Status"
+          name="isDeleted"
+          valuePropName="checked"
+        >
+          <Switch
+            checkedChildren="Deleted"
+            unCheckedChildren="Active"
+          />
+        </Form.Item>
+      )}
+    </>
+  );
+
+  const fixedFilters: FilterItemDto[] = [
+    { field: 'is_deleted', operator: "=", value: false },
+    { field: 'is_active', operator: "=", value: true },
+  ];
+
+  // merge program filter when a program (or program + descendants) is selected
+  const mergedFilters = React.useMemo(() => {
+    const base = [...fixedFilters];
+    if (selectedProgramIds && selectedProgramIds.length > 0) {
+      if (selectedProgramIds.length === 1) {
+        base.push({ field: 'program_id', operator: '=', value: Number(selectedProgramIds[0]) });
+      } else {
+        base.push({ field: 'program_id', operator: 'IN', value: selectedProgramIds.map((v) => Number(v)) });
+      }
+    }
+    return base;
+  }, [selectedProgramIds]);
+
+  return (
+    <div style={{ height: 'calc(100vh - 64px)', background: 'transparent' }}>
+      <Splitter layout="horizontal" style={{ height: '100%' }}> 
+        <Splitter.Panel size={320} min={200} max={640}>
+          <div className='p-1 mt-1 h-full'>
+            <div className='h-full'>
+              <TreeView
+                getChildren={true}
+                title="Chương trình ôn luyện"
+                service={programService}
+                titleField="name"
+                idField="id"
+                onSelect={(id, node, idList) => {
+                  if (idList && idList.length > 0) setSelectedProgramIds(idList);
+                  else if (id !== null && id !== undefined) setSelectedProgramIds([id]);
+                  else setSelectedProgramIds(null);
+                }}
+              />
+            </div>
+          </div>
+        </Splitter.Panel>
+
+        <Splitter.Panel>
+          <div className='p-1 mt-1'>
+            <CrudListComponent
+              config={{
+                queryKeyPrefix: 'quiz-groups-base',
+                resourceName: 'Quiz Group',
+                createTitle: 'Create New Quiz Group',
+                editTitle: 'Edit Quiz Group',
+                pageSize: 100,
+              }}
+              service={quizGroupService}
+              columns={columns}
+              renderForm={renderForm}
+              onCreateSuccess={(data: QuizGroupResponse) => {
+                console.log('Quiz group created:', data);
+              }}
+              onUpdateSuccess={(data: QuizGroupResponse) => {
+                console.log('Quiz group updated:', data);
+              }}
+              onDeleteSuccess={() => {
+                console.log('Quiz group deleted');
+              }}
+              tableProps={{
+                bordered: true,
+                style: { tableLayout: 'auto' },
+                showSorterTooltip: { target: 'sorter-icon' },
+                expandable: {
+                  expandedRowRender: (record: QuizGroupResponse) => (
+                    <div className="p-4 bg-gray-50">
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <strong>Created:</strong> {record.createdAt ? new Date(record.createdAt).toLocaleDateString() : ''}
+                        </div>
+                        <div>
+                          <strong>Updated:</strong> {record.updatedAt ? new Date(record.updatedAt).toLocaleDateString() : ''}
+                        </div>
+                        <div className="col-span-2">
+                          <strong>Full Description:</strong> {record.description}
+                        </div>
+                      </div>
+                    </div>
+                  ),
+                  rowExpandable: (record: QuizGroupResponse) => !!record.description,
+                },
+              }}
+              filterParams={mergedFilters}
+              searchFields={['name', 'description', 'slug', 'programName']}
+              searchPlaceholder="Search quiz groups..."
+            />
+          </div>
+        </Splitter.Panel>
+      </Splitter>
     </div>
   );
 }

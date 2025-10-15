@@ -2,7 +2,6 @@ import { BaseEntity, BaseService } from './BaseService';
 
 // Quiz Group Types
 export interface QuizGroup extends BaseEntity {
-  id: number;
   name: string;
   description?: string;
   isDeleted: boolean;

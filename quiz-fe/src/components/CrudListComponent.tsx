@@ -241,12 +241,12 @@ export function CrudListComponent<
 
   const handleSearch = (value: string) => {
     setSearchText(value);
-    
+
     // clear debounce timer since we want immediate search
     if (searchTimer.current) {
       window.clearTimeout(searchTimer.current);
     }
-    
+
     // Set flag to prevent useEffect from triggering extra API call
     isSearchUpdateRef.current = true;
     setPagination((p) => ({ ...p, page: 0 }));
@@ -417,9 +417,9 @@ export function CrudListComponent<
   );
 
   return (
-    <div className="p-1 h-[100%]">
-      <div className='p-1 h-full bg-white rounded shadow-sm'>
-        <div className="flex justify-between h-full items-center mb-2">
+    <div className="p-1">
+      <div className='p-1 bg-white rounded shadow-sm'>
+        <div className="flex justify-between items-center mb-2">
           <div className="flex items-center gap-4">
             {/* Search input */}
             <Input.Search
@@ -455,26 +455,26 @@ export function CrudListComponent<
 
         {/* Table */}
         <div ref={wrapperRef} className="text-sm" style={{ fontSize: 13 }}>
-        <Table<Response>
-          className="small-table"
-          columns={buildColumns()}
-          dataSource={pagedData?.data || []}
-          rowKey="id"
-          loading={isLoading}
-          pagination={{
-            current: (pagination.page || 0) + 1,
-            pageSize: pagination.size || 10,
-            total: pagedData?.total || 0,
-            showSizeChanger: true,
-            showQuickJumper: true,
-            showTotal: (total, range) =>
-              `${range[0]}-${range[1]} of ${total} items`,
-          }}
-          onChange={handleTableChange}
-          scroll={{ x: 1200, y: tableBodyHeight }}
-          size="small"
-          {...tableProps}
-        />
+          <Table<Response>
+            className="small-table"
+            columns={buildColumns()}
+            dataSource={pagedData?.data || []}
+            rowKey="id"
+            loading={isLoading}
+            pagination={{
+              current: (pagination.page || 0) + 1,
+              pageSize: pagination.size || 10,
+              total: pagedData?.total || 0,
+              showSizeChanger: true,
+              showQuickJumper: true,
+              showTotal: (total, range) =>
+                `${range[0]}-${range[1]} of ${total} items`,
+            }}
+            onChange={handleTableChange}
+            scroll={{ x: 1200, y: tableBodyHeight }}
+            size="small"
+            {...tableProps}
+          />
         </div>
       </div>
 

@@ -27,8 +27,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import jakarta.persistence.Id;
 import org.springframework.dao.DataIntegrityViolationException;
-import com.example.quiz.util.Sluggable;
-import com.example.quiz.util.SlugService;
+import com.example.quiz.utils.Sluggable;
+import com.example.quiz.utils.SlugService;
 
 @RequiredArgsConstructor
 @SuperBuilder
@@ -50,6 +50,15 @@ public abstract class BaseServiceImpl<E, ID, R, P, V> implements BaseService<E, 
         beforeCreate(request);
         E entity = mapper.requestToEntity(request);
         E savedEntity;
+        savedEntity = getSavedEntity(entity);
+        P response = mapper.entityToResponse(savedEntity);
+        // lifecycle hook after persistence
+        afterCreate(savedEntity, response);
+        return response;
+    }
+
+    private E getSavedEntity(E entity) {
+        E savedEntity;
         try {
             savedEntity = repository.save(entity);
         } catch (DataIntegrityViolationException dive) {
@@ -63,7 +72,7 @@ public abstract class BaseServiceImpl<E, ID, R, P, V> implements BaseService<E, 
                         // to call `existsBySlugAndIsDeletedFalse` on the repository if present.
                         java.util.function.Predicate<String> existsPredicate = slug -> {
                             try {
-                                java.lang.reflect.Method m = repository.getClass().getMethod("existsBySlugAndIsDeletedFalse", String.class);
+                                Method m = repository.getClass().getMethod("existsBySlugAndIsDeletedFalse", String.class);
                                 Object res = m.invoke(repository, slug);
                                 if (res instanceof Boolean) return (Boolean) res;
                             } catch (NoSuchMethodException ignored) {
@@ -87,10 +96,7 @@ public abstract class BaseServiceImpl<E, ID, R, P, V> implements BaseService<E, 
                 throw dive;
             }
         }
-        P response = mapper.entityToResponse(savedEntity);
-        // lifecycle hook after persistence
-        afterCreate(savedEntity, response);
-        return response;
+        return savedEntity;
     }
 
     @Override
