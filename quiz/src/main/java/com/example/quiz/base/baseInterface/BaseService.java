@@ -59,11 +59,11 @@ public interface BaseService<E, ID, R, P, V> {
 
     void beforeCreate(R request);
 
-    void afterCreate(E entity, P response);
+    void afterCreate(E entity, P response, R request);
 
     void beforeUpdate(ID id, R request, E existingEntity);
 
-    void afterUpdate(E entity, P response);
+    void afterUpdate(E entity, P response, R request);
 
     void beforeDelete(ID id, E existingEntity);
 

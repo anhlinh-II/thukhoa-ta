@@ -6,5 +6,8 @@ import com.example.quiz.model.entity.quiz_mock_test.QuizMockTestResponseDto;
 import com.example.quiz.model.entity.quiz_mock_test.QuizMockTest;
 import com.example.quiz.model.entity.quiz_mock_test.QuizMockTestView;
 
+import java.util.Map;
+
 public interface QuizMockTestService extends BaseService<QuizMockTest, Long, QuizMockTestRequestDto, QuizMockTestResponseDto, QuizMockTestView> {
+    Map<String, Object> getQuizPreview(Long quizId);
 }

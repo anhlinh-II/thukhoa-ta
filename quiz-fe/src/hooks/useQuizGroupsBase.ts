@@ -5,7 +5,7 @@ import {
   QuizGroupResponse, 
   QuizGroupView, 
   quizGroupService 
-} from '../services/quizGroupService';
+} from '../services/quiz_group/quiz-group.service';
 
 // Quiz Group Hooks
 export class QuizGroupHooks extends BaseHooks<

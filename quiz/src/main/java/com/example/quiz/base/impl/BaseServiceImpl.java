@@ -53,7 +53,7 @@ public abstract class BaseServiceImpl<E, ID, R, P, V> implements BaseService<E, 
         savedEntity = getSavedEntity(entity);
         P response = mapper.entityToResponse(savedEntity);
         // lifecycle hook after persistence
-        afterCreate(savedEntity, response);
+        afterCreate(savedEntity, response, request);
         return response;
     }
 
@@ -112,7 +112,7 @@ public abstract class BaseServiceImpl<E, ID, R, P, V> implements BaseService<E, 
     E savedEntity = repository.save(existingEntity);
     P response = mapper.entityToResponse(savedEntity);
     // lifecycle hook after update
-    afterUpdate(savedEntity, response);
+    afterUpdate(savedEntity, response,request);
     return response;
     }
 
@@ -941,7 +941,7 @@ public abstract class BaseServiceImpl<E, ID, R, P, V> implements BaseService<E, 
 
     /** Called after an entity has been created. Receives the persisted entity and response DTO. */
     @Override
-    public void afterCreate(E entity, P response) {
+    public void afterCreate(E entity, P response, R request) {
         // no-op by default
     }
 
@@ -953,7 +953,7 @@ public abstract class BaseServiceImpl<E, ID, R, P, V> implements BaseService<E, 
 
     /** Called after updating an entity. Receives the persisted entity and response DTO. */
     @Override
-    public void afterUpdate(E entity, P response) {
+    public void afterUpdate(E entity, P response, R request) {
         // no-op by default
     }
 

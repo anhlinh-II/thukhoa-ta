@@ -1,4 +1,7 @@
 import { BaseEntity, BaseService } from "./BaseService";
+import { QuestionRequest } from "./question/models";
+import { QuestionGroupRequest } from "./question_group/models";
+import { QuestionOptionRequest } from "./question_option/models";
 
 export interface QuizMockTest extends BaseEntity {
      quizGroup: string | number;
@@ -14,6 +17,16 @@ export interface QuizMockTest extends BaseEntity {
      displayOrder: string;
      isActive: string;
      isDeleted: string;
+}
+
+export interface QuestionGroupWithQuestionsDto {
+     group: QuestionGroupRequest;
+     questions: QuestionWithOptionsDto[];
+}
+
+export interface QuestionWithOptionsDto {
+     question: QuestionRequest;
+     options: QuestionOptionRequest[];
 }
 
 export interface QuizMockTestRequest {
@@ -32,6 +45,9 @@ export interface QuizMockTestRequest {
      certificateEligible: boolean;
      displayOrder: number;
      isActive: boolean;
+     // Nested question creation support
+     questionGroups?: QuestionGroupWithQuestionsDto[];
+     standaloneQuestions?: QuestionWithOptionsDto[];
 }
 
 export interface QuizMockTestResponse extends QuizMockTest {

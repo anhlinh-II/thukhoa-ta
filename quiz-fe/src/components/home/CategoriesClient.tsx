@@ -22,7 +22,7 @@ export default function CategoriesClient() {
               {headerItems.map((category) => (
                 category.href ? (
                   <Link key={category.id} href={category.href} className="group">
-                    <Card className={`${category.color} ${category.borderColor} border-2 hover:shadow-lg transition-all duration-300 cursor-pointer`} bodyStyle={{ padding: '24px' }}>
+                    <Card className={`${category.color} ${category.borderColor} border-2 hover:shadow-lg transition-all duration-300 cursor-pointer`} styles={{ body: { padding: 24 } }}>
                       <div className="text-center">
                         <div className="mb-4 group-hover:scale-110 transition-transform duration-300">{category.icon}</div>
                         <HTitle level={4} className="!mb-3 !text-gray-800">{category.title}</HTitle>
@@ -32,7 +32,7 @@ export default function CategoriesClient() {
                     </Card>
                   </Link>
                 ) : (
-                  <Card key={category.id} className={`${category.color} ${category.borderColor} border-2 hover:shadow-lg transition-all duration-300 cursor-pointer group`} bodyStyle={{ padding: '24px' }}>
+                  <Card key={category.id} className={`${category.color} ${category.borderColor} border-2 hover:shadow-lg transition-all duration-300 cursor-pointer group`} styles={{ body: { padding: 24 } }}>
                     <div className="text-center">
                       <div className="mb-4 group-hover:scale-110 transition-transform duration-300">{category.icon}</div>
                       <HTitle level={4} className="!mb-3 !text-gray-800">{category.title}</HTitle>

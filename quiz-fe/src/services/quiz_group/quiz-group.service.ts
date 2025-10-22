@@ -1,23 +1,6 @@
-import { BaseEntity, BaseService } from './BaseService';
-
-// Quiz Group Types
-export interface QuizGroup extends BaseEntity {
-  name: string;
-  description?: string;
-  isDeleted: boolean;
-}
-
-export interface QuizGroupRequest {
-  name: string;
-  description?: string;
-}
-
-export interface QuizGroupResponse extends QuizGroup {}
-
-export interface QuizGroupView extends QuizGroup {
-  totalQuizzes?: number;
-  activeQuizzes?: number;
-}
+import { ENV } from '@/config/env';
+import { BaseService } from '../BaseService';
+import { QuizGroup, QuizGroupRequest, QuizGroupResponse, QuizGroupView } from './models';
 
 // Quiz Group Service
 export class QuizGroupService extends BaseService<
@@ -27,7 +10,7 @@ export class QuizGroupService extends BaseService<
   QuizGroupView
 > {
   constructor() {
-  super('http://localhost:8080/api/v1', 'quiz-groups');
+  super(ENV.API_URL, 'quiz-groups');
   }
 
   // Custom methods specific to QuizGroup

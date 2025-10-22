@@ -2,9 +2,8 @@ package com.example.quiz.model.entity.question;
 
 import com.example.quiz.base.BaseView;
 import com.example.quiz.enums.QuestionType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
+import com.example.quiz.enums.QuizType;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
@@ -32,6 +31,7 @@ public class QuestionView extends BaseView {
     private Long id;
 
     @Column(name = "type", nullable = false)
+    @Enumerated(EnumType.STRING)
     private QuestionType type;
 
     @Column(name = "group_id", nullable = false)
@@ -51,4 +51,11 @@ public class QuestionView extends BaseView {
 
     @Column(name = "explanation_html", columnDefinition = "TEXT")
     private String explanationHtml;
+
+    @Column(name = "quiz_type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private QuizType quizType;
+
+    @Column(name = "quiz_id")
+    private Long quizId;
 }

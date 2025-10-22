@@ -4,6 +4,9 @@ import com.example.quiz.base.baseInterface.BaseRepository;
 import com.example.quiz.model.entity.question_option.QuestionOption;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface QuestionOptionRepository extends BaseRepository<QuestionOption, Long> {
+    List<QuestionOption> findByQuestionIdOrderByOrderIndexAsc(Long questionId);
 }

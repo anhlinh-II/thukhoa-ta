@@ -1,6 +1,7 @@
 package com.example.quiz.model.entity.question;
 
 import com.example.quiz.enums.QuestionType;
+import com.example.quiz.enums.QuizType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Id;
 import lombok.Data;
@@ -17,6 +18,8 @@ public class QuestionResponse {
     private int orderIndex;
     private String metadata;
     private String explanationHtml;
+    private QuizType quizType;
+    private Long quizId;
     private Instant createdAt;
     private String createdBy;
     private Instant updatedAt;

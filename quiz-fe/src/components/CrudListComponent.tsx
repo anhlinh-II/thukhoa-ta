@@ -13,6 +13,8 @@ export interface BaseComponentConfig extends BaseHooksConfig {
   editTitle?: string;
   showViewColumn?: boolean;
   pageSize?: number;
+  // Optional modal width (number in px or CSS string). Defaults to '90%'.
+  modalWidth?: number | string;
 }
 
 export interface BaseComponentProps<
@@ -29,6 +31,13 @@ export interface BaseComponentProps<
   tableProps?: Omit<TableProps<Response>, 'dataSource' | 'columns'>;
   onCreateSuccess?: (data: Response) => void;
   onUpdateSuccess?: (data: Response) => void;
+  // Optional custom create/update handlers. If provided they will be called
+  // instead of the default service.create/service.update mutation flows.
+  // onCreate receives the validated form values and should return the
+  // created Response (or void). onUpdate receives the record id and
+  // validated values and should return the updated Response (or void).
+  onCreate?: (values: any) => Promise<Response | void>;
+  onUpdate?: (id: string | number, values: any) => Promise<Response | void>;
   onDeleteSuccess?: () => void;
   filterParams?: FilterItemDto[];
   searchFields?: string[];
@@ -49,6 +58,8 @@ export function CrudListComponent<
   tableProps,
   onCreateSuccess,
   onUpdateSuccess,
+  onCreate,
+  onUpdate,
   onDeleteSuccess,
   filterParams,
   searchFields,
@@ -259,6 +270,8 @@ export function CrudListComponent<
       setIsModalVisible(false);
       form.resetFields();
       onCreateSuccess?.(data);
+
+      refetch();
     },
   });
 
@@ -275,6 +288,9 @@ export function CrudListComponent<
       }
     },
   });
+
+  // Local submitting flag to cover custom handlers
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const deleteMutation = hooks.useDelete({
     onSuccess: () => {
@@ -326,10 +342,45 @@ export function CrudListComponent<
     try {
       const values = await form.validateFields();
 
+      // If the caller provided a custom onUpdate/onCreate handler, call it
+      // and manage lifecycle here. Otherwise fall back to default mutations.
       if (editingRecord) {
-        updateMutation.mutate({ id: editingRecord.id, request: values });
+        if (typeof (onUpdate) === 'function') {
+          setIsSubmitting(true);
+          try {
+            const result = await onUpdate(editingRecord.id, values);
+            setIsModalVisible(false);
+            setEditingRecord(null);
+            form.resetFields();
+            if (result) onUpdateSuccess?.(result as Response);
+            try { refetch(); } catch (err) { console.error('Refetch after update failed', err); }
+          } catch (err) {
+            console.error('Custom onUpdate failed', err);
+            message.error('Update failed');
+          } finally {
+            setIsSubmitting(false);
+          }
+        } else {
+          updateMutation.mutate({ id: editingRecord.id, request: values });
+        }
       } else {
-        createMutation.mutate(values);
+        if (typeof (onCreate) === 'function') {
+          setIsSubmitting(true);
+          try {
+            const result = await onCreate(values);
+            setIsModalVisible(false);
+            form.resetFields();
+            if (result) onCreateSuccess?.(result as Response);
+            try { refetch(); } catch (err) { console.error('Refetch after create failed', err); }
+          } catch (err) {
+            console.error('Custom onCreate failed', err);
+            message.error('Create failed');
+          } finally {
+            setIsSubmitting(false);
+          }
+        } else {
+          createMutation.mutate(values);
+        }
       }
     } catch (error) {
       console.error('Form validation failed:', error);
@@ -385,8 +436,7 @@ export function CrudListComponent<
             loading={updateMutation.isPending}
           />
           <Popconfirm
-            title={`Delete ${config.resourceName}`}
-            description={`Are you sure you want to delete this ${config.resourceName.toLowerCase()}?`}
+            title={`Delete ${config.resourceName} - are you sure?`}
             onConfirm={() => handleDelete(record.id)}
             okText="Yes"
             cancelText="No"
@@ -484,19 +534,26 @@ export function CrudListComponent<
         open={isModalVisible}
         onOk={handleSubmit}
         onCancel={handleCancel}
-        confirmLoading={createMutation.isPending || updateMutation.isPending}
-        destroyOnClose
-        width={600}
+        confirmLoading={isSubmitting || createMutation.isPending || updateMutation.isPending}
+        width={config.modalWidth ?? '90%'}
+        centered
+        bodyStyle={{ maxHeight: '75vh', overflow: 'auto' }}
       >
-        <Form
-          form={form}
-          layout="vertical"
-          preserve={false}
-          initialValues={editingRecord ? (editingRecord as any) : undefined}
-        >
-          {renderForm ? renderForm(form, (editingRecord as unknown as Partial<Request>) || {}, !!editingRecord) : defaultFormRenderer()}
-        </Form>
+        {isModalVisible ? (
+          <Form
+            form={form}
+            layout="vertical"
+            preserve={false}
+            initialValues={editingRecord ? (editingRecord as any) : undefined}
+          >
+            {renderForm ? renderForm(form, (editingRecord as unknown as Partial<Request>) || {}, !!editingRecord) : defaultFormRenderer()}
+          </Form>
+        ) : null}
       </Modal>
+
+      {/* Keep a hidden Form connected to the same instance when modal is closed so the useForm instance is always attached
+          This avoids the React dev warning 'Instance created by `useForm` is not connected to any Form element.' */}
+      {!isModalVisible && <div style={{ display: 'none' }}><Form form={form} /></div>}
     </div>
   );
 }

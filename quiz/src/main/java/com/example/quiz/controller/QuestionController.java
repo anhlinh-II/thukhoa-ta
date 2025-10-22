@@ -16,4 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 @ResourceController("QUESTION")
 @Slf4j
 public class QuestionController extends BaseController<Question, Long, QuestionRequest, QuestionResponse, QuestionView, QuestionService> {
+    public QuestionController(QuestionService questionService) {
+        super(questionService);
+    }
 }

@@ -1,10 +1,8 @@
 package com.example.quiz.model.entity.question;
 
 import com.example.quiz.enums.QuestionType;
-import jakarta.persistence.Column;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.example.quiz.enums.QuizType;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Data
@@ -24,4 +22,8 @@ public class QuestionRequest {
     private String metadata;
 
     private String explanationHtml;
+
+    private QuizType quizType;
+
+    private Long quizId;
 }

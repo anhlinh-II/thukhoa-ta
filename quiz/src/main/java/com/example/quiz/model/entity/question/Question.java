@@ -2,6 +2,7 @@ package com.example.quiz.model.entity.question;
 
 import com.example.quiz.base.BaseEntity;
 import com.example.quiz.enums.QuestionType;
+import com.example.quiz.enums.QuizType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,9 +23,17 @@ public class Question extends BaseEntity {
     private Long id;
 
     @Column(name = "type", nullable = false)
+    @Enumerated(EnumType.STRING)
     private QuestionType type;
 
-    @Column(name = "group_id", nullable = false)
+    @Column(name = "quiz_type", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private QuizType quizType;
+
+    @Column(name = "quiz_id")
+    private Long quizId;
+
+    @Column(name = "group_id", nullable = false) // tham chiếu đến question group
     private Long groupId;
 
     @Column(name = "content_html", columnDefinition = "TEXT", nullable = false)

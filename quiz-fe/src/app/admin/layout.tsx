@@ -1,12 +1,13 @@
 "use client";
 import { useState } from 'react';
-import { Layout, Menu, theme } from 'antd';
+import { Layout, Menu } from 'antd';
 import { useRouter, usePathname } from 'next/navigation';
 import {
   AppstoreOutlined,
   BookOutlined,
   DashboardOutlined,
   SettingOutlined,
+  QuestionCircleOutlined,
 } from '@ant-design/icons';
 import './admin.css';
 
@@ -21,15 +22,12 @@ export default function AdminLayout({
   const router = useRouter();
   const pathname = usePathname();
 
-  const {
-    token: { colorBgContainer, borderRadiusLG },
-  } = theme.useToken();
-
   // Determine active key based on pathname
   const getActiveKey = () => {
     if (pathname.includes('/admin/quiz-groups')) return 'quiz-groups';
     if (pathname.includes('/admin/quiz-mocktests')) return 'quiz-mock-tests';
     if (pathname.includes('/admin/programs')) return 'programs';
+    if (pathname.includes('/admin/questions')) return 'questions';
     if (pathname.includes('/admin/dashboard')) return 'dashboard';
     if (pathname.includes('/admin/settings')) return 'settings';
     if (pathname.includes('/admin/test-base')) return 'test-base';
@@ -51,6 +49,11 @@ export default function AdminLayout({
       key: 'programs',
       icon: <BookOutlined />,
       label: 'Programs',
+    },
+    {
+      key: 'questions',
+      icon: <QuestionCircleOutlined />,
+      label: 'Questions',
     },
     {
       key: 'dashboard',
@@ -79,6 +82,9 @@ export default function AdminLayout({
         break;
       case 'quiz-mock-tests':
         router.push('/admin/quiz-mocktests');
+        break;
+      case 'questions':
+        router.push('/admin/questions');
         break;
       case 'dashboard':
         router.push('/admin/dashboard');
@@ -137,7 +143,7 @@ export default function AdminLayout({
         <Header
           style={{
             padding: 0,
-            background: colorBgContainer,
+            background: '#ffffff',
             boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
           }}
         >
@@ -171,7 +177,7 @@ export default function AdminLayout({
           style={{
             margin: 0,
             minHeight: 280,
-            borderRadius: collapsed ? borderRadiusLG : 0,
+            borderRadius: collapsed ? 8 : 0,
           }}
           className="bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50"
         >

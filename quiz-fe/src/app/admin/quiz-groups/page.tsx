@@ -5,8 +5,9 @@ import type { ColumnsType } from 'antd/es/table';
 import { CrudListComponent } from '../../../components/CrudListComponent';
 import TreeView from '../../../components/TreeView';
 import { programService } from '../../../services/programService';
-import { quizGroupService, QuizGroupResponse, QuizGroupRequest } from '../../../services/quizGroupService';
+import { quizGroupService } from '../../../services/quiz_group/quiz-group.service';
 import { FilterItemDto } from '@/types';
+import { QuizGroupRequest, QuizGroupResponse } from '@/services/quiz_group/models';
 
 export default function QuizGroup() {
   const [selectedProgramIds, setSelectedProgramIds] = useState<Array<string | number> | null>(null);
@@ -146,7 +147,7 @@ export default function QuizGroup() {
   return (
     <div style={{ height: 'calc(100vh - 64px)', background: 'transparent' }}>
       <Splitter layout="horizontal" style={{ height: '100%' }}> 
-        <Splitter.Panel size={320} min={200} max={640}>
+        <Splitter.Panel defaultSize={320} min={200} max={640}>
           <div className='p-1 mt-1 h-full'>
             <div className='h-full'>
               <TreeView

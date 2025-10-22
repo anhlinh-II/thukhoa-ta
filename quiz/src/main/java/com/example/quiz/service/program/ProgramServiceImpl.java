@@ -1,4 +1,4 @@
-package com.example.quiz.service.impl;
+package com.example.quiz.service.program;
 
 import com.example.quiz.base.impl.AdvancedFilterService;
 import com.example.quiz.base.impl.BaseServiceImpl;
@@ -11,7 +11,6 @@ import com.example.quiz.model.entity.program.Program;
 import com.example.quiz.model.entity.program.ProgramView;
 import com.example.quiz.repository.program.ProgramRepository;
 import com.example.quiz.repository.program.ProgramViewRepository;
-import com.example.quiz.service.program.ProgramService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

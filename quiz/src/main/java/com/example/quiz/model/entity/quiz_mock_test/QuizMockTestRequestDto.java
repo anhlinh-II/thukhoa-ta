@@ -1,11 +1,15 @@
 package com.example.quiz.model.entity.quiz_mock_test;
 
+import com.example.quiz.model.entity.question.QuestionRequest;
+import com.example.quiz.model.entity.question_group.QuestionGroupRequest;
+import com.example.quiz.model.entity.question_option.QuestionOptionRequest;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -49,4 +53,24 @@ public class QuizMockTestRequestDto {
     private Integer displayOrder = 0;
 
     private Boolean isActive = true;
+
+    // Nested question creation support
+    private List<QuestionGroupWithQuestionsDto> questionGroups;
+    private List<QuestionWithOptionsDto> standaloneQuestions;
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class QuestionGroupWithQuestionsDto {
+        private QuestionGroupRequest group;
+        private List<QuestionWithOptionsDto> questions;
+    }
+
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class QuestionWithOptionsDto {
+        private QuestionRequest question;
+        private List<QuestionOptionRequest> options;
+    }
 }
