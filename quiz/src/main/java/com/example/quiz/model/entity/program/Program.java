@@ -53,6 +53,9 @@ public class Program extends BaseEntity implements Sluggable {
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<Program> children;
 
+    @Column(name = "image_url")
+    String imageUrl;
+
     // Helper methods
     public boolean isLeaf() {
         return children == null || children.isEmpty();

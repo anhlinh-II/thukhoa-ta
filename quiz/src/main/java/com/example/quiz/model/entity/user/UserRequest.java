@@ -26,7 +26,7 @@ public class UserRequest {
     String lastName;
     String phone;
 
-    @DobConstraint(min = 16, message = "INVALID_DOB")
+    @DobConstraint(min = 5, message = "INVALID_DOB")
     Instant dob;
 
     Gender gender;

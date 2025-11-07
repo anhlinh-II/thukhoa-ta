@@ -1,3 +1,4 @@
+import { ENV } from '@/config/env';
 import { BaseEntity, BaseService } from './BaseService';
 
 export interface Program extends BaseEntity {
@@ -34,7 +35,7 @@ export class ProgramService extends BaseService<
      ProgramView
 > {
      constructor() {
-          super('http://localhost:8080/api/v1', 'programs');
+          super(ENV.API_URL, 'programs');
      }
 
 }

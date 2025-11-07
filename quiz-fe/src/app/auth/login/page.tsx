@@ -1,25 +1,34 @@
 "use client";
 import { Button, Form, Input, Typography, message } from "antd";
 import { GoogleOutlined, UserOutlined, LockOutlined } from "@ant-design/icons";
-import React, { useState } from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import FloatingBubbles from "../../../components/ui/FloatingBubbles";
-import { useAppDispatch, useAppSelector } from "../../../hooks/redux";
-import { loginAsync } from "../../../store/slices/authSlice";
+import { useLogin } from "../../../hooks/useAuth";
 
 export default function LoginPage() {
   const [form] = Form.useForm();
-  const dispatch = useAppDispatch();
-  const { loading, error } = useAppSelector((state) => state.auth);
+  const router = useRouter();
+  const { mutate: login, isPending } = useLogin();
 
-  const onFinish = async (values: { email: string; password: string }) => {
-    try {
-      await dispatch(loginAsync(values)).unwrap();
-      message.success('Đăng nhập thành công!');
-      // Redirect to dashboard or home
-    } catch (error) {
-      message.error('Đăng nhập thất bại!');
-    }
+  useEffect(() => {
+    // Reset form on mount
+    form.resetFields();
+  }, [form]);
+
+  const onFinish = async (values: { username: string; password: string }) => {
+    login(values, {
+      onSuccess: () => {
+        message.success('Đăng nhập thành công!');
+        // Redirect to home
+        router.push('/');
+      },
+      onError: (error: any) => {
+        const errorMessage = error?.message || 'Đăng nhập thất bại!';
+        message.error(errorMessage);
+      },
+    });
   };
 
   return (
@@ -33,7 +42,7 @@ export default function LoginPage() {
               <span className="text-white font-bold text-xl">Q</span>
             </div>
             <h2 className="text-3xl font-bold text-gray-900 mb-2">Đăng nhập vào tài khoản của bạn</h2>
-            <p className="text-gray-600">Nhập email của bạn bên dưới để đăng nhập vào tài khoản</p>
+            <p className="text-gray-600">Nhập email hoặc tên đăng nhập của bạn bên dưới</p>
           </div>
 
           {/* Form */}
@@ -44,18 +53,18 @@ export default function LoginPage() {
             className="space-y-6"
           >
             <Form.Item
-              name="email"
-              label={<span className="text-gray-700 font-medium">Email</span>}
+              name="username"
+              label={<span className="text-gray-700 font-medium">Email hoặc Tên đăng nhập</span>}
               rules={[
-                { required: true, message: "Please input your email!" },
-                { type: "email", message: "Please enter a valid email!" }
+                { required: true, message: "Vui lòng nhập email hoặc tên đăng nhập!" },
               ]}
             >
               <Input
                 prefix={<UserOutlined className="text-gray-400" />}
-                placeholder="m@gmail.com"
+                placeholder="m@gmail.com hoặc username"
                 size="large"
                 className="rounded-lg"
+                disabled={isPending}
               />
             </Form.Item>
 
@@ -70,25 +79,27 @@ export default function LoginPage() {
                   </Link>
                 </div>
               }
-              rules={[{ required: true, message: "Please input your password!" }]}
+              rules={[{ required: true, message: "Vui lòng nhập mật khẩu!" }]}
             >
               <Input.Password
                 prefix={<LockOutlined className="text-gray-400" />}
                 placeholder="Nhập mật khẩu"
                 size="large"
                 className="rounded-lg text-base"
+                disabled={isPending}
               />
             </Form.Item>
 
             <Button
               type="primary"
               htmlType="submit"
-              loading={loading}
+              loading={isPending}
               block
               size="large"
               className="rounded-lg h-12 font-medium"
+              disabled={isPending}
             >
-              Login
+              {isPending ? 'Đang đăng nhập...' : 'Đăng nhập'}
             </Button>
           </Form>
 
@@ -108,6 +119,7 @@ export default function LoginPage() {
             block
             size="large"
             className="border-gray-300 rounded-lg h-12 font-medium hover:bg-gray-50"
+            disabled={isPending}
           >
             Đăng nhập với Google
           </Button>
@@ -115,7 +127,7 @@ export default function LoginPage() {
           {/* Sign up link */}
           <div className="text-center">
             <span className="text-gray-600">Bạn chưa có tài khoản? </span>
-            <Link href="/register" className="text-purple-500 hover:text-purple-400 font-medium">
+            <Link href="/auth/register" className="text-purple-500 hover:text-purple-400 font-medium">
               Đăng ký ngay
             </Link>
           </div>

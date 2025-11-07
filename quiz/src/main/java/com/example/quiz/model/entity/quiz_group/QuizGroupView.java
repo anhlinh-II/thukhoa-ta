@@ -64,6 +64,9 @@ public class QuizGroupView {
     @Column(name = "updated_by")
     private String updatedBy;
 
+    @Column(name = "total_mock_test")
+    private Integer totalMockTest;
+
     public enum GroupType {
         FORMAT, TOPIC, MOCK_TEST, OTHER
     }

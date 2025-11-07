@@ -32,4 +32,7 @@ public class ProgramRequestDto {
     private Integer displayOrder = 0;
 
     private Long parentId;
+
+    private String imageUrl;
+
 }

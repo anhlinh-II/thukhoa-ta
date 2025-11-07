@@ -24,4 +24,5 @@ public class QuizGroupResponseDto {
     private String createdBy;
     private Instant updatedAt;
     private String updatedBy;
+    private Integer totalMockTest;
 }

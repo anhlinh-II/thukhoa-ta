@@ -162,7 +162,7 @@ export default function QuizMockTests() {
                const data = await response.json();
                setPreviewData(data);
           } catch (error) {
-               console.error('Failed to load preview', error);
+               console.error('Failed to load preview', error); 
           } finally {
                setPreviewLoading(false);
           }

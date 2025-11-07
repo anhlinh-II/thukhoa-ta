@@ -1,76 +1,75 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Table, Card, Typography, Spin, message } from "antd";
-import { ColumnsType } from "antd/es/table";
+import { Tree, Card, Typography, Spin, message } from "antd";
 import { programService } from "../../../services/programService";
 import type { ProgramView } from "../../../services/programService";
+import { useRouter } from "next/navigation";
+import type { DataNode } from "antd/es/tree";
 
 const { Title } = Typography;
 
-export default function ProgramsPage() {
-  const [data, setData] = useState<ProgramView[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [total, setTotal] = useState<number>(0);
-  const [page, setPage] = useState<number>(1);
-  const [pageSize, setPageSize] = useState<number>(20);
+interface TreeNode extends DataNode {
+  id: number;
+  title: string;
+  key: string;
+  children?: TreeNode[];
+  isLeaf?: boolean;
+}
 
-  const fetchPrograms = async (p = 1, size = 20) => {
+export default function ProgramsPage() {
+  const [treeData, setTreeData] = useState<TreeNode[]>([]);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+
+  const fetchProgramsTree = async () => {
     setLoading(true);
     try {
-      const req = {
-        skip: (p - 1) * size,
-        take: size,
-        sort: "",
-        columns: "", 
-        filter: "",
-        emptyFilter: "",
-        isGetTotal: true,
-      } as any;
+      // getTree() doesn't need any parameters - it returns all programs in hierarchical structure
+      const resp: any = await programService.getTree();
 
-      const resp: any = await programService.getViewsPagedWithFilter(req);
-
-      // handle different backend wrappers
-      const result = resp?.result ?? resp?.data ?? resp;
-      const list = result?.data ?? result?.content ?? result;
-      const totalCount = result?.total ?? result?.totalElements ?? 0;
-
-      setData(Array.isArray(list) ? list : []);
-      setTotal(typeof totalCount === "number" ? totalCount : 0);
+      // The getTree method returns hierarchical data
+      const treeNodes = buildTreeNodes(resp || []);
+      setTreeData(treeNodes);
     } catch (err: any) {
-      console.error("Fetch programs error", err);
+      console.error("Fetch programs tree error", err);
       message.error("Failed to load programs");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchPrograms(page, pageSize);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [page, pageSize]);
+  const buildTreeNodes = (data: any[]): TreeNode[] => {
+    if (!Array.isArray(data)) return [];
+    
+    return data.map((item: any) => ({
+      id: item.id,
+      title: item.name || `Program ${item.id}`,
+      key: `program-${item.id}`,
+      children: item.children && Array.isArray(item.children) && item.children.length > 0
+        ? buildTreeNodes(item.children)
+        : undefined,
+      isLeaf: !item.children || item.children.length === 0,
+    }));
+  };
 
-  const columns: ColumnsType<ProgramView> = [
-    { title: "ID", dataIndex: "id", key: "id", width: 80 },
-    { title: "Name", dataIndex: "name", key: "name" },
-    { title: "Slug", dataIndex: "slug", key: "slug" },
-    { title: "Level", dataIndex: "level", key: "level", width: 100 },
-    {
-      title: "Active",
-      dataIndex: "isActive",
-      key: "isActive",
-      render: (v) => (v ? "Yes" : "No"),
-      width: 100,
-    },
-    { title: "Display Order", dataIndex: "displayOrder", key: "displayOrder", width: 120 },
-    { title: "Parent ID", dataIndex: "parentId", key: "parentId", width: 120 },
-  ];
+  const handleSelect = (selectedKeys: React.Key[], info: any) => {
+    if (selectedKeys.length > 0) {
+      const node = info.node as TreeNode;
+      // Navigate to quiz groups page with program ID
+      router.push(`/programs/${node.id}/quiz-groups`);
+    }
+  };
+
+  useEffect(() => {
+    fetchProgramsTree();
+  }, []);
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <Card>
         <div className="flex items-center justify-between mb-4">
           <Title level={3} className="!m-0">
-            Programs
+            Chương Trình Ôn Luyện
           </Title>
         </div>
 
@@ -79,21 +78,12 @@ export default function ProgramsPage() {
             <Spin />
           </div>
         ) : (
-          <Table<ProgramView>
-            columns={columns}
-            dataSource={data}
-            rowKey="id"
-            pagination={{
-              current: page,
-              pageSize,
-              total,
-              showSizeChanger: true,
-              onChange: (p, size) => {
-                setPage(p);
-                setPageSize(size || pageSize);
-              },
-            }}
-            size="middle"
+          <Tree
+            treeData={treeData}
+            onSelect={handleSelect}
+            showLine
+            defaultExpandAll
+            style={{ fontSize: '16px' }}
           />
         )}
       </Card>

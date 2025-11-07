@@ -60,4 +60,7 @@ public class ProgramView {
 
     @Column(name = "updated_by")
     String updatedBy;
+
+    @Column(name = "image_url")
+    String imageUrl;
 }

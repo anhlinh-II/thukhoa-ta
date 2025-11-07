@@ -1,3 +1,4 @@
+import { ENV } from "@/config/env";
 import { BaseEntity, BaseService } from "./BaseService";
 import { QuestionRequest } from "./question/models";
 import { QuestionGroupRequest } from "./question_group/models";
@@ -52,10 +53,11 @@ export interface QuizMockTestRequest {
 
 export interface QuizMockTestResponse extends QuizMockTest {
      groupName: string;
+     totalMockTest: number;
 }
 
 export interface QuizMockTestView extends QuizMockTest {
-    
+    totalMockTest: number;
 }
 
 export class QuizMockTestService extends BaseService<
@@ -65,7 +67,7 @@ QuizMockTestResponse,
 QuizMockTestView
 > {
      constructor() {
-          super('http://localhost:8080/api/v1', 'quiz-mock-tests');
+          super(ENV.API_URL, 'quiz-mock-tests');
      }
 }
 

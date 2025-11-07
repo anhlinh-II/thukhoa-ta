@@ -339,8 +339,15 @@ export function CrudListComponent<
   };
 
   const handleSubmit = async () => {
+    // Prevent double submit
+    if (isSubmitting || createMutation.isPending || updateMutation.isPending) {
+      console.log('[CrudList] Submit already in progress, ignoring duplicate call');
+      return;
+    }
+
     try {
       const values = await form.validateFields();
+      console.log('[CrudList] Submitting values:', values);
 
       // If the caller provided a custom onUpdate/onCreate handler, call it
       // and manage lifecycle here. Otherwise fall back to default mutations.
@@ -379,6 +386,7 @@ export function CrudListComponent<
             setIsSubmitting(false);
           }
         } else {
+          console.log('[CrudList] Calling default createMutation.mutate');
           createMutation.mutate(values);
         }
       }

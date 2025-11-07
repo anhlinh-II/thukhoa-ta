@@ -171,10 +171,10 @@ export default function QuizMockTestFormComponent({ form, initialValues }: QuizM
                                     <Form.Item
                                       {...optRest}
                                       name={[oname, 'contentHtml']}
-                                      label="Option Content"
+                                      label="Option Content (HTML)"
                                       rules={[{ required: true, message: 'Required' }]}
                                     >
-                                      <Input.TextArea rows={2} />
+                                      <QuillEditor />
                                     </Form.Item>
 
                                     <Space>
@@ -308,10 +308,10 @@ export default function QuizMockTestFormComponent({ form, initialValues }: QuizM
                           <Form.Item
                             {...optRest}
                             name={[oname, 'contentHtml']}
-                            label="Option Content"
+                            label="Option Content (HTML)"
                             rules={[{ required: true, message: 'Required' }]}
                           >
-                            <Input.TextArea rows={2} />
+                            <QuillEditor />
                           </Form.Item>
 
                           <Space>
