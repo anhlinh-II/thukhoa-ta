@@ -110,7 +110,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRequest, Us
 
     @Override
     public boolean verifyOtp(User user, String otp) {
-        if (user.getOtp().equals(otp) && Duration.between(user.getOtpGeneratedTime(), Instant.now()).getSeconds() < 60) {
+        if (user.getOtp().equals(otp) && Duration.between(user.getOtpGeneratedTime(), Instant.now()).getSeconds() < 300) {
             user.setOtp(otp);
             userRepository.save(user);
             return true;
@@ -175,6 +175,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRequest, Us
             userLogin.setUsername(currentUserDB.getUsername());
             userLogin.setLocation(currentUserDB.getLocation());
             userLogin.setBio(currentUserDB.getBio());
+            userLogin.setAvatarUrl(currentUserDB.getAvatarUrl());
 
             userGetAccount.setUser(userLogin);
         }

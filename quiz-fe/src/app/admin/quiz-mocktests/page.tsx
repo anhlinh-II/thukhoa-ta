@@ -1,15 +1,16 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { CrudListComponent } from "@/components/CrudListComponent";
-import { QuizMockTestRequest, QuizMockTestResponse, quizMockTestService } from "@/services/quizMockTestService";
-import { FilterItemDto } from "@/types";
+import { FilterItemDto } from "@/share/types";
 import { Form, Input, Switch, InputNumber, Select, Button, Modal, Card, Tabs, Space } from "antd";
 import { ColumnsType } from "antd/es/table";
-import { quizGroupService } from '@/services/quiz_group/quiz-group.service';
 import { EyeOutlined } from '@ant-design/icons';
 import QuizMockTestFormComponent from './QuizMockTestFormComponent';
-import { ENV } from '@/config/env';
+import { CrudListComponent } from '@/share/components/CrudListComponent';
+import { ENV } from '@/share/config/env';
+import { quizGroupService } from '@/share/services/quiz_group/quiz-group.service';
+import { QuizMockTestResponse, QuizMockTestRequest } from '@/share/services/quiz_mock_test/model';
+import { quizMockTestService } from '@/share/services/quiz_mock_test/quizMockTestService';
 
 // A small client-side selector that searches quiz groups (take 10) via backend and lets user pick one.
 function QuizGroupSelector({ form, initialValue }: { form: any; initialValue?: number }) {

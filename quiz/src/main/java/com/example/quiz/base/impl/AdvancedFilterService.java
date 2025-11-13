@@ -42,6 +42,10 @@ public class AdvancedFilterService {
 
             // Get table name from entity
             String tableName = getTableName(viewClass);
+
+            // If the view/table doesn't exist in the database, we'll attempt a
+            // runtime fallback during execution (catch / retry) below rather than
+            // checking metadata here.
             queryBuilder.append(" FROM ").append(tableName).append(" e");
 
             // Build WHERE clause from filters
@@ -57,22 +61,49 @@ public class AdvancedFilterService {
                 queryBuilder.append(" ORDER BY ").append(orderClause);
             }
 
-            // Create the main query
-            // Log SQL and parameters for debugging
-            log.info("Filtered view SQL: {}", queryBuilder.toString());
+            // Create the main query and execute. If the view/table doesn't exist
+            // the DB will throw an exception; in that case, if the name ends with
+            // _view we try once more with the base table (without the suffix).
+            List<Object[]> resultList;
+            String sql = queryBuilder.toString();
+            log.info("Filtered view SQL: {}", sql);
             log.info("Filtered view parameters: {}", parameters);
-            Query query = entityManager.createNativeQuery(queryBuilder.toString());
 
-            // Set parameters
-            parameters.forEach(query::setParameter);
-
-            // Set pagination
-            query.setFirstResult(request.getSkip());
-            query.setMaxResults(request.getTake());
-
-            // Execute query
-            @SuppressWarnings("unchecked")
-            List<Object[]> resultList = query.getResultList();
+            try {
+                Query query = entityManager.createNativeQuery(sql);
+                // Set parameters
+                parameters.forEach(query::setParameter);
+                // Set pagination
+                query.setFirstResult(request.getSkip());
+                query.setMaxResults(request.getTake());
+                @SuppressWarnings("unchecked")
+                List<Object[]> tmp = query.getResultList();
+                resultList = tmp;
+            } catch (Exception ex) {
+                // If the table is a view (endsWith _view) try fallback to base table
+                if (tableName != null && tableName.endsWith("_view")) {
+                    String baseTable = tableName.substring(0, tableName.length() - 5);
+                    String fallbackSql = sql.replaceFirst("(?i)FROM\\s+" + tableName, "FROM " + baseTable);
+                    log.info("Primary query failed ({}). Trying fallback SQL with base table '{}': {}", ex.getMessage(), baseTable, fallbackSql);
+                    try {
+                        Query fallbackQuery = entityManager.createNativeQuery(fallbackSql);
+                        parameters.forEach(fallbackQuery::setParameter);
+                        fallbackQuery.setFirstResult(request.getSkip());
+                        fallbackQuery.setMaxResults(request.getTake());
+                        @SuppressWarnings("unchecked")
+                        List<Object[]> tmp2 = fallbackQuery.getResultList();
+                        // update tableName so count uses same table
+                        tableName = baseTable;
+                        resultList = tmp2;
+                    } catch (Exception ex2) {
+                        log.error("Both primary and fallback queries failed: {}, {}", ex.getMessage(), ex2.getMessage());
+                        throw new RuntimeException("Error executing filtered query", ex2);
+                    }
+                } else {
+                    log.error("Filtered query failed: {}", ex.getMessage());
+                    throw new RuntimeException("Error executing filtered query", ex);
+                }
+            }
 
             // Convert to Map format
             String[] columnNames = Arrays.stream(viewClass.getDeclaredFields())

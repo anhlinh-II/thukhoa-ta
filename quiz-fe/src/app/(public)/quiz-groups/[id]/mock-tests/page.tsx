@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Card, Typography, Spin, Button, List, Modal, InputNumber, message, Tag, Divider } from "antd";
 import { useParams, useRouter } from "next/navigation";
 import { ClockCircleOutlined, FileTextOutlined, LoadingOutlined, TrophyOutlined, PlayCircleOutlined } from "@ant-design/icons";
-import { useQuizMockTestsByGroup } from "@/hooks/useQuizMockTests";
+import { useQuizMockTestsByGroup } from "@/share/hooks/useQuizMockTests";
 
 const { Title, Text } = Typography;
 
@@ -28,14 +28,14 @@ export default function MockTestsListPage() {
 
   const handleConfirmStart = () => {
     if (!selectedMockTest) return;
-    
+
     if (duration <= 0) {
       message.error('Vui lòng nhập thời gian hợp lệ');
       return;
     }
 
     setShowConfigModal(false);
-    
+
     // Navigate to quiz taking page with config
     router.push(`/quiz-taking/${selectedMockTest.id}?type=MOCK_TEST&duration=${duration}`);
   };
@@ -44,8 +44,8 @@ export default function MockTestsListPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 py-8">
       <div className="max-w-7xl mx-auto px-6">
         <div className="mb-8">
-          <Button 
-            onClick={() => router.back()} 
+          <Button
+            onClick={() => router.back()}
             className="mb-4 hover:scale-105 transition-transform"
             size="large"
           >
@@ -197,9 +197,9 @@ export default function MockTestsListPage() {
                     <Text strong className="text-base">{selectedMockTest.examName || selectedMockTest.name}</Text>
                   </div>
                 </div>
-                
+
                 <Divider className="!my-3" />
-                
+
                 <div className="grid grid-cols-2 gap-4">
                   <div className="text-center p-3 bg-white rounded-lg">
                     <FileTextOutlined className="text-2xl text-purple-600 mb-2" />

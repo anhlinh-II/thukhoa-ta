@@ -4,8 +4,8 @@ import React, { useState, useEffect } from "react";
 import { Card, Row, Col, Typography, Spin, Button } from "antd";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowRightOutlined } from "@ant-design/icons";
-import { quizGroupService } from "@/services/quiz_group/quiz-group.service";
-import { GroupType, type QuizGroupView } from "@/services/quiz_group/models";
+import { GroupType, QuizGroupView } from "@/share/services/quiz_group/models";
+import { quizGroupService } from "@/share/services/quiz_group/quiz-group.service";
 
 const { Title, Text } = Typography;
 
@@ -131,7 +131,6 @@ export default function ProgramQuizGroupsPage() {
     const group = quizGroups.find(g => g.id === groupId);
     
     if (group?.groupType === GroupType.MOCK_TEST) {
-      // For MOCK_TEST groups, navigate to mock tests list page
       router.push(`/quiz-groups/${groupId}/mock-tests`);
     } else {
       // For other types, navigate to quizzes page

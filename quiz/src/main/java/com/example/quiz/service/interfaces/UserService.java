@@ -40,4 +40,5 @@ public interface UserService extends BaseService<User, Long, UserRequest, UserRe
     ApiResponse<String> forgotPassword(ForgotPasswordRequest request);
     
     ApiResponse<Void> resetPassword(ResetPasswordRequest request);
+
 }

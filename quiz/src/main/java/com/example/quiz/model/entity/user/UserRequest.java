@@ -22,6 +22,7 @@ public class UserRequest {
     @Size(min = 8, message = "PASSWORD_INVALID")
     String password;
     String email;
+    String avatarUrl;
     String firstName;
     String lastName;
     String phone;

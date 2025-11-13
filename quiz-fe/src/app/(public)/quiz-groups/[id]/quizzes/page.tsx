@@ -4,7 +4,8 @@ import React, { useState, useEffect } from "react";
 import { Card, List, Typography, Spin, Button, Tag } from "antd";
 import { useParams, useRouter } from "next/navigation";
 import { ClockCircleOutlined, FileTextOutlined, TrophyOutlined } from "@ant-design/icons";
-import { quizMockTestService, type QuizMockTestResponse } from "@/services/quizMockTestService";
+import { QuizMockTestResponse } from "@/share/services/quiz_mock_test/model";
+import { quizMockTestService } from "@/share/services/quiz_mock_test/quizMockTestService";
 
 const { Title, Text } = Typography;
 
@@ -34,13 +35,13 @@ const QuizGroupQuizzesPage: React.FC = () => {
         ]),
         sort: "displayOrder asc",
       };
-      
+
       const response = await quizMockTestService.getViewsPagedWithFilter(request);
       const quizList = response.data as any as QuizMockTestResponse[];
-      
+
       console.log('Quizzes data:', quizList);
       setQuizzes(quizList);
-      
+
       // Get group name from first quiz if available
       if (quizList.length > 0 && quizList[0].groupName) {
         setGroupName(quizList[0].groupName);
@@ -69,8 +70,8 @@ const QuizGroupQuizzesPage: React.FC = () => {
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-5xl mx-auto px-6">
         <div className="mb-6">
-          <Button 
-            onClick={() => router.back()} 
+          <Button
+            onClick={() => router.back()}
             className="mb-4"
           >
             ← Quay lại
@@ -132,7 +133,7 @@ const QuizGroupQuizzesPage: React.FC = () => {
                             {quiz.description}
                           </Text>
                         )}
-                        
+
                         <div className="space-y-2">
                           {quiz.durationMinutes && (
                             <div className="flex items-center gap-2 text-sm">
@@ -140,7 +141,7 @@ const QuizGroupQuizzesPage: React.FC = () => {
                               <span>{quiz.durationMinutes} phút</span>
                             </div>
                           )}
-                          
+
                           {quiz.totalQuestions && (
                             <div className="flex items-center gap-2 text-sm">
                               <FileTextOutlined className="text-green-500" />

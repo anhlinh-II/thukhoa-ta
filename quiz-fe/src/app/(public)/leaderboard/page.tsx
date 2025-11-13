@@ -27,7 +27,7 @@ import {
   StarOutlined,
   ThunderboltOutlined,
 } from "@ant-design/icons";
-import { useAccount } from "@/hooks/useAuth";
+import { useAccount } from "@/share/hooks/useAuth";
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;

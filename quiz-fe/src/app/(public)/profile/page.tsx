@@ -1,16 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
-import { 
-  Card, 
-  Typography, 
-  Avatar, 
-  Button, 
-  Tabs, 
-  Form, 
-  Input, 
-  Select, 
-  DatePicker, 
+import {
+  Card,
+  Typography,
+  Avatar,
+  Button,
+  Tabs,
+  Form,
+  Input,
+  Select,
+  DatePicker,
   message,
   Row,
   Col,
@@ -23,12 +23,13 @@ import {
   Modal,
   Badge,
   Timeline,
-  Tooltip
+  Tooltip,
+  Spin
 } from "antd";
-import { 
-  UserOutlined, 
-  EditOutlined, 
-  TrophyOutlined, 
+import {
+  UserOutlined,
+  EditOutlined,
+  TrophyOutlined,
   ClockCircleOutlined,
   CheckCircleOutlined,
   FireOutlined,
@@ -52,7 +53,6 @@ import {
   BulbOutlined,
   RocketOutlined
 } from "@ant-design/icons";
-import { useAccount, useLogout } from "@/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import dayjs from "dayjs";
 import {
@@ -70,6 +70,9 @@ import {
   Filler
 } from 'chart.js';
 import { Line, Bar, Doughnut, Radar } from 'react-chartjs-2';
+import { useAccount, useLogout } from "@/share/hooks/useAuth";
+import apiClient from "@/share/services/api";
+import fileService from "@/share/services/fileService";
 
 // Register ChartJS components
 ChartJS.register(
@@ -95,6 +98,8 @@ export default function ProfilePage() {
   const router = useRouter();
   const [form] = Form.useForm();
   const [isEditing, setIsEditing] = useState(false);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement | null>(null);
 
   // Mock data - replace with real data from API
   const stats = {
@@ -138,32 +143,32 @@ export default function ProfilePage() {
   ];
 
   const recentActivities = [
-    { 
-      id: 1, 
-      type: "test", 
-      title: "Hoàn thành IELTS Reading Test 1", 
+    {
+      id: 1,
+      type: "test",
+      title: "Hoàn thành IELTS Reading Test 1",
       score: 85,
       time: "2 giờ trước",
       icon: <CheckCircleOutlined className="text-green-500" />
     },
-    { 
-      id: 2, 
-      type: "achievement", 
-      title: "Mở khóa thành tích 'Week Warrior'", 
+    {
+      id: 2,
+      type: "achievement",
+      title: "Mở khóa thành tích 'Week Warrior'",
       time: "5 giờ trước",
       icon: <TrophyOutlined className="text-yellow-500" />
     },
-    { 
-      id: 3, 
-      type: "streak", 
-      title: "Đạt chuỗi học tập 7 ngày", 
+    {
+      id: 3,
+      type: "streak",
+      title: "Đạt chuỗi học tập 7 ngày",
       time: "1 ngày trước",
       icon: <FireOutlined className="text-orange-500" />
     },
-    { 
-      id: 4, 
-      type: "test", 
-      title: "Hoàn thành TOEIC Part 5-6", 
+    {
+      id: 4,
+      type: "test",
+      title: "Hoàn thành TOEIC Part 5-6",
       score: 92,
       time: "2 ngày trước",
       icon: <CheckCircleOutlined className="text-green-500" />
@@ -374,19 +379,19 @@ export default function ProfilePage() {
         <Card className="mb-6 rounded-2xl shadow-xl border-0 overflow-hidden">
           <div className="relative">
             {/* Cover Background */}
-            <div 
+            <div
               className="absolute inset-0 h-32 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500"
               style={{ zIndex: 0 }}
             />
-            
+
             {/* Content */}
             <div className="relative z-10 pt-20 pb-6">
               <Row gutter={[24, 24]} align="middle">
                 <Col xs={24} md={8} className="text-center md:text-left">
                   <div className="flex flex-col md:flex-row items-center gap-4">
                     <div className="relative">
-                      <Avatar 
-                        size={120} 
+                      <Avatar
+                        size={120}
                         className="border-4 border-white shadow-xl"
                         style={{ backgroundColor: '#667eea' }}
                       >
@@ -396,6 +401,44 @@ export default function ProfilePage() {
                           <span className="text-4xl">{getInitials(user.name || user.username)}</span>
                         )}
                       </Avatar>
+                      {/* Camera upload button */}
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        style={{ display: 'none' }}
+                        onChange={async (e) => {
+                          const f = e.target.files?.[0];
+                          if (!f) return;
+                          try {
+                            setUploadingAvatar(true);
+                            // upload to backend -> MinIO
+                            const res = await fileService.upload(f, 'user/avatar', String(user.id));
+                            const path = res?.result ?? res;
+                            if (!path) throw new Error('No path returned');
+                            // update user via base PUT endpoint
+                            await apiClient.put(`/users/edit/${user.id}`, { avatarUrl: path });
+                            message.success('Cập nhật ảnh đại diện thành công');
+                            // reload or refresh account cache - simple page reload for now
+                            window.location.reload();
+                          } catch (err) {
+                            console.error(err);
+                            message.error('Cập nhật ảnh thất bại');
+                          } finally {
+                            setUploadingAvatar(false);
+                            // reset input
+                            if (fileInputRef.current) fileInputRef.current.value = '';
+                          }
+                        }}
+                      />
+                      <Button
+                        type="primary"
+                        shape="circle"
+                        icon={uploadingAvatar ? <Spin /> : <CameraOutlined />}
+                        className="absolute bottom-0 right-0 shadow-lg"
+                        size="small"
+                        onClick={() => fileInputRef.current?.click()}
+                      />
                       {/* <Button
                         type="primary"
                         shape="circle"
@@ -461,8 +504,8 @@ export default function ProfilePage() {
         <Card className="rounded-2xl shadow-lg border-0">
           <Tabs defaultActiveKey="dashboard" size="large">
             {/* Dashboard Tab */}
-            <TabPane 
-              tab={<span><DashboardOutlined /> Dashboard</span>} 
+            <TabPane
+              tab={<span><DashboardOutlined /> Dashboard</span>}
               key="dashboard"
             >
               <Row gutter={[24, 24]}>
@@ -518,7 +561,7 @@ export default function ProfilePage() {
 
                 {/* Weekly Progress Chart */}
                 <Col xs={24} lg={16}>
-                  <Card 
+                  <Card
                     title={
                       <div className="flex items-center gap-2">
                         <LineChartOutlined className="text-blue-600" />
@@ -530,30 +573,30 @@ export default function ProfilePage() {
                     <div style={{ height: '300px' }}>
                       <Line data={weeklyScoreChartData} options={chartOptions} />
                     </div>
-                    
+
                     {/* Summary */}
                     <Divider />
                     <Row gutter={16} className="text-center">
                       <Col span={8}>
-                        <Statistic 
-                          title="Tổng bài test" 
-                          value={27} 
+                        <Statistic
+                          title="Tổng bài test"
+                          value={27}
                           prefix={<BookOutlined />}
                           valueStyle={{ color: '#1890ff', fontSize: '20px' }}
                         />
                       </Col>
                       <Col span={8}>
-                        <Statistic 
-                          title="Điểm TB" 
-                          value={81} 
+                        <Statistic
+                          title="Điểm TB"
+                          value={81}
                           suffix="/100"
                           valueStyle={{ color: '#52c41a', fontSize: '20px' }}
                         />
                       </Col>
                       <Col span={8}>
-                        <Statistic 
-                          title="Tổng thời gian" 
-                          value={355} 
+                        <Statistic
+                          title="Tổng thời gian"
+                          value={355}
                           suffix="phút"
                           prefix={<ClockCircleOutlined />}
                           valueStyle={{ color: '#722ed1', fontSize: '20px' }}
@@ -565,7 +608,7 @@ export default function ProfilePage() {
 
                 {/* Recent Activities */}
                 <Col xs={24} lg={8}>
-                  <Card 
+                  <Card
                     title={
                       <div className="flex items-center gap-2">
                         <ThunderboltOutlined className="text-yellow-600" />
@@ -595,7 +638,7 @@ export default function ProfilePage() {
 
                 {/* Category Statistics */}
                 <Col xs={24} lg={14}>
-                  <Card 
+                  <Card
                     title={
                       <div className="flex items-center gap-2">
                         <BarChartOutlined className="text-purple-600" />
@@ -612,7 +655,7 @@ export default function ProfilePage() {
 
                 {/* Monthly Goals */}
                 <Col xs={24} lg={10}>
-                  <Card 
+                  <Card
                     title={
                       <div className="flex items-center gap-2">
                         <StarOutlined className="text-yellow-600" />
@@ -639,19 +682,19 @@ export default function ProfilePage() {
                                   {goal.current}/{goal.target} {goal.unit}
                                 </Text>
                               </div>
-                              <Badge 
-                                count={`${Math.round(progress)}%`} 
-                                style={{ 
-                                  backgroundColor: isComplete ? '#52c41a' : progress > 70 ? '#1890ff' : '#faad14' 
+                              <Badge
+                                count={`${Math.round(progress)}%`}
+                                style={{
+                                  backgroundColor: isComplete ? '#52c41a' : progress > 70 ? '#1890ff' : '#faad14'
                                 }}
                               />
                             </div>
-                            <Progress 
-                              percent={progress} 
+                            <Progress
+                              percent={progress}
                               strokeColor={
-                                isComplete ? '#52c41a' : 
-                                progress > 70 ? { '0%': '#1890ff', '100%': '#69c0ff' } : 
-                                { '0%': '#faad14', '100%': '#ffd666' }
+                                isComplete ? '#52c41a' :
+                                  progress > 70 ? { '0%': '#1890ff', '100%': '#69c0ff' } :
+                                    { '0%': '#faad14', '100%': '#ffd666' }
                               }
                               showInfo={false}
                             />
@@ -661,12 +704,12 @@ export default function ProfilePage() {
                     </div>
 
                     <Divider />
-                    
+
                     {/* Motivational Card */}
                     <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-4 text-center text-white">
                       <BulbOutlined className="text-3xl mb-2" />
                       <Text strong className="block text-white mb-1">
-                        Bạn đã hoàn thành {((24/30)*100).toFixed(0)}% mục tiêu!
+                        Bạn đã hoàn thành {((24 / 30) * 100).toFixed(0)}% mục tiêu!
                       </Text>
                       <Text className="text-white text-opacity-90 text-sm">
                         Còn 6 bài nữa là đạt mục tiêu tháng này!
@@ -677,7 +720,7 @@ export default function ProfilePage() {
 
                 {/* Weekly Study Time Chart */}
                 <Col xs={24} lg={12}>
-                  <Card 
+                  <Card
                     title={
                       <div className="flex items-center gap-2">
                         <ClockCircleOutlined className="text-purple-600" />
@@ -694,7 +737,7 @@ export default function ProfilePage() {
 
                 {/* Performance Radar Chart */}
                 <Col xs={24} lg={12}>
-                  <Card 
+                  <Card
                     title={
                       <div className="flex items-center gap-2">
                         <PieChartOutlined className="text-green-600" />
@@ -717,9 +760,9 @@ export default function ProfilePage() {
                     </Title>
                     <Row gutter={[16, 16]}>
                       <Col xs={12} sm={6}>
-                        <Button 
-                          type="primary" 
-                          size="large" 
+                        <Button
+                          type="primary"
+                          size="large"
                           block
                           icon={<BookOutlined />}
                           className="h-auto py-4"
@@ -729,8 +772,8 @@ export default function ProfilePage() {
                         </Button>
                       </Col>
                       <Col xs={12} sm={6}>
-                        <Button 
-                          size="large" 
+                        <Button
+                          size="large"
                           block
                           icon={<TrophyOutlined />}
                           className="h-auto py-4"
@@ -740,8 +783,8 @@ export default function ProfilePage() {
                         </Button>
                       </Col>
                       <Col xs={12} sm={6}>
-                        <Button 
-                          size="large" 
+                        <Button
+                          size="large"
                           block
                           icon={<LineChartOutlined />}
                           className="h-auto py-4"
@@ -750,8 +793,8 @@ export default function ProfilePage() {
                         </Button>
                       </Col>
                       <Col xs={12} sm={6}>
-                        <Button 
-                          size="large" 
+                        <Button
+                          size="large"
                           block
                           icon={<StarOutlined />}
                           className="h-auto py-4"
@@ -766,14 +809,14 @@ export default function ProfilePage() {
             </TabPane>
 
             {/* Overview Tab */}
-            <TabPane 
-              tab={<span><BookOutlined /> Tổng quan</span>} 
+            <TabPane
+              tab={<span><BookOutlined /> Tổng quan</span>}
               key="overview"
             >
               <Row gutter={[24, 24]}>
                 {/* Recent Tests */}
                 <Col xs={24} lg={14}>
-                  <Card 
+                  <Card
                     title={
                       <div className="flex items-center gap-2">
                         <ClockCircleOutlined className="text-blue-600" />
@@ -811,7 +854,7 @@ export default function ProfilePage() {
 
                 {/* Achievements */}
                 <Col xs={24} lg={10}>
-                  <Card 
+                  <Card
                     title={
                       <div className="flex items-center gap-2">
                         <TrophyOutlined className="text-yellow-600" />
@@ -824,11 +867,10 @@ export default function ProfilePage() {
                       {achievements.map((achievement) => (
                         <div
                           key={achievement.id}
-                          className={`p-4 rounded-xl text-center transition-all ${
-                            achievement.unlocked
-                              ? "bg-gradient-to-br from-yellow-100 to-orange-100 border-2 border-yellow-400"
-                              : "bg-gray-100 opacity-50"
-                          }`}
+                          className={`p-4 rounded-xl text-center transition-all ${achievement.unlocked
+                            ? "bg-gradient-to-br from-yellow-100 to-orange-100 border-2 border-yellow-400"
+                            : "bg-gray-100 opacity-50"
+                            }`}
                         >
                           <div className="text-3xl mb-2">{achievement.icon}</div>
                           <Text strong className="text-xs block">{achievement.title}</Text>
@@ -847,8 +889,8 @@ export default function ProfilePage() {
                       <Title level={4} className="!mb-1">Chuỗi học tập</Title>
                       <Text type="secondary">Học liên tục {stats.streak} ngày</Text>
                     </div>
-                    <Progress 
-                      percent={(stats.streak / 30) * 100} 
+                    <Progress
+                      percent={(stats.streak / 30) * 100}
                       strokeColor={{
                         '0%': '#ff6b6b',
                         '100%': '#ffd93d',
@@ -861,8 +903,8 @@ export default function ProfilePage() {
             </TabPane>
 
             {/* Profile Info Tab */}
-            <TabPane 
-              tab={<span><UserOutlined /> Thông tin cá nhân</span>} 
+            <TabPane
+              tab={<span><UserOutlined /> Thông tin cá nhân</span>}
               key="info"
             >
               <Card className="shadow-md rounded-xl">
@@ -890,48 +932,48 @@ export default function ProfilePage() {
                 >
                   <Row gutter={16}>
                     <Col xs={24} md={12}>
-                      <Form.Item 
-                        label="Họ và tên" 
+                      <Form.Item
+                        label="Họ và tên"
                         name="name"
                         rules={[{ required: true, message: "Vui lòng nhập họ tên" }]}
                       >
-                        <Input 
-                          prefix={<UserOutlined />} 
-                          size="large" 
+                        <Input
+                          prefix={<UserOutlined />}
+                          size="large"
                           placeholder="Nhập họ và tên"
                         />
                       </Form.Item>
                     </Col>
                     <Col xs={24} md={12}>
                       <Form.Item label="Username" name="username">
-                        <Input 
-                          prefix={<UserOutlined />} 
-                          size="large" 
+                        <Input
+                          prefix={<UserOutlined />}
+                          size="large"
                           disabled
                         />
                       </Form.Item>
                     </Col>
                     <Col xs={24} md={12}>
-                      <Form.Item 
-                        label="Email" 
+                      <Form.Item
+                        label="Email"
                         name="email"
                         rules={[
                           { required: true, message: "Vui lòng nhập email" },
                           { type: "email", message: "Email không hợp lệ" }
                         ]}
                       >
-                        <Input 
-                          prefix={<MailOutlined />} 
-                          size="large" 
+                        <Input
+                          prefix={<MailOutlined />}
+                          size="large"
                           placeholder="email@example.com"
                         />
                       </Form.Item>
                     </Col>
                     <Col xs={24} md={12}>
                       <Form.Item label="Số điện thoại" name="phone">
-                        <Input 
-                          prefix={<PhoneOutlined />} 
-                          size="large" 
+                        <Input
+                          prefix={<PhoneOutlined />}
+                          size="large"
                           placeholder="0123456789"
                         />
                       </Form.Item>
@@ -951,8 +993,8 @@ export default function ProfilePage() {
                     </Col>
                     <Col xs={24} md={12}>
                       <Form.Item label="Ngày sinh" name="dob">
-                        <DatePicker 
-                          size="large" 
+                        <DatePicker
+                          size="large"
                           style={{ width: '100%' }}
                           placeholder="Chọn ngày sinh"
                           format="DD/MM/YYYY"
@@ -963,15 +1005,15 @@ export default function ProfilePage() {
 
                   {isEditing && (
                     <div className="flex gap-3 justify-end mt-6">
-                      <Button 
-                        size="large" 
+                      <Button
+                        size="large"
                         onClick={() => setIsEditing(false)}
                       >
                         Hủy
                       </Button>
-                      <Button 
-                        type="primary" 
-                        size="large" 
+                      <Button
+                        type="primary"
+                        size="large"
                         htmlType="submit"
                         icon={<CheckCircleOutlined />}
                       >
@@ -984,13 +1026,13 @@ export default function ProfilePage() {
             </TabPane>
 
             {/* Settings Tab */}
-            <TabPane 
-              tab={<span><SettingOutlined /> Cài đặt</span>} 
+            <TabPane
+              tab={<span><SettingOutlined /> Cài đặt</span>}
               key="settings"
             >
               <Card className="shadow-md rounded-xl">
                 <Title level={4} className="!mb-6">Cài đặt tài khoản</Title>
-                
+
                 <div className="space-y-4">
                   <Card className="bg-gray-50">
                     <div className="flex justify-between items-center">
@@ -1038,8 +1080,8 @@ export default function ProfilePage() {
                           Đăng xuất khỏi tài khoản
                         </Text>
                       </div>
-                      <Button 
-                        danger 
+                      <Button
+                        danger
                         icon={<LogoutOutlined />}
                         onClick={handleLogout}
                       >

@@ -3,8 +3,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Card, Typography, Spin, Button, Radio, Space, message, Modal, Switch, Input, Popover } from "antd";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
-import { ClockCircleOutlined, CheckCircleOutlined, HighlightOutlined, UnderlineOutlined, StrikethroughOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { ENV } from "@/config/env";
+import { ClockCircleOutlined, CheckCircleOutlined, HighlightOutlined, UnderlineOutlined, StrikethroughOutlined, DeleteOutlined, EditOutlined, FlagOutlined } from "@ant-design/icons";
+import { quizMockTestService } from "@/share/services/quiz_mock_test/quizMockTestService";
+import { ENV } from "@/share/config/env";
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -48,8 +49,10 @@ export default function QuizTakingPage() {
   const configDuration = parseInt(searchParams.get('duration') || '60', 10);
 
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [quizData, setQuizData] = useState<QuizPreviewData | null>(null);
   const [answers, setAnswers] = useState<Record<number, number>>({});
+  const [marks, setMarks] = useState<Record<number, boolean>>({});
   const [timeLeft, setTimeLeft] = useState(configDuration * 60); // Convert to seconds
   const [showSubmitModal, setShowSubmitModal] = useState(false);
   const [highlightMode, setHighlightMode] = useState(false);
@@ -239,6 +242,10 @@ export default function QuizTakingPage() {
     setNoteText('');
   };
 
+  const toggleMark = (questionId: number) => {
+    setMarks(prev => ({ ...prev, [questionId]: !prev[questionId] }));
+  };
+
   const formatTime = (seconds: number) => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
@@ -257,11 +264,45 @@ export default function QuizTakingPage() {
     setShowSubmitModal(true);
   };
 
-  const confirmSubmit = () => {
-    // TODO: Submit answers to backend
-    console.log('Submitting answers:', answers);
-    message.success('Đã nộp bài thành công!');
-    router.push('/'); // Navigate to results page or home
+  const confirmSubmit = async () => {
+    // Close confirmation modal immediately to avoid it lingering
+    setShowSubmitModal(false);
+    try {
+      setSubmitting(true);
+      const payload = Object.fromEntries(Object.entries(answers).map(([k, v]) => [Number(k), v]));
+      const apiResp = await quizMockTestService.submit(quizId, payload);
+      const res = apiResp;
+
+      message.success('Đã nộp bài thành công!');
+      // Persist result for results page and redirect there
+      try {
+        sessionStorage.setItem(`quizResult:${quizId}`, JSON.stringify(res));
+      } catch (e) {
+        // ignore storage errors
+      }
+      router.push(`/quiz-results/${quizId}`);
+    } catch (err: any) {
+      console.error('Submit error:', err);
+      // Prefer server-provided message when available
+      let userMessage = 'Gửi kết quả thất bại. Vui lòng thử lại.';
+      if (err?.message) {
+        userMessage = err.message;
+      }
+      // Axios-like error object may contain response.data
+      if (err?.response?.data) {
+        try {
+          const data = err.response.data;
+          if (data.message) userMessage = data.message + (data.code ? ` (code=${data.code})` : '');
+          else userMessage = JSON.stringify(data);
+        } catch (e) {
+          // ignore
+        }
+      }
+
+      message.error(userMessage);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const clearAllHighlights = () => {
@@ -429,8 +470,19 @@ export default function QuizTakingPage() {
                         id={`question-${question.id}`}
                         className="mb-6 scroll-mt-24"
                       >
-                        <div className="mb-3">
+                        <div className="mb-3 flex items-center justify-between">
                           <Text strong className="text-base">Câu {questionNumber}</Text>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              type="text"
+                              size="small"
+                              onClick={() => toggleMark(question.id)}
+                              title={marks[question.id] ? 'Bỏ đánh dấu chưa chắc chắn' : 'Đánh dấu chưa chắc chắn'}
+                              className="!p-0"
+                            >
+                              <FlagOutlined style={{ color: marks[question.id] ? '#f5222d' : '#9aa0a6' }} />
+                            </Button>
+                          </div>
                         </div>
                         
                         <div 
@@ -608,13 +660,18 @@ export default function QuizTakingPage() {
                       const element = document.getElementById(`question-${q.id}`);
                       element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }}
-                    className={`h-10 rounded-md flex items-center justify-center text-sm font-semibold transition-all ${
+                    className={`h-10 rounded-md flex items-center justify-center text-sm font-semibold transition-all relative ${
                       answers[q.id]
                         ? 'bg-green-500 text-white hover:bg-green-600 shadow-sm'
                         : 'bg-gray-100 border border-gray-300 text-gray-700 hover:bg-gray-200'
                     }`}
                   >
                     {index + 1}
+                    {marks[q.id] && (
+                      <span className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs shadow">
+                        !
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>
@@ -629,6 +686,10 @@ export default function QuizTakingPage() {
                   <div className="flex items-center gap-2">
                     <div className="w-6 h-6 bg-gray-100 border border-gray-300 rounded"></div>
                     <Text type="secondary">Chưa làm</Text>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 bg-red-500 rounded"></div>
+                    <Text type="secondary">Đã đánh dấu</Text>
                   </div>
                 </div>
               </div>

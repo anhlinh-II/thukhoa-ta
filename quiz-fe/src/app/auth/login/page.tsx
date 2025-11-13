@@ -4,8 +4,8 @@ import { GoogleOutlined, UserOutlined, LockOutlined } from "@ant-design/icons";
 import React, { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import FloatingBubbles from "../../../components/ui/FloatingBubbles";
-import { useLogin } from "../../../hooks/useAuth";
+import FloatingBubbles from "@/share/components/ui/FloatingBubbles";
+import { useLogin } from "@/share/hooks/useAuth";
 
 export default function LoginPage() {
   const [form] = Form.useForm();
@@ -104,7 +104,7 @@ export default function LoginPage() {
           </Form>
 
           {/* Divider */}
-          <div className="relative">
+          <div className="relative mt-6">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300" />
             </div>
@@ -125,7 +125,7 @@ export default function LoginPage() {
           </Button>
 
           {/* Sign up link */}
-          <div className="text-center">
+          <div className="text-center mt-6">
             <span className="text-gray-600">Bạn chưa có tài khoản? </span>
             <Link href="/auth/register" className="text-purple-500 hover:text-purple-400 font-medium">
               Đăng ký ngay

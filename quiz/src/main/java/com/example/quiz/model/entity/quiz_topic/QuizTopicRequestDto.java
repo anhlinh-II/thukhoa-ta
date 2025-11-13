@@ -22,10 +22,6 @@ public class QuizTopicRequestDto {
     @Size(max = 1000, message = "Description must not exceed 1000 characters")
     private String description;
 
-    @NotBlank(message = "Slug is required")
-    @Size(max = 255, message = "Slug must not exceed 255 characters")
-    private String slug;
-
     @Size(max = 1000, message = "Learning objectives must not exceed 1000 characters")
     private String learningObjectives;
 

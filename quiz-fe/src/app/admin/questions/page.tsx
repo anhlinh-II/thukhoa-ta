@@ -2,12 +2,12 @@
 
 import React from 'react';
 import type { ColumnsType } from 'antd/es/table';
-import { CrudListComponent } from '@/components/CrudListComponent';
-import { questionService } from '@/services/question/question.service';
-import { questionOptionService } from '@/services/question_option/question-option.service';
-import { questionGroupService } from '@/services/question_group/question-group.service';
+import { CrudListComponent } from '@/share/components/CrudListComponent';
+import { QuestionResponse, QuestionRequest } from '@/share/services/question/models';
+import { questionService } from '@/share/services/question/question.service';
+import { questionGroupService } from '@/share/services/question_group/question-group.service';
+import { questionOptionService } from '@/share/services/question_option/question-option.service';
 import QuestionFormComponent from './QuestionFormComponent';
-import { QuestionRequest, QuestionResponse } from '@/services/question/models';
 
 export default function QuestionsPage() {
      const columns: ColumnsType<QuestionResponse> = [

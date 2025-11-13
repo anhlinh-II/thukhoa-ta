@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import ReduxProvider from "../components/providers/ReduxProvider";
-import QueryProvider from "../components/providers/QueryProvider";
-import AntdProvider from "../components/providers/AntdProvider";
+import GlobalLoader from "@/share/components/GlobalLoader";
+import NavigationLoader from "@/share/components/NavigationLoader";
+import AntdProvider from "@/share/components/providers/AntdProvider";
+import QueryProvider from "@/share/components/providers/QueryProvider";
+import ReduxProvider from "@/share/components/providers/ReduxProvider";
+import HeaderClient from '@/share/components/home/HeaderClient';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,9 +33,12 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}> 
         <ReduxProvider>
           <QueryProvider>
-            <AntdProvider>
+              <AntdProvider>
+              <HeaderClient />
               {children}
-            </AntdProvider>
+              <GlobalLoader />
+              <NavigationLoader />
+              </AntdProvider>
           </QueryProvider>
         </ReduxProvider>
       </body>

@@ -1,6 +1,6 @@
-import HeaderClient from '../components/home/HeaderClient';
-import HeroClient from '../components/home/HeroClient';
-import CategoriesClient from '../components/home/CategoriesClient';
+import CategoriesClient from "@/share/components/home/CategoriesClient";
+import HeaderClient from "@/share/components/home/HeaderClient";
+import HeroClient from "@/share/components/home/HeroClient";
 
 export const metadata = {
   title: 'QuizMaster',
@@ -10,8 +10,7 @@ export const metadata = {
 export default function HomePage() {
   // Keep this file minimal: composition only. Interactive pieces live in client components.
   return (
-    <div>
-      <HeaderClient />
+    <div className="home-bright">
       <main>
         <HeroClient />
         <CategoriesClient />

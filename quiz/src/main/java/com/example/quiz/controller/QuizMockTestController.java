@@ -1,6 +1,8 @@
 package com.example.quiz.controller;
 
 import com.example.quiz.base.impl.BaseController;
+import com.example.quiz.model.dto.response.ApiResponse;
+import com.example.quiz.model.dto.response.SubmitQuizResponse;
 import com.example.quiz.model.entity.quiz_mock_test.QuizMockTestRequestDto;
 import com.example.quiz.model.entity.quiz_mock_test.QuizMockTestResponseDto;
 import com.example.quiz.model.entity.quiz_mock_test.QuizMockTest;
@@ -24,6 +26,13 @@ public class QuizMockTestController extends BaseController<QuizMockTest, Long, Q
     public QuizMockTestController(QuizMockTestService service) {
         super(service);
         this.quizMockTestService = service;
+    }
+
+    @PostMapping("/{id}/submit")
+    public ResponseEntity<ApiResponse<SubmitQuizResponse>> submitQuiz(@PathVariable Long id, @RequestBody com.example.quiz.model.dto.request.SubmitQuizRequest request) {
+        String username = com.example.quiz.utils.SecurityUtils.getCurrentUserLogin().orElse("");
+        SubmitQuizResponse result = quizMockTestService.submitQuiz(id, request, username);
+        return ResponseEntity.ok(ApiResponse.successOf(result));
     }
 
     @GetMapping("/{id}/preview")

@@ -1,10 +1,9 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { Tree, Card, Typography, Spin, message } from "antd";
-import { programService } from "../../../services/programService";
-import type { ProgramView } from "../../../services/programService";
 import { useRouter } from "next/navigation";
 import type { DataNode } from "antd/es/tree";
+import { programService } from "@/share/services/program/programService";
 
 const { Title } = Typography;
 

@@ -26,15 +26,8 @@ import {
   SearchOutlined,
 } from "@ant-design/icons";
 import type { ColumnsType } from "antd/es/table";
-import {
-  usePrograms,
-  useRootPrograms,
-  useCreateProgram,
-  useUpdateProgram,
-  useDeleteProgram,
-  usePrefetchProgram,
-  type Program,
-} from "../../../hooks/usePrograms";
+import { Program, usePrograms, useRootPrograms, useCreateProgram, useUpdateProgram, useDeleteProgram, usePrefetchProgram } from "@/share/hooks/usePrograms";
+
 
 export default function ProgramsPage() {
   const [search, setSearch] = useState("");
