@@ -11,6 +11,11 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
+
+import jakarta.servlet.http.HttpServletRequest;
+import com.example.quiz.configuration.security.SecurityConfig;
 
 import java.lang.reflect.Method;
 
@@ -18,13 +23,30 @@ import java.lang.reflect.Method;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-@Order(1) // Execute before other aspects
+@Order(1)
 public class ResourcePermissionAspect {
 
     private final AuthorizationService authorizationService;
 
     @Around("@annotation(com.example.quiz.validators.requirePermission.RequirePermission)")
     public Object checkPermission(ProceedingJoinPoint joinPoint) throws Throwable {
+        // If current request path is whitelisted in SecurityConfig, skip permission checking
+        try {
+            ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+            if (attrs != null) {
+                HttpServletRequest request = attrs.getRequest();
+                String uri = request.getRequestURI();
+                for (String p : SecurityConfig.WHITE_LIST) {
+                    if (p != null && !p.isEmpty() && uri.startsWith(p)) {
+                        log.debug("Skipping permission check for whitelisted path: {}", uri);
+                        return joinPoint.proceed();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            // ignore any errors when trying to read request — fall back to normal permission checks
+            log.debug("Could not determine request path for whitelist check", e);
+        }
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
         

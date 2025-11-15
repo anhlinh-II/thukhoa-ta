@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import FloatingBubbles from "@/share/components/ui/FloatingBubbles";
 import { useLogin } from "@/share/hooks/useAuth";
+import { authService } from "@/share/services/authService";
+import { message as antdMessage } from "antd";
 
 export default function LoginPage() {
   const [form] = Form.useForm();
@@ -120,6 +122,23 @@ export default function LoginPage() {
             size="large"
             className="border-gray-300 rounded-lg h-12 font-medium hover:bg-gray-50"
             disabled={isPending}
+            onClick={async () => {
+              try {
+                // Still call backend for discovery/logging, but perform top-level
+                // navigation to the backend's /oauth2/authorization/google endpoint
+                // so Spring Security can create and store the AuthorizationRequest
+                // in the user's session (avoids authorization_request_not_found).
+                console.log('Requesting OAuth2 provider info from backend');
+                await authService.getOAuth2Urls();
+
+                const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
+                const backendOrigin = apiBase.replace(/\/api\/v1\/?$/, '');
+                const authStartUrl = `${backendOrigin}/oauth2/authorization/google`;
+                window.location.assign(authStartUrl);
+              } catch (err: any) {
+                antdMessage.error(err?.message || 'Lỗi khi khởi tạo đăng nhập Google');
+              }
+            }}
           >
             Đăng nhập với Google
           </Button>

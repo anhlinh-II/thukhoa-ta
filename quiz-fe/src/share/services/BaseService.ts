@@ -1,7 +1,7 @@
 import { message } from 'antd';
 import apiClient from './api';
 import { AxiosRequestConfig } from 'axios';
-import { ApiResponse } from '@/share/types';
+import { ApiResponse } from '@/share/utils/types';
 
 export interface BaseEntity {
   id: number | string;

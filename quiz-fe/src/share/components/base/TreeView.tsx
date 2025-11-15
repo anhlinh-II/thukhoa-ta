@@ -3,8 +3,8 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { Tree, Spin, Empty, Input } from 'antd';
 import type { DataNode } from 'antd/es/tree';
-import { useDebouncedCallback } from '../hooks/useDebounce';
-import { BaseService } from '../services/BaseService';
+import { useDebouncedCallback } from '@/share/hooks/useDebounce';
+import { BaseService } from '@/share/services/BaseService';
 
 export interface TreeViewProps {
   service: BaseService;

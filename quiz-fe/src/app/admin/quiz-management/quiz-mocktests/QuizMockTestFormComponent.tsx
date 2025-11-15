@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { Form, Input, InputNumber, Switch, Button, Space, Card, Tabs, Select } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
-import TiptapEditor from '@/share/components/TiptapEditor';
+import TiptapEditor from '@/share/components/base/TiptapEditor';
 
 interface QuizMockTestFormComponentProps {
   form: any;

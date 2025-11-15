@@ -8,6 +8,7 @@ import {
   DashboardOutlined,
   SettingOutlined,
   QuestionCircleOutlined,
+  TeamOutlined,
 } from '@ant-design/icons';
 import './admin.css';
 
@@ -25,7 +26,9 @@ export default function AdminLayout({
   // Determine active key based on pathname
   const getActiveKey = () => {
     if (pathname.includes('/admin/quiz-groups')) return 'quiz-groups';
-    if (pathname.includes('/admin/quiz-mocktests')) return 'quiz-mock-tests';
+    if (pathname.includes('/admin/quiz-mocktests') || pathname.includes('/admin/quiz-formats') || pathname.includes('/admin/quiz-topics') || pathname.includes('/admin/quiz-management')) return 'manage-quiz';
+    if (pathname.includes('/admin/users')) return 'users';
+    if (pathname.includes('/admin/role-permissions')) return 'role-permissions';
     if (pathname.includes('/admin/programs')) return 'programs';
     if (pathname.includes('/admin/questions')) return 'questions';
     if (pathname.includes('/admin/dashboard')) return 'dashboard';
@@ -38,38 +41,43 @@ export default function AdminLayout({
     {
       key: 'quiz-groups',
       icon: <AppstoreOutlined />,
-      label: 'Quiz Groups',
+      label: 'Nhóm bài Quiz',
     },
     {
-      key: 'quiz-mock-tests',
+      key: 'manage-quiz',
       icon: <BookOutlined />,
-      label: 'Quiz Mock Tests',
+      label: 'Quản lý Quiz',
+    },
+    {
+      key: 'users',
+      icon: <AppstoreOutlined />,
+      label: 'Users',
+    },
+    {
+      key: 'role-permissions',
+      icon: <TeamOutlined />,
+      label: 'Roles & Permissions',
     },
     {
       key: 'programs',
       icon: <BookOutlined />,
-      label: 'Programs',
+      label: 'Chương trình ôn luyện',
     },
     {
       key: 'questions',
       icon: <QuestionCircleOutlined />,
-      label: 'Questions',
+      label: 'Quản lý câu hỏi',
     },
     {
       key: 'dashboard',
       icon: <DashboardOutlined />,
-      label: 'Dashboard',
+      label: 'Tổng quan',
     },
     {
       key: 'settings',
       icon: <SettingOutlined />,
-      label: 'Settings',
-    },
-    {
-      key: 'test-base',
-      icon: <AppstoreOutlined />,
-      label: 'Base Demo',
-    },
+      label: 'Thiết lập',
+    }
   ];
 
   const handleMenuClick = ({ key }: { key: string }) => {
@@ -77,11 +85,17 @@ export default function AdminLayout({
       case 'quiz-groups':
         router.push('/admin/quiz-groups');
         break;
+      case 'manage-quiz':
+        router.push('/admin/quiz-management');
+        break;
+      case 'users':
+        router.push('/admin/users');
+        break;
+      case 'role-permissions':
+        router.push('/admin/role-permissions');
+        break;
       case 'programs':
         router.push('/admin/programs');
-        break;
-      case 'quiz-mock-tests':
-        router.push('/admin/quiz-mocktests');
         break;
       case 'questions':
         router.push('/admin/questions');

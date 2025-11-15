@@ -45,7 +45,6 @@ public class User extends BaseEntity {
     private Instant dob;
 
     @Enumerated(EnumType.STRING)
-    @NotNull
     private Gender gender;
 
     private String bio;

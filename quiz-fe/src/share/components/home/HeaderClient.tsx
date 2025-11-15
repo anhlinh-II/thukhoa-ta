@@ -7,7 +7,7 @@ import { useIsAuthenticated } from '@/share/hooks/useAuth';
 import { navigateWithLoader } from '@/share/lib/navigateWithLoader';
 import { programService } from '@/share/services/program/programService';
 import { UserProfile } from '../UserProfile';
-import { NO_HEADER_LIST } from '@/share/constants';
+import { NO_HEADER_LIST } from '@/share/utils/constants';
 
 interface ProgramNode {
   id: number;

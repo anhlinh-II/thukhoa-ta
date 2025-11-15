@@ -1,4 +1,4 @@
-import { ENV } from '../../config/env';
+import { ENV } from '../../utils/env';
 import { BaseService } from "../BaseService";
 import { QuestionGroup, QuestionGroupRequest, QuestionGroupResponse, QuestionGroupView } from "./models";
 

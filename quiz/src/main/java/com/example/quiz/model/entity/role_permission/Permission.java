@@ -32,6 +32,7 @@ public class Permission {
     private String action; // e.g., "CREATE", "READ", "UPDATE", "DELETE"
 
     @ManyToMany(mappedBy = "permissions", fetch = FetchType.LAZY)
+    @com.fasterxml.jackson.annotation.JsonBackReference(value = "role_permission")
     private Set<Role> roles;
 
     public Permission(String name, String description, String resource, String action) {

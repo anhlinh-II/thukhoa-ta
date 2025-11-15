@@ -1,84 +1,19 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import { FilterItemDto } from "@/share/types";
+import { FilterItemDto } from "@/share/utils/types";
 import { Form, Input, Switch, InputNumber, Select, Button, Modal, Card, Tabs, Space } from "antd";
 import { ColumnsType } from "antd/es/table";
 import { EyeOutlined } from '@ant-design/icons';
 import QuizMockTestFormComponent from './QuizMockTestFormComponent';
-import { CrudListComponent } from '@/share/components/CrudListComponent';
-import { ENV } from '@/share/config/env';
+import { CrudListComponent } from '@/share/components/base/CrudListComponent';
+import { ENV } from '@/share/utils/env';
 import { quizGroupService } from '@/share/services/quiz_group/quiz-group.service';
 import { QuizMockTestResponse, QuizMockTestRequest } from '@/share/services/quiz_mock_test/model';
-import { quizMockTestService } from '@/share/services/quiz_mock_test/quizMockTestService';
+import { quizMockTestService } from '@/share/services/quiz_mock_test/quiz-mocktest.service';
+import { QuizGroupSelector } from './QuizGroupSelector';
 
-// A small client-side selector that searches quiz groups (take 10) via backend and lets user pick one.
-function QuizGroupSelector({ form, initialValue }: { form: any; initialValue?: number }) {
-     const [options, setOptions] = useState<Array<{ label: string; value: number }>>([]);
-     const [loading, setLoading] = useState(false);
-     const [selected, setSelected] = useState<any | null>(null);
-     const timerRef = useRef<number | null>(null);
 
-     useEffect(() => {
-          // load initial selected group if editing
-          if (initialValue) {
-               quizGroupService.findById(initialValue).then(r => {
-                    setSelected(r as any);
-                    form.setFieldsValue({ quizGroup: initialValue });
-                    setOptions([{ label: (r as any).name || (r as any).title || (r as any).programName, value: (r as any).id }]);
-               }).catch(() => {});
-          }
-     }, [initialValue]);
-
-     const doSearch = (q: string) => {
-          setLoading(true);
-          const filters = q ? [{ field: 'name', operator: 'CONTAINS', value: q }] : [];
-          const req = {
-               skip: 0,
-               take: 10,
-               filter: filters.length ? JSON.stringify(filters) : '',
-          } as any;
-          quizGroupService.getViewsPagedWithFilter(req)
-               .then((resp: any) => {
-                    const list = resp?.data || [];
-                    setOptions(list.map((g: any) => ({ label: g.name || g.title || g.programName, value: g.id })));
-               })
-               .catch((e) => {
-                    console.error('Group search failed', e);
-                    setOptions([]);
-               })
-               .finally(() => setLoading(false));
-     };
-
-     useEffect(() => {
-          return () => { if (timerRef.current) window.clearTimeout(timerRef.current); };
-     }, []);
-
-     const pick = (value: number, option: any) => {
-          const item = { id: value, name: option?.label };
-          setSelected(item as any);
-          form.setFieldsValue({ quizGroup: value });
-     };
-
-     return (
-          <Form.Item label="Quiz Group" name="quizGroup" rules={[{ required: true, message: 'Please select group ID' }]}>
-               <Select
-                    showSearch
-                    allowClear
-                    placeholder="Search quiz groups"
-                    notFoundContent={loading ? 'Loading...' : null}
-                    filterOption={false}
-                    onSearch={(v) => {
-                         if (timerRef.current) window.clearTimeout(timerRef.current);
-                         timerRef.current = window.setTimeout(() => doSearch(v), 250);
-                    }}
-                    onChange={pick}
-                    options={options}
-                    loading={loading}
-               />
-          </Form.Item>
-     );
-}
 
 export default function QuizMockTests() {
      const [previewVisible, setPreviewVisible] = useState(false);
@@ -163,7 +98,7 @@ export default function QuizMockTests() {
                const data = await response.json();
                setPreviewData(data);
           } catch (error) {
-               console.error('Failed to load preview', error); 
+               console.error('Failed to load preview', error);
           } finally {
                setPreviewLoading(false);
           }

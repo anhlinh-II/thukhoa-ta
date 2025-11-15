@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { quizMockTestService } from '../services/quiz_mock_test/quizMockTestService';
+import { quizMockTestService } from '../services/quiz_mock_test/quiz-mocktest.service';
 
 const QUIZ_MOCK_TEST_QUERY_KEYS = {
   all: ['quizMockTests'] as const,

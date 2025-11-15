@@ -40,14 +40,14 @@ public class AuthorizationServiceImpl implements AuthorizationService {
      */
     public boolean hasPermission(String username, String resource, String action) {
         try {
-            return true;
-            // List<Permission> userPermissions = permissionRepository.findPermissionsByUsername(username);
+//            return true;
+             List<Permission> userPermissions = permissionRepository.findPermissionsByUsername(username);
             
-            // return userPermissions.stream()
-            //         .anyMatch(permission -> 
-            //             permission.getResource().equals(resource) && 
-            //             (permission.getAction().equals(action) || permission.getAction().equals("MANAGE"))
-            //         );
+             return userPermissions.stream()
+                     .anyMatch(permission ->
+                         permission.getResource().equals(resource) &&
+                         (permission.getAction().equals(action) || permission.getAction().equals("MANAGE"))
+                     );
         } catch (Exception e) {
             log.error("Error checking permission for user: {}, resource: {}, action: {}", username, resource, action, e);
             return false;

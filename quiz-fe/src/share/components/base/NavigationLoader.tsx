@@ -1,7 +1,7 @@
 "use client";
 import { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
-import loadingService from '../services/loadingService';
+import loadingService from '../../services/loadingService';
 
 /**
  * NavigationLoader: listens for internal link clicks and shows the global loader.

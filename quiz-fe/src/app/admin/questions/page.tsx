@@ -2,7 +2,7 @@
 
 import React from 'react';
 import type { ColumnsType } from 'antd/es/table';
-import { CrudListComponent } from '@/share/components/CrudListComponent';
+import { CrudListComponent } from '@/share/components/base/CrudListComponent';
 import { QuestionResponse, QuestionRequest } from '@/share/services/question/models';
 import { questionService } from '@/share/services/question/question.service';
 import { questionGroupService } from '@/share/services/question_group/question-group.service';

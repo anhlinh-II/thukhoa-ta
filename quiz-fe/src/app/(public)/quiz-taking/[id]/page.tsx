@@ -4,8 +4,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { Card, Typography, Spin, Button, Radio, Space, message, Modal, Switch, Input, Popover } from "antd";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { ClockCircleOutlined, CheckCircleOutlined, HighlightOutlined, UnderlineOutlined, StrikethroughOutlined, DeleteOutlined, EditOutlined, FlagOutlined } from "@ant-design/icons";
-import { quizMockTestService } from "@/share/services/quiz_mock_test/quizMockTestService";
-import { ENV } from "@/share/config/env";
+import { quizMockTestService } from "@/share/services/quiz_mock_test/quiz-mocktest.service";
+import { ENV } from "@/share/utils/env";
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;

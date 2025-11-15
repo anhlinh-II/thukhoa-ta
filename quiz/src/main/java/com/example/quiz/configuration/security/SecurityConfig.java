@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -18,21 +19,21 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-// @EnableMethodSecurity(prePostEnabled = true, securedEnabled = true) // Temporarily disabled for testing
+@EnableMethodSecurity(prePostEnabled = true, securedEnabled = true) // Temporarily disabled for testing
 @RequiredArgsConstructor
 public class SecurityConfig {
-    
+
+    public static final String[] WHITE_LIST = {
+            "/api/users/login", "/api/users/refresh", "/api/users/register", "/api/users/verify-otp", "/api/users/logout", "/ws/**", "/api/v1/users/views/list", 
+            "/oauth2/**", "/login/oauth2/**", "/api/users/oauth2-url", "/api/users/forgot-password", "/api/users/reset-password", "/api/v1/programs/tree",
+            // Allow v1 user endpoints (frontend uses /api/v1/...)
+            "/api/v1/users/**"
+    };
+
     private final CustomOAuth2UserService customOAuth2UserService;
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
     private final JwtDecoder jwtDecoder;
-    
-    String[] whiteList = {
-            "/",
-            "/api/**", // Temporarily permit all API endpoints for testing
-            "/api/users/login", "/api/users/refresh", "/api/users/register", "/api/users/verify-otp", "/api/users/logout", "/ws/**",
-            "/oauth2/**", "/login/oauth2/**", "/api/users/oauth2-url", "/api/users/forgot-password", "/api/users/reset-password"
-    };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -41,9 +42,8 @@ public class SecurityConfig {
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(
                         auth -> auth
-                                .anyRequest().permitAll() // Temporarily permit all requests for testing
-                                // .requestMatchers(whiteList).permitAll()
-                                // .anyRequest().authenticated()
+                                .requestMatchers(WHITE_LIST).permitAll()
+                                .anyRequest().authenticated()
                 )
                 .formLogin(AbstractHttpConfigurer::disable)
                 .oauth2Login(oauth2 -> oauth2

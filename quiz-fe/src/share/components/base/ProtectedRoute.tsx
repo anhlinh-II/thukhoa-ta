@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { Spin } from 'antd';
-import { useIsAuthenticated } from '@/hooks/useAuth';
+import { useIsAuthenticated } from '@/share/hooks/useAuth';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;

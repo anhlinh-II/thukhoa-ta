@@ -1,5 +1,5 @@
 import { BaseService } from "../BaseService";
-import { ENV } from '../../config/env';
+import { ENV } from '../../utils/env';
 import { User, UserRequest, UserView } from "./models";
 import { UserResponse } from "../authService";
 

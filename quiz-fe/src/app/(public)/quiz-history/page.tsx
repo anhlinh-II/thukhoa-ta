@@ -1,10 +1,27 @@
 "use client";
 
-import React, { useEffect, useState } from 'react';
-import { Card, List, Typography, Pagination, Spin, Button, Tag, Space, Modal, Row, Col } from 'antd';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Card, List, Typography, Pagination, Spin, Button, Tag, Space, Modal, Row, Col, Tabs, Input, Select, Radio, Checkbox, Divider } from 'antd';
 import { userQuizHistoryService } from '@/share/services/user_quiz_history/user-quiz-history.service';
 import { LinkOutlined } from '@ant-design/icons';
 import Link from 'next/link';
+
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  PointElement,
+  LineElement,
+  Title as ChartTitle,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { Bar, Line } from 'react-chartjs-2';
+import HistoryTab from './HistoryTab';
+import StatsTab from './StatsTab';
+
+ChartJS.register(CategoryScale, LinearScale, BarElement, PointElement, LineElement, ChartTitle, Tooltip, Legend);
 
 const { Title, Text } = Typography;
 
@@ -16,6 +33,17 @@ export default function QuizHistoryPage() {
   const [size, setSize] = useState(10);
   const [detailVisible, setDetailVisible] = useState(false);
   const [activeItem, setActiveItem] = useState<any | null>(null);
+  // UI state for redesign
+  const [tabKey, setTabKey] = useState<'mocktest' | 'topic' | 'format'>('mocktest');
+  const [searchText, setSearchText] = useState('');
+  const [sortBy, setSortBy] = useState<'newest' | 'scoreDesc' | 'scoreAsc'>('newest');
+  const [daysFilter, setDaysFilter] = useState<number | 'all'>(30);
+
+  // Chart controls
+  const [chartType, setChartType] = useState<'line' | 'bar'>('line');
+  const [stacked, setStacked] = useState(false);
+  const [visibleSets, setVisibleSets] = useState({ mocktest: true, topic: true, format: true });
+  const [topTab, setTopTab] = useState<'history' | 'stats'>('history');
 
   const fetch = async (p = 0, s = 10) => {
     setLoading(true);
@@ -33,6 +61,106 @@ export default function QuizHistoryPage() {
   };
 
   useEffect(() => { fetch(0, 10); }, []);
+
+  // Generate fake data for topic and format types based on mock data or random
+  const [topicItems, setTopicItems] = useState<any[]>([]);
+  const [formatItems, setFormatItems] = useState<any[]>([]);
+
+  useEffect(() => {
+    // derive fake data when items change
+    const makeFake = (prefix: string, count = 12) => {
+      const base = items.slice(0, Math.min(items.length, count));
+      if (base.length === 0) {
+        // generate some dummy
+        return Array.from({ length: count }).map((_, i) => ({
+          id: `f-${prefix}-${i}`,
+          title: `${prefix} sample ${i + 1}`,
+          createdAt: new Date(Date.now() - (i * 86400000)).toISOString(),
+          score: Math.round((Math.random() * 10) * 100) / 100,
+          correctCount: Math.floor(Math.random() * 20),
+          totalQuestions: 20,
+        }));
+      }
+
+      return base.map((b, i) => ({
+        ...b,
+        id: `f-${prefix}-${i}`,
+        title: `${prefix} - ${b.title ?? b.quizMockTestId}`,
+        createdAt: new Date(Date.parse(b.createdAt || Date.now().toString()) - (i * 86400000)).toISOString(),
+        score: Math.round(((b.score ?? (Math.random() * 10)) + Math.random()) * 100) / 100,
+      }));
+    };
+
+    setTopicItems(makeFake('QuizTopic', 20));
+    setFormatItems(makeFake('QuizFormat', 18));
+  }, [items]);
+
+  // Combined dataset for easier chart aggregation
+  const allSets = useMemo(() => ({ mocktest: items, topic: topicItems, format: formatItems }), [items, topicItems, formatItems]);
+
+  // Apply filters and search to active list
+  const filteredList = useMemo(() => {
+    const list = tabKey === 'mocktest' ? items : tabKey === 'topic' ? topicItems : formatItems;
+    const now = Date.now();
+    const days = daysFilter === 'all' ? Infinity : daysFilter as number;
+
+    let res = list.filter(it => {
+      if (searchText) {
+        const s = searchText.toLowerCase();
+        return (it.title || '').toLowerCase().includes(s) || String(it.id).includes(s);
+      }
+      return true;
+    }).filter(it => {
+      if (days === Infinity) return true;
+      const created = it.createdAt ? Date.parse(it.createdAt) : now;
+      return (now - created) <= days * 86400000;
+    });
+
+    if (sortBy === 'scoreDesc') res = res.sort((a: any, b: any) => (b.score ?? 0) - (a.score ?? 0));
+    else if (sortBy === 'scoreAsc') res = res.sort((a: any, b: any) => (a.score ?? 0) - (b.score ?? 0));
+    else res = res.sort((a: any, b: any) => Date.parse(b.createdAt || '') - Date.parse(a.createdAt || ''));
+
+    return res;
+  }, [tabKey, items, topicItems, formatItems, searchText, daysFilter, sortBy]);
+
+  // Helper: build chart data (scores over days) for last N days
+  const chartDays = useMemo(() => (daysFilter === 'all' ? 90 : (typeof daysFilter === 'number' ? daysFilter : 30)), [daysFilter]);
+
+  const chartData = useMemo(() => {
+    const days = chartDays;
+    const labels: string[] = [];
+    const now = new Date();
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date(now.getTime() - i * 86400000);
+      labels.push(`${d.getMonth() + 1}/${d.getDate()}`);
+    }
+
+    const aggregate = (list: any[]) => {
+      const map = new Map<string, { sum: number; cnt: number }>();
+      list.forEach((it) => {
+        const d = new Date(it.createdAt || Date.now()).toLocaleDateString();
+        const key = new Date(it.createdAt || Date.now()).toLocaleDateString();
+        const val = it.score ?? 0;
+        const cur = map.get(key) || { sum: 0, cnt: 0 };
+        cur.sum += val; cur.cnt += 1; map.set(key, cur);
+      });
+
+      const data = labels.map(l => {
+        // find matching key by converting label back to a date string - approximate match by month/day
+        const found = Array.from(map.entries()).find(([k]) => k.includes('/' + l.split('/')[1]) && k.includes('/' + l.split('/')[0]));
+        if (found) return found[1].sum / found[1].cnt;
+        return 0;
+      });
+      return data;
+    };
+
+    const datasets: any[] = [];
+    if (visibleSets.mocktest) datasets.push({ label: 'MockTest', data: aggregate(allSets.mocktest), backgroundColor: 'rgba(99,102,241,0.6)', borderColor: 'rgba(99,102,241,1)' });
+    if (visibleSets.topic) datasets.push({ label: 'Topic', data: aggregate(allSets.topic), backgroundColor: 'rgba(16,185,129,0.6)', borderColor: 'rgba(16,185,129,1)' });
+    if (visibleSets.format) datasets.push({ label: 'Format', data: aggregate(allSets.format), backgroundColor: 'rgba(236,72,153,0.6)', borderColor: 'rgba(236,72,153,1)' });
+
+    return { labels, datasets };
+  }, [allSets, visibleSets, chartDays]);
 
   const openDetail = (item: any) => {
     setActiveItem(item);
@@ -57,63 +185,95 @@ export default function QuizHistoryPage() {
           </Space>
         </div>
 
-        {loading ? (
-          <div className="py-12 flex justify-center"><Spin size="large" /></div>
-        ) : (
-          <List
-            dataSource={items}
-            itemLayout="vertical"
-            split
-            renderItem={(item) => {
-              // fake/add fields if missing
-              const attempt = item.attemptNumber ?? Math.floor(Math.random() * 5) + 1;
-              const duration = item.durationMinutes ?? (Math.floor(Math.random() * 30) + 5) + ' phút';
-              const statusTag = (item.score ?? 0) >= 5 ? <Tag color="success">Passed</Tag> : <Tag color="warning">Review</Tag>;
+        <Tabs activeKey={topTab} onChange={(k) => setTopTab(k as any)}>
+          <Tabs.TabPane tab="Lịch sử" key="history">
+            <div className="mb-4">
+              <Tabs tabPosition="left" activeKey={tabKey} onChange={(k) => setTabKey(k as any)}>
+                <Tabs.TabPane tab={<span>Quiz</span>} key="mocktest">
+                  <HistoryTab
+                    filteredList={filteredList}
+                    loading={loading}
+                    page={page}
+                    size={size}
+                    total={total}
+                    fetch={fetch}
+                    openDetail={openDetail}
+                    tabKey={tabKey}
+                    setTabKey={setTabKey}
+                    searchText={searchText}
+                    setSearchText={setSearchText}
+                    sortBy={sortBy}
+                    setSortBy={setSortBy}
+                    daysFilter={daysFilter}
+                    setDaysFilter={setDaysFilter}
+                    fmtDate={fmtDate}
+                  />
+                </Tabs.TabPane>
 
-              return (
-                <List.Item>
-                  <Row className="w-full" align="middle" gutter={16}>
-                    <Col xs={24} sm={14}>
-                      <div className="flex items-start space-x-4">
-                        <div className="w-12 h-12 rounded-md bg-pink-50 flex items-center justify-center text-pink-600 font-bold">#{item.quizMockTestId}</div>
-                        <div>
-                          <div className="flex items-center gap-3">
-                            <Text strong>{item.title ?? `Quiz ${item.quizMockTestId}`}</Text>
-                            {statusTag}
-                          </div>
-                          <div className="text-sm text-gray-500">Ngày: {fmtDate(item.createdAt)} • Thời lượng: {duration} • Lần: {attempt}</div>
-                        </div>
-                      </div>
-                    </Col>
+                <Tabs.TabPane tab={<span>Chủ điểm</span>} key="topic">
+                  <HistoryTab
+                    filteredList={filteredList}
+                    loading={loading}
+                    page={page}
+                    size={size}
+                    total={total}
+                    fetch={fetch}
+                    openDetail={openDetail}
+                    tabKey={tabKey}
+                    setTabKey={setTabKey}
+                    searchText={searchText}
+                    setSearchText={setSearchText}
+                    sortBy={sortBy}
+                    setSortBy={setSortBy}
+                    daysFilter={daysFilter}
+                    setDaysFilter={setDaysFilter}
+                    fmtDate={fmtDate}
+                  />
+                </Tabs.TabPane>
 
-                    <Col xs={24} sm={6} className="text-center">
-                      <div className="text-2xl font-semibold text-gray-800">{(item.score ?? 0).toFixed(2)}/10</div>
-                      <div className="text-sm text-gray-500">Đúng: {item.correctCount ?? 0}/{item.totalQuestions ?? '-'}</div>
-                    </Col>
+                <Tabs.TabPane tab={<span>Dạng bài</span>} key="format">
+                  <HistoryTab
+                    filteredList={filteredList}
+                    loading={loading}
+                    page={page}
+                    size={size}
+                    total={total}
+                    fetch={fetch}
+                    openDetail={openDetail}
+                    tabKey={tabKey}
+                    setTabKey={setTabKey}
+                    searchText={searchText}
+                    setSearchText={setSearchText}
+                    sortBy={sortBy}
+                    setSortBy={setSortBy}
+                    daysFilter={daysFilter}
+                    setDaysFilter={setDaysFilter}
+                    fmtDate={fmtDate}
+                  />
+                </Tabs.TabPane>
+              </Tabs>
+            </div>
+          </Tabs.TabPane>
 
-                    <Col xs={24} sm={4} className="text-right">
-                      <Space direction="vertical">
-                        <Button type="link" onClick={() => openDetail(item)}>Xem chi tiết</Button>
-                        <Link href={`/quiz-results/${item.quizMockTestId}`}><Button type="primary">Xem kết quả</Button></Link>
-                      </Space>
-                    </Col>
-                  </Row>
-                </List.Item>
-              );
-            }}
-          />
-        )}
-
-        <div className="mt-4 text-center">
-          <Pagination current={page + 1} pageSize={size} total={total} onChange={(p, s) => fetch(p - 1, s)} />
-        </div>
+          <Tabs.TabPane tab="Thống kê" key="stats">
+            <StatsTab
+              chartData={chartData}
+              chartType={chartType}
+              setChartType={setChartType}
+              stacked={stacked}
+              setStacked={setStacked}
+              visibleSets={visibleSets}
+              setVisibleSets={setVisibleSets}
+            />
+          </Tabs.TabPane>
+        </Tabs>
       </Card>
 
       <Modal visible={detailVisible} title="Chi tiết lần làm bài" footer={null} onCancel={closeDetail} width={800}>
         {activeItem ? (
           <div>
             <Row gutter={[16,16]}>
-              <Col span={12}><Text strong>Quiz:</Text> <div>{activeItem.title ?? `Quiz ${activeItem.quizMockTestId}`}</div></Col>
+              <Col span={12}><Text strong>Quiz:</Text> <div>{activeItem.title ?? `Quiz ${activeItem.quizMockTestId ?? activeItem.id}`}</div></Col>
               <Col span={12}><Text strong>Ngày:</Text> <div>{fmtDate(activeItem.createdAt)}</div></Col>
               <Col span={12}><Text strong>Điểm:</Text> <div>{(activeItem.score ?? 0).toFixed(2)}/10</div></Col>
               <Col span={12}><Text strong>Đúng:</Text> <div>{activeItem.correctCount ?? 0}/{activeItem.totalQuestions ?? '-'}</div></Col>

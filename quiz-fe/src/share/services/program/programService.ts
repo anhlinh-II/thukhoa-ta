@@ -1,4 +1,4 @@
-import { ENV } from '../../config/env';
+import { ENV } from '../../utils/env';
 import { BaseEntity, BaseService } from '../BaseService';
 import { Program, ProgramRequest, ProgramResponse, ProgramView } from './models';
 

@@ -1,4 +1,4 @@
-import { ENV } from '../../config/env';
+import { ENV } from '../../utils/env';
 import { BaseService } from "../BaseService";
 import { QuizMockTest, QuizMockTestRequest, QuizMockTestResponse, QuizMockTestView } from './model';
 

@@ -4,9 +4,9 @@ import { Resizable } from 'react-resizable';
 import { Table, Button, Space, Modal, Form, Input, Card, Popconfirm, message } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import type { ColumnsType, TableProps } from 'antd/es/table';
-import { BaseHooks, BaseHooksConfig } from '../hooks/BaseHooks';
-import { BaseService, BaseEntity, BaseRequest, BaseResponse, BaseView, PagingRequest, PagingViewRequest } from '../services/BaseService';
-import { FilterItemDto } from '@/share/types';
+import { BaseHooks, BaseHooksConfig } from '../../hooks/BaseHooks';
+import { BaseService, BaseEntity, BaseRequest, BaseResponse, BaseView, PagingRequest, PagingViewRequest } from '../../services/BaseService';
+import { FilterItemDto } from '@/share/utils/types';
 
 export interface BaseComponentConfig extends BaseHooksConfig {
   createTitle?: string;

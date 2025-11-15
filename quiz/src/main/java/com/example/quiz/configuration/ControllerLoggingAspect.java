@@ -40,7 +40,7 @@ public class ControllerLoggingAspect {
           String className = joinPoint.getTarget().getClass().getSimpleName();
           String methodName = joinPoint.getSignature().getName();
           Object[] args = joinPoint.getArgs();
-          log.info("🚀 API START: {} {} - Request from: {}",
+          log.info("🚀 API START: {} {} - Request from: {}----------------------------------------------------START--------------------------------------------------------------",
                     request.getMethod(), request.getRequestURI(), request.getRemoteAddr());
 
           // Log method start with colors
@@ -68,7 +68,7 @@ public class ControllerLoggingAspect {
                          result != null ? result.getClass().getSimpleName() : "null", RESET);
 
                // Log API end
-               log.info("✅ API END: {} {} - Status: {} - Duration: {}ms",
+               log.info("✅ API END: {} {} - Status: {} - Duration: {}ms ---------------------------------------------------------------END----------------------------------------------------------------",
                          request.getMethod(), request.getRequestURI(), 200, duration);
 
                return result;
@@ -77,7 +77,7 @@ public class ControllerLoggingAspect {
                long duration = System.currentTimeMillis() - startTime;
 
                // Log method error
-               log.error("{}{}❌ CONTROLLER ERROR:{} {}{}.{}{} - Duration: {}{}ms{} - Error: {}{}{} - Message: {}{}{}",
+               log.error("{}{}❌ CONTROLLER ERROR:{} {}{}.{}{} - Duration: {}{}ms{} - Error: {}{}{} - Message: {}{}{} ------------------------------ERROR----------------------------------------------------------------",
                          BOLD, RED, RESET, CYAN, className, methodName, RESET,
                          YELLOW, duration, RESET, RED, e.getClass().getSimpleName(), RESET,
                          PURPLE, e.getMessage(), RESET);

@@ -1,4 +1,4 @@
-import { ENV } from '@/share/config/env';
+import { ENV } from '@/share/utils/env';
 import { BaseService } from '../BaseService';
 import { QuizGroup, QuizGroupRequest, QuizGroupResponse, QuizGroupView } from './models';
 

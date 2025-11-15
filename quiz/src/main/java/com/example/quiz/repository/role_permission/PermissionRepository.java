@@ -24,6 +24,6 @@ public interface PermissionRepository extends JpaRepository<Permission, Long> {
     @Query("SELECT DISTINCT p FROM Permission p " +
            "JOIN p.roles r " +
            "JOIN r.users u " +
-           "WHERE u.username = :username")
+           "WHERE u.email = :username")
     List<Permission> findPermissionsByUsername(@Param("username") String username);
 }

@@ -29,6 +29,11 @@ import java.util.Map;
 public class UserController extends BaseController<User, Long, UserRequest, UserResponse, UserView, UserService> {
 
     private final SecurityUtils securityUtils;
+        @org.springframework.beans.factory.annotation.Value("${spring.security.oauth2.client.registration.google.client-id}")
+        private String googleClientId;
+
+        @org.springframework.beans.factory.annotation.Value("${spring.security.oauth2.client.registration.google.redirect-uri:http://localhost:8080/login/oauth2/code/google}")
+        private String googleRedirectUri;
 
     public UserController(
             UserService service,
@@ -135,8 +140,8 @@ public class UserController extends BaseController<User, Long, UserRequest, User
     @GetMapping("/oauth2/authorization/google")
     public ApiResponse<String> getGoogleOAuth2AuthorizationUrl() {
         String authorizationUrl = "https://accounts.google.com/o/oauth2/auth?" +
-                "client_id=1072248269341-np6iadi653ccgogld6hgbfl7r7fpmss6.apps.googleusercontent.com&" +
-                "redirect_uri=http://localhost:8080/login/oauth2/code/google&" +
+                "client_id=" + googleClientId + "&" +
+                "redirect_uri=" + googleRedirectUri + "&" +
                 "scope=profile email&" +
                 "response_type=code&" +
                 "access_type=offline";
@@ -176,8 +181,8 @@ public class UserController extends BaseController<User, Long, UserRequest, User
     public ApiResponse<Map<String, String>> getOAuth2Url() {
         Map<String, String> result = new HashMap<>();
         String googleAuthUrl = "https://accounts.google.com/o/oauth2/auth?" +
-                "client_id=1072248269341-np6iadi653ccgogld6hgbfl7r7fpmss6.apps.googleusercontent.com&" +
-                "redirect_uri=http://localhost:8080/login/oauth2/code/google&" +
+                "client_id=" + googleClientId + "&" +
+                "redirect_uri=" + googleRedirectUri + "&" +
                 "scope=profile email&" +
                 "response_type=code&" +
                 "state=test";

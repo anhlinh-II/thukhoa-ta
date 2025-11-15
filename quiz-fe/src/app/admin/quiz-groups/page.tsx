@@ -3,11 +3,11 @@ import React, { useState, useRef } from 'react';
 import { Form, Input, Switch, Splitter } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { QuizGroupRequest, QuizGroupResponse } from '@/share/services/quiz_group/models';
-import { CrudListComponent } from '@/share/components/CrudListComponent';
-import TreeView from '@/share/components/TreeView';
+import { CrudListComponent } from '@/share/components/base/CrudListComponent';
 import { programService } from '@/share/services/program/programService';
 import { quizGroupService } from '@/share/services/quiz_group/quiz-group.service';
-import { FilterItemDto } from '@/share/types';
+import { FilterItemDto } from '@/share/utils/types';
+import TreeView from '@/share/components/base/TreeView';
 
 export default function QuizGroup() {
   const [selectedProgramIds, setSelectedProgramIds] = useState<Array<string | number> | null>(null);

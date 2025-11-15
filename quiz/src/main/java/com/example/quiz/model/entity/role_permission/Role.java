@@ -38,6 +38,7 @@ public class Role {
         joinColumns = @JoinColumn(name = "role_id"),
         inverseJoinColumns = @JoinColumn(name = "permission_id")
     )
+    @com.fasterxml.jackson.annotation.JsonManagedReference(value = "role_permission")
     private Set<Permission> permissions;
     
     public Role(String authority) {

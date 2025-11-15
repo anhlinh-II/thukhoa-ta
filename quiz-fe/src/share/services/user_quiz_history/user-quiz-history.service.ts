@@ -1,4 +1,4 @@
-import { ENV } from '@/share/config/env';
+import { ENV } from '@/share/utils/env';
 import { BaseService, PagingResponse } from '../BaseService';
 import { UserQuizHis, UserQuizHisRequest, UserQuizHisResponse, UserQuizHisView } from './models';
 

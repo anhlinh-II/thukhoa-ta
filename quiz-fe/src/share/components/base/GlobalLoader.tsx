@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
-import loadingService from '../services/loadingService';
+import loadingService from '../../services/loadingService';
 
 export interface GlobalLoaderProps {
   /** When true the loader won't render (opt-out) */

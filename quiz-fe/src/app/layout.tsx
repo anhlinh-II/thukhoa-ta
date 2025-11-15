@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import GlobalLoader from "@/share/components/GlobalLoader";
-import NavigationLoader from "@/share/components/NavigationLoader";
+import GlobalLoader from "@/share/components/base/GlobalLoader";
+import NavigationLoader from "@/share/components/base/NavigationLoader";
 import AntdProvider from "@/share/components/providers/AntdProvider";
 import QueryProvider from "@/share/components/providers/QueryProvider";
 import ReduxProvider from "@/share/components/providers/ReduxProvider";
 import HeaderClient from '@/share/components/home/HeaderClient';
+import FooterClient from '@/share/components/home/FooterClient';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,6 +37,7 @@ export default function RootLayout({
               <AntdProvider>
               <HeaderClient />
               {children}
+              <FooterClient />
               <GlobalLoader />
               <NavigationLoader />
               </AntdProvider>

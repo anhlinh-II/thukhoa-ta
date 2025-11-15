@@ -5,7 +5,7 @@ import { Card, List, Typography, Spin, Button, Tag } from "antd";
 import { useParams, useRouter } from "next/navigation";
 import { ClockCircleOutlined, FileTextOutlined, TrophyOutlined } from "@ant-design/icons";
 import { QuizMockTestResponse } from "@/share/services/quiz_mock_test/model";
-import { quizMockTestService } from "@/share/services/quiz_mock_test/quizMockTestService";
+import { quizMockTestService } from "@/share/services/quiz_mock_test/quiz-mocktest.service";
 
 const { Title, Text } = Typography;
 
