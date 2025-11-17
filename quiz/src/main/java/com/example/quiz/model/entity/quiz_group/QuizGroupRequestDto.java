@@ -1,5 +1,6 @@
 package com.example.quiz.model.entity.quiz_group;
 
+import com.example.quiz.enums.GroupType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -22,7 +23,7 @@ public class QuizGroupRequestDto {
 
     private String slug;
 
-    private QuizGroup.GroupType groupType;
+    private GroupType groupType;
 
     private Integer displayOrder = 0;
 

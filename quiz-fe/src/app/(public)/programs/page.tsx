@@ -1,6 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Tree, Card, Typography, Spin, message } from "antd";
+import { Tree, Card, Typography, Spin, message, Breadcrumb } from "antd";
 import { useRouter } from "next/navigation";
 import type { DataNode } from "antd/es/tree";
 import { programService } from "@/share/services/program/programService";
@@ -67,9 +67,15 @@ export default function ProgramsPage() {
     <div className="p-6 max-w-7xl mx-auto">
       <Card>
         <div className="flex items-center justify-between mb-4">
-          <Title level={3} className="!m-0">
-            Chương Trình Ôn Luyện
-          </Title>
+          <div>
+            <Breadcrumb>
+              <Breadcrumb.Item onClick={() => router.push('/')}>Trang chủ</Breadcrumb.Item>
+              <Breadcrumb.Item>Chương Trình Ôn Luyện</Breadcrumb.Item>
+            </Breadcrumb>
+            <Title level={3} className="!m-0 mt-2">
+              Chương Trình Ôn Luyện
+            </Title>
+          </div>
         </div>
 
         {loading ? (

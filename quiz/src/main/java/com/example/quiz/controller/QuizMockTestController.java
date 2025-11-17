@@ -8,6 +8,7 @@ import com.example.quiz.model.entity.quiz_mock_test.QuizMockTestResponseDto;
 import com.example.quiz.model.entity.quiz_mock_test.QuizMockTest;
 import com.example.quiz.model.entity.quiz_mock_test.QuizMockTestView;
 import com.example.quiz.service.quiz_mock_test.QuizMockTestService;
+import com.example.quiz.validators.requirePermission.RequirePermission;
 import com.example.quiz.validators.requirePermission.ResourceController;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -36,6 +37,7 @@ public class QuizMockTestController extends BaseController<QuizMockTest, Long, Q
     }
 
     @GetMapping("/{id}/preview")
+//    @RequirePermission(resource = "QUIZ_MOCK_TEST", action = "READ") alo nguyễn thị thùy vân heheheheheheh hihihahaha
     public ResponseEntity<Map<String, Object>> previewQuiz(@PathVariable Long id) {
         log.info("Fetching preview for quiz mock test id: {}", id);
         Map<String, Object> preview = quizMockTestService.getQuizPreview(id);

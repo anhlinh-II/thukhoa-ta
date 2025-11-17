@@ -46,6 +46,11 @@ public class RolePermissionController {
         return service.getAllPermissions();
     }
 
+    @GetMapping("/permissions/search")
+    public Permission getPermissionByName(@RequestParam String name) {
+        return service.getPermissionByName(name);
+    }
+
     @PostMapping("/permissions")
     public Permission createPermission(@RequestParam String name, @RequestParam String description, @RequestParam String resource, @RequestParam String action) {
         return service.createPermission(name, description, resource, action);

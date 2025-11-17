@@ -1,6 +1,7 @@
 package com.example.quiz.repository.quiz_group;
 
 import com.example.quiz.base.baseInterface.BaseRepository;
+import com.example.quiz.enums.GroupType;
 import com.example.quiz.model.entity.quiz_group.QuizGroup;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,7 +16,7 @@ public interface QuizGroupRepository extends BaseRepository<QuizGroup, Long> {
     List<QuizGroup> findByProgramIdAndIsDeletedFalseOrderByDisplayOrder(Long programId);
 
     List<QuizGroup> findByProgramIdAndGroupTypeAndIsDeletedFalseOrderByDisplayOrder(
-            Long programId, QuizGroup.GroupType groupType);
+            Long programId, GroupType groupType);
 
     Optional<QuizGroup> findByIdAndIsDeletedFalse(Long id);
 
@@ -30,5 +31,5 @@ public interface QuizGroupRepository extends BaseRepository<QuizGroup, Long> {
     @Query("SELECT COUNT(qg) FROM QuizGroup qg WHERE qg.program.id = :programId " +
            "AND qg.groupType = :groupType AND qg.isDeleted = false")
     Long countByProgramIdAndGroupType(@Param("programId") Long programId, 
-                                      @Param("groupType") QuizGroup.GroupType groupType);
+                                      @Param("groupType") GroupType groupType);
 }

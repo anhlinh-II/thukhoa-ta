@@ -22,4 +22,7 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
            "JOIN r.users u " +
            "WHERE u.username = :username")
     List<Role> findRolesByUsernameWithPermissions(@Param("username") String username);
+
+    @Query("SELECT DISTINCT r FROM Role r JOIN r.permissions p WHERE p.id = :permissionId")
+    List<Role> findRolesByPermissionId(@Param("permissionId") Long permissionId);
 }

@@ -1,6 +1,7 @@
 package com.example.quiz.service.quiz_group;
 
 import com.example.quiz.base.impl.BaseServiceImpl;
+import com.example.quiz.enums.GroupType;
 import com.example.quiz.exception.AppException;
 import com.example.quiz.exception.ErrorCode;
 import com.example.quiz.mapper.QuizGroupMapper;
@@ -54,9 +55,9 @@ public class QuizGroupServiceImpl extends BaseServiceImpl<QuizGroup, Long, QuizG
 
     @Override
     @Transactional(readOnly = true)
-    public List<QuizGroupResponseDto> findByProgramIdAndGroupType(Long programId, QuizGroup.GroupType groupType) {
+    public List<QuizGroupResponseDto> findByProgramIdAndGroupType(Long programId, GroupType groupType) {
         List<QuizGroupView> views = quizGroupViewRepository.findByProgramIdAndGroupTypeAndIsDeletedFalseOrderByDisplayOrder(programId, 
-                QuizGroupView.GroupType.valueOf(groupType.name()));
+                GroupType.valueOf(groupType.name()));
         return views.stream().map(this::viewToResponseDto).toList();
     }
 
@@ -111,7 +112,7 @@ public class QuizGroupServiceImpl extends BaseServiceImpl<QuizGroup, Long, QuizG
 
     @Override
     @Transactional(readOnly = true)
-    public Long countByProgramIdAndGroupType(Long programId, QuizGroup.GroupType groupType) {
+    public Long countByProgramIdAndGroupType(Long programId, GroupType groupType) {
         return quizGroupRepository.countByProgramIdAndGroupType(programId, groupType);
     }
 
@@ -171,7 +172,7 @@ public class QuizGroupServiceImpl extends BaseServiceImpl<QuizGroup, Long, QuizG
         dto.setName(view.getName());
         dto.setDescription(view.getDescription());
         dto.setSlug(view.getSlug());
-        dto.setGroupType(QuizGroup.GroupType.valueOf(view.getGroupType().name()));
+        dto.setGroupType(GroupType.valueOf(view.getGroupType().name()));
         dto.setDisplayOrder(view.getDisplayOrder());
         dto.setIsActive(view.getIsActive());
         dto.setIsDeleted(view.getIsDeleted());

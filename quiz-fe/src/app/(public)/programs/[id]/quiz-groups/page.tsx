@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Card, Row, Col, Typography, Spin, Button } from "antd";
+import { Card, Row, Col, Typography, Spin, Button, Breadcrumb } from "antd";
 import { useParams, useRouter } from "next/navigation";
 import { ArrowRightOutlined } from "@ant-design/icons";
 import { GroupType, QuizGroupView } from "@/share/services/quiz_group/models";
@@ -103,14 +103,11 @@ export default function ProgramQuizGroupsPage() {
       const response = await quizGroupService.getViewsPagedWithFilter(request);
       const groups = response.data as QuizGroupView[];
       
-      console.log('Quiz groups data:', groups);
-      console.log('Group types:', groups.map(g => ({ id: g.id, name: g.name, groupType: g.groupType, typeOf: typeof g.groupType })));
-      
       setQuizGroups(groups);
       
       // Set program name if available (you might need to fetch program separately)
       if (programId) {
-        setProgramName(`Chương trình #${programId}`);
+        setProgramName(groups[0]?.programName || `Chương trình ${programId}`);
       }
     } catch (error) {
       console.error("Error fetching quiz groups:", error);
@@ -130,11 +127,17 @@ export default function ProgramQuizGroupsPage() {
     const groupId = typeof quizGroupId === 'string' ? parseInt(quizGroupId, 10) : quizGroupId;
     const group = quizGroups.find(g => g.id === groupId);
     
+    const qs = new URLSearchParams();
+    if (group?.name) qs.set('groupName', String(group.name));
+    if (programName) qs.set('programName', String(programName));
+    if(group?.programId) qs.set('programId', String(group.programId));
+    const q = qs.toString() ? `?${qs.toString()}` : '';
+
     if (group?.groupType === GroupType.MOCK_TEST) {
-      router.push(`/quiz-groups/${groupId}/mock-tests`);
+      router.push(`/quiz-groups/${groupId}/mock-tests${q}`);
     } else {
       // For other types, navigate to quizzes page
-      router.push(`/quiz-groups/${groupId}/quizzes`);
+      router.push(`/quiz-groups/${groupId}/quizzes${q}`);
     }
   };
 
@@ -153,18 +156,10 @@ export default function ProgramQuizGroupsPage() {
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="mb-6">
-        <Button 
-          onClick={() => router.back()} 
-          className="mb-4"
-        >
-          ← Quay lại
-        </Button>
-        <Title level={2} className="!m-0">
-          {programName}
-        </Title>
-        <Text type="secondary" className="text-base">
-          Chọn loại bài tập phù hợp với mục tiêu học tập của bạn
-        </Text>
+        <Breadcrumb className="mb-2">
+          <Breadcrumb.Item onClick={() => router.push('/')}>Trang chủ</Breadcrumb.Item>
+          <Breadcrumb.Item>{programName || `Chương trình ${programId}`}</Breadcrumb.Item>
+        </Breadcrumb>
       </div>
 
       {loading ? (

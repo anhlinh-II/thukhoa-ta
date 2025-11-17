@@ -1,5 +1,6 @@
 package com.example.quiz.model.entity.quiz_group;
 
+import com.example.quiz.enums.GroupType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -66,8 +67,4 @@ public class QuizGroupView {
 
     @Column(name = "total_mock_test")
     private Integer totalMockTest;
-
-    public enum GroupType {
-        FORMAT, TOPIC, MOCK_TEST, OTHER
-    }
 }

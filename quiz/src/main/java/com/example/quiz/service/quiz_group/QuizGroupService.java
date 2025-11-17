@@ -1,6 +1,7 @@
 package com.example.quiz.service.quiz_group;
 
 import com.example.quiz.base.baseInterface.BaseService;
+import com.example.quiz.enums.GroupType;
 import com.example.quiz.model.entity.quiz_group.QuizGroupRequestDto;
 import com.example.quiz.model.entity.quiz_group.QuizGroupResponseDto;
 import com.example.quiz.model.entity.quiz_group.QuizGroup;
@@ -12,7 +13,7 @@ public interface QuizGroupService extends BaseService<QuizGroup, Long, QuizGroup
 
     List<QuizGroupResponseDto> findByProgramId(Long programId);
 
-    List<QuizGroupResponseDto> findByProgramIdAndGroupType(Long programId, QuizGroup.GroupType groupType);
+    List<QuizGroupResponseDto> findByProgramIdAndGroupType(Long programId, GroupType groupType);
 
     List<QuizGroupResponseDto> findActiveByProgramId(Long programId);
 
@@ -30,5 +31,5 @@ public interface QuizGroupService extends BaseService<QuizGroup, Long, QuizGroup
 
     boolean existsBySlug(String slug);
 
-    Long countByProgramIdAndGroupType(Long programId, QuizGroup.GroupType groupType);
+    Long countByProgramIdAndGroupType(Long programId, GroupType groupType);
 }

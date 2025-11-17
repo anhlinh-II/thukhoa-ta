@@ -1,6 +1,7 @@
 package com.example.quiz.repository.quiz_group;
 
 import com.example.quiz.base.baseInterface.BaseRepository;
+import com.example.quiz.enums.GroupType;
 import com.example.quiz.model.entity.quiz_group.QuizGroupView;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,7 +16,7 @@ public interface QuizGroupViewRepository extends BaseRepository<QuizGroupView, L
     List<QuizGroupView> findByProgramIdAndIsDeletedFalseOrderByDisplayOrder(Long programId);
 
     List<QuizGroupView> findByProgramIdAndGroupTypeAndIsDeletedFalseOrderByDisplayOrder(
-            Long programId, QuizGroupView.GroupType groupType);
+            Long programId, GroupType groupType);
 
     Optional<QuizGroupView> findByIdAndIsDeletedFalse(Long id);
 

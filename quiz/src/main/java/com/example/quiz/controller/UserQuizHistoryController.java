@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -23,8 +24,15 @@ public class UserQuizHistoryController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<UserQuizHisResponse>>> list(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
-        Page<UserQuizHisResponse> p = userQuizMockHisService.getMyHistory(page, size);
+    public ResponseEntity<ApiResponse<Page<UserQuizHisResponse>>> list(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size, @RequestParam(required = false) String quizType) {
+        Page<UserQuizHisResponse> p = userQuizMockHisService.getMyHistory(page, size, quizType);
         return ResponseEntity.ok(ApiResponse.successOf(p));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<com.example.quiz.model.dto.response.QuizHistoryDetailResponse>> detail(@PathVariable Long id) {
+        com.example.quiz.model.dto.response.QuizHistoryDetailResponse res = userQuizMockHisService.getHistoryDetail(id);
+        if (res == null) return ResponseEntity.status(404).body(ApiResponse.error(404, "Not found or access denied"));
+        return ResponseEntity.ok(ApiResponse.successOf(res));
     }
 }

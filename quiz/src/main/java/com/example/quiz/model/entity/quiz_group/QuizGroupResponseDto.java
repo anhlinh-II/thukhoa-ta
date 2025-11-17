@@ -1,5 +1,6 @@
 package com.example.quiz.model.entity.quiz_group;
 
+import com.example.quiz.enums.GroupType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,7 +17,7 @@ public class QuizGroupResponseDto {
     private String name;
     private String description;
     private String slug;
-    private QuizGroup.GroupType groupType;
+    private GroupType groupType;
     private Integer displayOrder;
     private Boolean isActive;
     private Boolean isDeleted;

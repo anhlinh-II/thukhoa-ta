@@ -5,6 +5,7 @@ import { Card, Typography, Spin, Button, Radio, Space, message, Modal, Switch, I
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { ClockCircleOutlined, CheckCircleOutlined, HighlightOutlined, UnderlineOutlined, StrikethroughOutlined, DeleteOutlined, EditOutlined, FlagOutlined } from "@ant-design/icons";
 import { quizMockTestService } from "@/share/services/quiz_mock_test/quiz-mocktest.service";
+import { userQuestionAnswerService } from '@/share/services/user_question_answer/user-question-answer.service';
 import { ENV } from "@/share/utils/env";
 
 const { Title, Text } = Typography;
@@ -269,8 +270,15 @@ export default function QuizTakingPage() {
     setShowSubmitModal(false);
     try {
       setSubmitting(true);
+      // const payload = Object.fromEntries(Object.entries(answers).map(([k, v]) => [Number(k), v]));
       const payload = Object.fromEntries(Object.entries(answers).map(([k, v]) => [Number(k), v]));
-      const apiResp = await quizMockTestService.submit(quizId, payload);
+
+      // compute elapsed seconds and timeSpent in minutes
+      const totalSeconds = configDuration * 60;
+      const elapsedSeconds = Math.max(0, totalSeconds - timeLeft);
+      const timeSpentMinutes = Math.ceil(elapsedSeconds / 60);
+
+      const apiResp = await quizMockTestService.submit(quizId, payload, timeSpentMinutes);
       const res = apiResp;
 
       message.success('Đã nộp bài thành công!');
@@ -280,6 +288,48 @@ export default function QuizTakingPage() {
       } catch (e) {
         // ignore storage errors
       }
+
+      // Save per-question answers to backend (user_question_answer)
+      try {
+        const quizHisId: number | undefined = res?.quizHisId;
+        // If backend already persisted the quiz history and per-question answers (quizHisId present), skip FE creates
+        if (quizHisId) {
+          console.debug('Backend persisted quiz history (id=' + quizHisId + '), skipping FE per-question creates.');
+        } else {
+          // If backend didn't persist, create per-question answers from returned answers or fallback
+          const returnedAnswers: Array<any> | undefined = res?.answers;
+          if (Array.isArray(returnedAnswers) && returnedAnswers.length > 0) {
+            const createPromises = returnedAnswers.map((a: any) => {
+              const req = {
+                questionId: a.questionId,
+                questionOptionId: a.yourOptionId,
+                timeSpent: 0,
+                isCorrect: a.isCorrect,
+              } as any;
+              return userQuestionAnswerService.createAnswer(req).catch(err => {
+                console.debug('Failed to save user question answer', err);
+              });
+            });
+            await Promise.allSettled(createPromises);
+          } else {
+            // fallback: use local answers map to create entries without correctness
+            const createPromises = Object.entries(payload).map(([qId, optId]) => {
+              const req = {
+                questionId: Number(qId),
+                questionOptionId: optId,
+                timeSpent: 0,
+              } as any;
+              return userQuestionAnswerService.createAnswer(req).catch(err => {
+                console.debug('Failed to save user question answer (fallback)', err);
+              });
+            });
+            await Promise.allSettled(createPromises);
+          }
+        }
+      } catch (e) {
+        console.debug('Error saving per-question answers', e);
+      }
+
       router.push(`/quiz-results/${quizId}`);
     } catch (err: any) {
       console.error('Submit error:', err);

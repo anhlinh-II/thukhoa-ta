@@ -35,9 +35,13 @@ export default function RootLayout({
         <ReduxProvider>
           <QueryProvider>
               <AntdProvider>
-              <HeaderClient />
-              {children}
-              <FooterClient />
+              <div className="min-h-screen flex flex-col">
+                <HeaderClient />
+                <main className="flex-1">
+                  {children}
+                </main>
+                <FooterClient />
+              </div>
               <GlobalLoader />
               <NavigationLoader />
               </AntdProvider>

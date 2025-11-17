@@ -10,6 +10,9 @@ export interface UserQuizHis extends BaseEntity {
     totalQuestions: number;
 
     correctCount: number;
+    
+  // Matches backend GroupType: FORMAT, TOPIC, MOCK_TEST, OTHER
+  quizType?: 'FORMAT' | 'TOPIC' | 'MOCK_TEST' | 'OTHER';
 }
 
 export interface UserQuizHisRequest {

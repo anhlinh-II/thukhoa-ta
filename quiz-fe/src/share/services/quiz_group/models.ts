@@ -22,4 +22,6 @@ export interface QuizGroupView extends QuizGroup {
   totalMockTest?: number;
   totalFormat?: number;
   totalTopic?: number;
+  programName?: string;
+  programId?: number;
 }

@@ -32,7 +32,7 @@ public abstract class BaseController<E, ID, R, P, V, S> {
     @GetMapping("/all")
     @RequirePermission(resource = "", action = "READ")
     public ApiResponse<List<P>> findAll() {
-        return ApiResponse.successOf(baseService.findAll());
+          return ApiResponse.successOf(baseService.findAll());
     }
 
     @GetMapping("/paged")

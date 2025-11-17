@@ -17,4 +17,5 @@ public class UserQuizHisResponse {
     private Integer totalQuestions;
     private Integer correctCount;
     private Instant createdAt;
+    private String quizType;
 }

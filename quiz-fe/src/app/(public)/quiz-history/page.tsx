@@ -3,6 +3,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Card, List, Typography, Pagination, Spin, Button, Tag, Space, Modal, Row, Col, Tabs, Input, Select, Radio, Checkbox, Divider } from 'antd';
 import { userQuizHistoryService } from '@/share/services/user_quiz_history/user-quiz-history.service';
+import { questionService } from '@/share/services/question/question.service';
+import { questionOptionService } from '@/share/services/question_option/question-option.service';
 import { LinkOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 
@@ -45,11 +47,18 @@ export default function QuizHistoryPage() {
   const [visibleSets, setVisibleSets] = useState({ mocktest: true, topic: true, format: true });
   const [topTab, setTopTab] = useState<'history' | 'stats'>('history');
 
-  const fetch = async (p = 0, s = 10) => {
+  const fetch = async (p = 0, s = 10, tab?: 'mocktest' | 'topic' | 'format') => {
     setLoading(true);
     try {
-      const resp = await userQuizHistoryService.listPaged(p, s);
-      setItems(resp.content || []);
+      const map: Record<string, string | undefined> = { mocktest: 'MOCK_TEST', topic: 'TOPIC', format: 'FORMAT' };
+      const qt = tab ? map[tab] : undefined;
+      const resp = await userQuizHistoryService.listPaged(p, s, qt);
+      const all = resp.content || [];
+
+      // assign to the currently selected lists
+      if ((tab ?? tabKey) === 'mocktest') setItems(all);
+      else if ((tab ?? tabKey) === 'topic') setTopicItems(all);
+      else if ((tab ?? tabKey) === 'format') setFormatItems(all);
       setTotal(resp.totalElements || 0);
       setPage(p);
       setSize(s);
@@ -60,40 +69,11 @@ export default function QuizHistoryPage() {
     }
   };
 
-  useEffect(() => { fetch(0, 10); }, []);
+  useEffect(() => { fetch(0, 10, tabKey); }, [tabKey]);
 
-  // Generate fake data for topic and format types based on mock data or random
+  // derive lists for topic and format based on quizType returned from backend
   const [topicItems, setTopicItems] = useState<any[]>([]);
   const [formatItems, setFormatItems] = useState<any[]>([]);
-
-  useEffect(() => {
-    // derive fake data when items change
-    const makeFake = (prefix: string, count = 12) => {
-      const base = items.slice(0, Math.min(items.length, count));
-      if (base.length === 0) {
-        // generate some dummy
-        return Array.from({ length: count }).map((_, i) => ({
-          id: `f-${prefix}-${i}`,
-          title: `${prefix} sample ${i + 1}`,
-          createdAt: new Date(Date.now() - (i * 86400000)).toISOString(),
-          score: Math.round((Math.random() * 10) * 100) / 100,
-          correctCount: Math.floor(Math.random() * 20),
-          totalQuestions: 20,
-        }));
-      }
-
-      return base.map((b, i) => ({
-        ...b,
-        id: `f-${prefix}-${i}`,
-        title: `${prefix} - ${b.title ?? b.quizMockTestId}`,
-        createdAt: new Date(Date.parse(b.createdAt || Date.now().toString()) - (i * 86400000)).toISOString(),
-        score: Math.round(((b.score ?? (Math.random() * 10)) + Math.random()) * 100) / 100,
-      }));
-    };
-
-    setTopicItems(makeFake('QuizTopic', 20));
-    setFormatItems(makeFake('QuizFormat', 18));
-  }, [items]);
 
   // Combined dataset for easier chart aggregation
   const allSets = useMemo(() => ({ mocktest: items, topic: topicItems, format: formatItems }), [items, topicItems, formatItems]);
@@ -163,8 +143,10 @@ export default function QuizHistoryPage() {
   }, [allSets, visibleSets, chartDays]);
 
   const openDetail = (item: any) => {
+    // load detail from backend    
     setActiveItem(item);
     setDetailVisible(true);
+    loadDetail(item);
   };
 
   const closeDetail = () => {
@@ -172,21 +154,33 @@ export default function QuizHistoryPage() {
     setActiveItem(null);
   };
 
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [historyDetail, setHistoryDetail] = useState<any | null>(null);
+  const [questionModalVisible, setQuestionModalVisible] = useState(false);
+  const [questionLoading, setQuestionLoading] = useState(false);
+  const [questionDetail, setQuestionDetail] = useState<any | null>(null);
+  const [questionOptions, setQuestionOptions] = useState<any[]>([]);
+
+  const loadDetail = async (item: any) => {
+    setDetailLoading(true);
+    try {
+      const res = await userQuizHistoryService.getDetail(item.id ?? item);
+      setHistoryDetail(res || null);
+    } catch (e) {
+      console.error('Failed to load history detail', e);
+      setHistoryDetail(null);
+    } finally {
+      setDetailLoading(false);
+    }
+  };
+
   const fmtDate = (d?: string) => d ? new Date(d).toLocaleString() : '-';
 
   return (
-    <div className="p-6">
+    <div className="p-2">
       <Card bordered={false} className="shadow-md rounded-lg">
-        <div className="flex items-center justify-between mb-4">
-          <Title level={4} className="!mb-0">Lịch sử làm bài của tôi</Title>
-          <Space>
-            <Button type="default" onClick={() => fetch(0, size)}>Refresh</Button>
-            <Link href="/leaderboard"><Button icon={<LinkOutlined />}>Leaderboard</Button></Link>
-          </Space>
-        </div>
-
         <Tabs activeKey={topTab} onChange={(k) => setTopTab(k as any)}>
-          <Tabs.TabPane tab="Lịch sử" key="history">
+          <Tabs.TabPane tab="Lịch sử làm bài" key="history">
             <div className="mb-4">
               <Tabs tabPosition="left" activeKey={tabKey} onChange={(k) => setTabKey(k as any)}>
                 <Tabs.TabPane tab={<span>Quiz</span>} key="mocktest">
@@ -280,21 +274,97 @@ export default function QuizHistoryPage() {
             </Row>
 
             <div className="mt-4">
-              <Text strong>Những câu sai (ví dụ):</Text>
-              <List
-                dataSource={activeItem.wrongQuestions ?? [{q:'Q1', your:'A', correct:'B'},{q:'Q3', your:'D', correct:'C'}]}
-                renderItem={(w:any)=>(
-                  <List.Item>
-                    <div className="w-full flex justify-between">
-                      <div>{w.q}</div>
-                      <div className="text-sm text-red-600">Bạn: {w.your} • Đúng: {w.correct}</div>
-                    </div>
-                  </List.Item>
-                )}
-              />
+              <Text strong>Danh sách câu hỏi:</Text>
+              {detailLoading ? (
+                <div className="py-8 flex justify-center"><Spin /></div>
+              ) : (
+                <List
+                  dataSource={historyDetail?.questions ?? []}
+                  locale={{ emptyText: 'Không có dữ liệu' }}
+                  renderItem={(q: any, idx: number) => (
+                    <List.Item>
+                      <div className="w-full flex justify-between items-center">
+                        <div>
+                          <Text>{idx + 1}. </Text>
+                          <Text>Câu #{q.questionId}</Text>
+                          <div className="text-sm text-gray-600">(Question id: {q.questionId})</div>
+                        </div>
+                        <div className="text-sm">
+                          {q.isCorrect ? (
+                            <Tag color="green">Đúng</Tag>
+                          ) : (
+                            <Tag color="red">Sai</Tag>
+                          )}
+                          <div className="mt-1">
+                            <span className="mr-4">Bạn: {q.userOptionId ?? '-'}</span>
+                            <span>Đúng: {q.correctOptionId ?? '-'}</span>
+                          </div>
+                          <div className="mt-2">
+                            <Button size="small" onClick={async () => {
+                              setQuestionLoading(true);
+                              setQuestionDetail(null);
+                              setQuestionOptions([]);
+                              try {
+                                const qd = await questionService.findById(q.questionId);
+                                const opts = await questionOptionService.findAll();
+                                const filtered = (opts || []).filter((o:any) => o.questionId === q.questionId);
+                                setQuestionDetail(qd);
+                                setQuestionOptions(filtered);
+                                setQuestionModalVisible(true);
+                              } catch (e) {
+                                console.error('Failed to load question detail', e);
+                              } finally {
+                                setQuestionLoading(false);
+                              }
+                            }}>Xem chi tiết</Button>
+                          </div>
+                        </div>
+                      </div>
+                    </List.Item>
+                  )}
+                />
+              )}
             </div>
           </div>
         ) : null}
+      </Modal>
+      <Modal visible={questionModalVisible} title={questionDetail?.contentHtml ? 'Chi tiết câu hỏi' : 'Loading...'} footer={null} onCancel={() => setQuestionModalVisible(false)} width={900}>
+        {questionLoading ? (
+          <div className="py-8 flex justify-center"><Spin /></div>
+        ) : questionDetail ? (
+          <div>
+            <div className="mb-4" dangerouslySetInnerHTML={{ __html: questionDetail.contentHtml }} />
+            <List
+              dataSource={questionOptions}
+              renderItem={(opt: any) => (
+                <List.Item>
+                  <div className="w-full flex items-center justify-between">
+                    <div>
+                      <div dangerouslySetInnerHTML={{ __html: opt.contentHtml }} />
+                    </div>
+                    <div className="text-right">
+                      {historyDetail && historyDetail.questions?.find((qq:any) => qq.questionId === questionDetail.id)?.userOptionId === opt.id && (
+                        <Tag color="blue">Bạn chọn</Tag>
+                      )}
+                      {opt.isCorrect && (
+                        <Tag color="green">Đáp án đúng</Tag>
+                      )}
+                      {historyDetail && historyDetail.questions?.find((qq:any) => qq.questionId === questionDetail.id)?.userOptionId === opt.id && !opt.isCorrect && (
+                        <div className="text-red-600 line-through">Sai</div>
+                      )}
+                    </div>
+                  </div>
+                </List.Item>
+              )}
+            />
+
+            {historyDetail?.isShowExplain && questionDetail.explanationHtml && (
+              <div className="mt-4 p-3 bg-gray-50 rounded" dangerouslySetInnerHTML={{ __html: questionDetail.explanationHtml }} />
+            )}
+          </div>
+        ) : (
+          <div>Không có dữ liệu</div>
+        )}
       </Modal>
     </div>
   );

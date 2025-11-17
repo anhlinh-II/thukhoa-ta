@@ -1,6 +1,7 @@
 package com.example.quiz.model.entity.quiz_group;
 
 import com.example.quiz.base.BaseEntity;
+import com.example.quiz.enums.GroupType;
 import com.example.quiz.model.entity.program.Program;
 import com.example.quiz.utils.Sluggable;
 import jakarta.persistence.*;
@@ -54,7 +55,5 @@ public class QuizGroup extends BaseEntity implements Sluggable {
         return this.name;
     }
 
-    public enum GroupType {
-        FORMAT, TOPIC, MOCK_TEST, OTHER
-    }
+
 }

@@ -18,6 +18,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import com.example.quiz.configuration.security.SecurityConfig;
 
 import java.lang.reflect.Method;
+import org.springframework.util.AntPathMatcher;
 
 @Aspect
 @Component
@@ -35,13 +36,19 @@ public class ResourcePermissionAspect {
             ServletRequestAttributes attrs = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
             if (attrs != null) {
                 HttpServletRequest request = attrs.getRequest();
-                String uri = request.getRequestURI();
-                for (String p : SecurityConfig.WHITE_LIST) {
-                    if (p != null && !p.isEmpty() && uri.startsWith(p)) {
-                        log.debug("Skipping permission check for whitelisted path: {}", uri);
-                        return joinPoint.proceed();
+                    String uri = request.getRequestURI();
+                    AntPathMatcher matcher = new AntPathMatcher();
+                    for (String p : SecurityConfig.WHITE_LIST) {
+                        if (p == null || p.isEmpty()) continue;
+                        try {
+                            if (matcher.match(p, uri)) {
+                                log.debug("Skipping permission check for whitelisted path: {} (pattern {})", uri, p);
+                                return joinPoint.proceed();
+                            }
+                        } catch (Exception ex) {
+                            log.debug("Failed to match whitelist pattern {} against {}", p, uri, ex);
+                        }
                     }
-                }
             }
         } catch (Exception e) {
             // ignore any errors when trying to read request — fall back to normal permission checks

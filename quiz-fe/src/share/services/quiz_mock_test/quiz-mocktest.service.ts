@@ -12,10 +12,10 @@ QuizMockTestView
           super(ENV.API_URL, 'quiz-mock-tests');
      }
 
-     async submit(id: string | number, answers: Record<number, number>): Promise<any> {
+     async submit(id: string | number, answers: Record<number, number>, timeSpentMinutes?: number): Promise<any> {
           return this.handleRequest<any>(`${this.getEndpoint()}/${id}/submit`, {
                method: 'POST',
-               body: JSON.stringify({ answers }),
+               body: JSON.stringify({ answers, timeSpent: timeSpentMinutes }),
           });
      }
 }

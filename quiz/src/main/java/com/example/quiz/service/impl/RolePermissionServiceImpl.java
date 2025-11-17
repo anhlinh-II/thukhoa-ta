@@ -75,11 +75,20 @@ public class RolePermissionServiceImpl implements RolePermissionService {
 
     @Override
     public Permission createPermission(String name, String description, String resource, String action) {
-        if (permissionRepository.findByName(name).isPresent()) {
+                String n = name == null ? null : name.trim();
+                String d = description == null ? "" : description.trim();
+                String r = resource == null ? null : resource.trim();
+                String a = action == null ? null : action.trim();
+
+                if (n == null || n.isEmpty()) {
+                        throw new AppException(ErrorCode.INVALID_KEY);
+                }
+
+                if (permissionRepository.findByName(n).isPresent()) {
             throw new AppException(ErrorCode.ENTITY_EXISTED);
         }
         
-        Permission permission = new Permission(name, description, resource, action);
+                Permission permission = new Permission(n, d, r, a);
         return permissionRepository.save(permission);
     }
 
@@ -103,26 +112,42 @@ public class RolePermissionServiceImpl implements RolePermissionService {
     public Permission updatePermission(Long permissionId, String name, String description, String resource, String action) {
         Permission permission = permissionRepository.findById(permissionId)
                 .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_EXISTED));
-        
-        // Check if name is already taken by another permission
-        permissionRepository.findByName(name)
-                .filter(p -> !p.getId().equals(permissionId))
-                .ifPresent(p -> {
-                    throw new AppException(ErrorCode.ENTITY_EXISTED);
-                });
-        
-        permission.setName(name);
-        permission.setDescription(description);
-        permission.setResource(resource);
-        permission.setAction(action);
+                String n = name == null ? null : name.trim();
+                String d = description == null ? "" : description.trim();
+                String r = resource == null ? null : resource.trim();
+                String a = action == null ? null : action.trim();
+
+                // Check if name is already taken by another permission
+                permissionRepository.findByName(n)
+                                .filter(p -> !p.getId().equals(permissionId))
+                                .ifPresent(p -> {
+                                        log.warn("Permission name '{}' already exists in permission id={} (trying to update id={})", n, p.getId(), permissionId);
+                                        throw new AppException(ErrorCode.ENTITY_EXISTED);
+                                });
+
+                permission.setName(n);
+                permission.setDescription(d);
+                permission.setResource(r);
+                permission.setAction(a);
         return permissionRepository.save(permission);
     }
 
     @Override
     public void deletePermission(Long permissionId) {
-        Permission permission = permissionRepository.findById(permissionId)
-                .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_EXISTED));
-        permissionRepository.delete(permission);
+                Permission permission = permissionRepository.findById(permissionId)
+                                .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_EXISTED));
+
+                // Remove permission from any roles first to avoid constraint violations
+                List<Role> rolesContaining = roleRepository.findRolesByPermissionId(permissionId);
+                if (rolesContaining != null && !rolesContaining.isEmpty()) {
+                        rolesContaining.forEach(r -> {
+                                if (r.getPermissions() != null && r.getPermissions().removeIf(p -> p.getId().equals(permissionId))) {
+                                        roleRepository.save(r);
+                                }
+                        });
+                }
+
+                permissionRepository.delete(permission);
     }
 
     @Override

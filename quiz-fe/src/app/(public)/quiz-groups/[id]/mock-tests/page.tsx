@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { Card, Typography, Spin, Button, List, Modal, InputNumber, message, Tag, Divider } from "antd";
-import { useParams, useRouter } from "next/navigation";
-import { ClockCircleOutlined, FileTextOutlined, LoadingOutlined, TrophyOutlined, PlayCircleOutlined } from "@ant-design/icons";
+import { Typography, Spin, Breadcrumb, Modal, InputNumber, message, Divider, Card } from "antd";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
+import { quizGroupService } from "@/share/services/quiz_group/quiz-group.service";
+import { LoadingOutlined, FileTextOutlined, ClockCircleOutlined, PlayCircleOutlined } from "@ant-design/icons";
 import { useQuizMockTestsByGroup } from "@/share/hooks/useQuizMockTests";
+import QuizCard from "./QuizCard";
 
 const { Title, Text } = Typography;
 
@@ -16,9 +18,44 @@ export default function MockTestsListPage() {
   const [showConfigModal, setShowConfigModal] = useState(false);
   const [selectedMockTest, setSelectedMockTest] = useState<any>(null);
   const [duration, setDuration] = useState<number>(0);
+  const [groupName, setGroupName] = useState<string>('');
+  const [programName, setProgramName] = useState<string>('');
+  const [programIdNum, setProgramIdNum] = useState<number | null>(null);
+  const searchParams = useSearchParams();
 
   // Fetch mock tests for this group
   const { data: mockTests, isLoading } = useQuizMockTestsByGroup(groupId, true);
+
+  // Initialize group/program name from query params if provided, otherwise fetch view
+  React.useEffect(() => {
+    if (!groupId) return;
+    const qGroup = searchParams?.get('groupName');
+    const qProgram = searchParams?.get('programName');
+    const qProgramId = searchParams?.get('programId');
+
+    if (qGroup) setGroupName(qGroup);
+    if (qProgram) setProgramName(qProgram);
+    if (qProgramId) setProgramIdNum(Number(qProgramId));
+
+    if (qGroup && qProgram) {
+      // both provided, no need to fetch
+      return;
+    }
+
+    let mounted = true;
+    (async () => {
+      try {
+        const view: any = await quizGroupService.getViewById(groupId);
+        if (!mounted) return;
+        setGroupName(prev => prev || view?.name || `Nhóm ${groupId}`);
+        setProgramName(prev => prev || view?.programName || 'Chương trình');
+        if (view?.programId) setProgramIdNum(Number(view.programId));
+      } catch (e) {
+        console.error('Failed to load group view', e);
+      }
+    })();
+    return () => { mounted = false; };
+  }, [groupId, searchParams]);
 
   const handleStartQuiz = (mockTest: any) => {
     setSelectedMockTest(mockTest);
@@ -44,26 +81,15 @@ export default function MockTestsListPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 py-8">
       <div className="max-w-7xl mx-auto px-6">
         <div className="mb-8">
-          <Button
-            onClick={() => router.back()}
-            className="mb-4 hover:scale-105 transition-transform"
-            size="large"
-          >
-            ← Quay lại
-          </Button>
-          <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-100">
-            <div className="flex items-center gap-3 mb-2">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-xl flex items-center justify-center shadow-lg">
-                <TrophyOutlined className="text-2xl text-white" />
-              </div>
-              <Title level={2} className="!m-0 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                Danh sách bài thi thử
-              </Title>
-            </div>
-            <Text type="secondary" className="text-base ml-15">
-              Chọn bài thi phù hợp để bắt đầu luyện tập và nâng cao kỹ năng của bạn
-            </Text>
-          </div>
+          <Breadcrumb className="mb-4 cursor-pointer">
+            <Breadcrumb.Item onClick={() => router.push('/')}>Trang chủ</Breadcrumb.Item>
+            <Breadcrumb.Item
+              onClick={() => programIdNum ? router.push(`/programs/${programIdNum}/quiz-groups`) : router.push('/programs')}
+            >
+              {programName}
+            </Breadcrumb.Item>
+            <Breadcrumb.Item>{groupName || `Nhóm ${groupId}`}</Breadcrumb.Item>
+          </Breadcrumb>
         </div>
 
         {isLoading ? (
@@ -74,79 +100,7 @@ export default function MockTestsListPage() {
         ) : mockTests && mockTests.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {mockTests.map((mockTest: any, index: number) => (
-              <Card
-                key={mockTest.id}
-                hoverable
-                className="group relative overflow-hidden rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 border-0 hover:-translate-y-2"
-                style={{
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                }}
-              >
-                {/* Background Pattern */}
-                <div className="absolute inset-0 opacity-10">
-                  <div className="absolute top-0 right-0 w-40 h-40 bg-white rounded-full -mr-20 -mt-20"></div>
-                  <div className="absolute bottom-0 left-0 w-32 h-32 bg-white rounded-full -ml-16 -mb-16"></div>
-                </div>
-
-                {/* Content */}
-                <div className="relative z-10">
-                  {/* Header with Number Badge */}
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-8 h-8 bg-white/20 backdrop-blur rounded-lg flex items-center justify-center">
-                          <Text className="text-white font-bold text-sm">#{index + 1}</Text>
-                        </div>
-                        <Tag color="gold" className="font-semibold">
-                          <TrophyOutlined /> Mock Test
-                        </Tag>
-                      </div>
-                      <Title level={4} className="!text-white !mb-2 !mt-0 line-clamp-2">
-                        {mockTest.examName || mockTest.name}
-                      </Title>
-                    </div>
-                  </div>
-
-                  {/* Description */}
-                  {mockTest.description && (
-                    <Text className="text-white/90 text-sm block mb-4 line-clamp-2">
-                      {mockTest.description}
-                    </Text>
-                  )}
-
-                  <Divider className="!bg-white/20 !my-4" />
-
-                  {/* Stats */}
-                  <div className="grid grid-cols-2 gap-3 mb-4">
-                    <div className="bg-white/10 backdrop-blur rounded-xl p-3 text-center">
-                      <FileTextOutlined className="text-2xl text-white mb-1" />
-                      <div className="text-white font-bold text-lg">
-                        {mockTest.totalQuestions || 0}
-                      </div>
-                      <Text className="text-white/80 text-xs">Câu hỏi</Text>
-                    </div>
-                    <div className="bg-white/10 backdrop-blur rounded-xl p-3 text-center">
-                      <ClockCircleOutlined className="text-2xl text-white mb-1" />
-                      <div className="text-white font-bold text-lg">
-                        {mockTest.durationMinutes || 60}
-                      </div>
-                      <Text className="text-white/80 text-xs">Phút</Text>
-                    </div>
-                  </div>
-
-                  {/* Action Button */}
-                  <Button
-                    type="primary"
-                    size="large"
-                    block
-                    icon={<PlayCircleOutlined />}
-                    onClick={() => handleStartQuiz(mockTest)}
-                    className="!bg-white !text-purple-600 hover:!bg-purple-50 !border-0 !h-12 !font-semibold !rounded-xl shadow-lg hover:shadow-xl transition-all"
-                  >
-                    Bắt đầu làm bài
-                  </Button>
-                </div>
-              </Card>
+              <QuizCard key={mockTest.id} mockTest={mockTest} index={index} onStart={handleStartQuiz} />
             ))}
           </div>
         ) : (

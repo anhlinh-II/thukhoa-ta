@@ -12,4 +12,6 @@ import java.util.Map;
 public class SubmitQuizRequest {
     // questionId -> selectedOptionId
     private Map<Long, Long> answers;
+    // time spent in minutes
+    private Integer timeSpent;
 }

@@ -71,6 +71,10 @@ public class QuizMockTest extends BaseEntity implements Sluggable {
     @Builder.Default
     private Boolean isShowAnswer = false;
 
+    @Column(name = "is_show_explain")
+    @Builder.Default
+    private Boolean isShowExplain = false;
+
     @Override
     public String getSlugSource() {
         return this.examName;

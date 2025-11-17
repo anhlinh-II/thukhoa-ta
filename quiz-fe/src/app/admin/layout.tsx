@@ -9,6 +9,9 @@ import {
   SettingOutlined,
   QuestionCircleOutlined,
   TeamOutlined,
+  CalendarOutlined,
+  LeftOutlined,
+  RightOutlined,
 } from '@ant-design/icons';
 import './admin.css';
 
@@ -130,9 +133,19 @@ export default function AdminLayout({
           boxShadow: '2px 0 8px rgba(0,0,0,0.1)',
         }}
       >
-        <div className="flex items-center justify-center h-16 border-b border-gray-200">
-          <div className="text-gray-800 font-bold text-lg">
-            {collapsed ? 'Q' : 'Quiz Admin'}
+        <div className="flex items-center justify-between h-16 border-b border-gray-200 px-4">
+          <div className="flex items-center gap-3">
+            <div className="text-gray-800 font-bold text-lg">
+              {collapsed ? 'Q' : 'Quiz Admin'}
+            </div>
+            {!collapsed && (
+              <button
+                onClick={() => router.push('/')}
+                className="text-sm text-gray-600 hover:text-gray-800"
+                title="Hôm nay"
+              >
+              </button>
+            )}
           </div>
         </div>
 
@@ -150,6 +163,26 @@ export default function AdminLayout({
           }}
           className="admin-menu"
         />
+
+        {/* Sidebar footer: collapse control moved here */}
+        <div className="mt-auto border-t border-gray-100 dark:border-gray-800 px-3 py-2 flex items-center justify-between" style={{paddingBottom: 4}}>
+          <button
+            onClick={() => router.push('/')}
+            className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800"
+          >
+            <CalendarOutlined />
+            {!collapsed && <span>Hôm nay</span>}
+          </button>
+
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            aria-label="Toggle sidebar"
+            className="px-3 py-1 rounded hover:bg-gray-100 text-sm text-gray-600"
+            style={{alignSelf: 'flex-end'}}
+          >
+            {collapsed ? 'Mở' : 'Thu gọn'}
+          </button>
+        </div>
 
       </Sider>
 

@@ -2,6 +2,7 @@ package com.example.quiz.service.quiz_mock_test;
 
 import com.example.quiz.base.impl.AdvancedFilterService;
 import com.example.quiz.base.impl.BaseServiceImpl;
+import com.example.quiz.enums.GroupType;
 import com.example.quiz.enums.QuizType;
 import com.example.quiz.mapper.QuizMockTestMapper;
 import com.example.quiz.model.dto.request.SubmitQuizRequest;
@@ -15,13 +16,19 @@ import com.example.quiz.model.entity.quiz_mock_test.QuizMockTestRequestDto;
 import com.example.quiz.model.entity.quiz_mock_test.QuizMockTestResponseDto;
 import com.example.quiz.model.entity.quiz_mock_test.QuizMockTest;
 import com.example.quiz.model.entity.quiz_mock_test.QuizMockTestView;
+import com.example.quiz.model.entity.user.User;
 import com.example.quiz.repository.quiz_mock_test.QuizMockTestRepository;
 import com.example.quiz.model.entity.user_quiz_mock_his.UserQuizMockHis;
+import com.example.quiz.model.entity.user_question_answer.UserQuestionAnswer;
 import com.example.quiz.model.entity.user_ques_wrong.UserQuesWrong;
+import com.example.quiz.repository.user_question_answer.UserQuestionAnswerRepository;
 import com.example.quiz.repository.user_quiz_mock_his.UserQuizMockHisRepository;
 import com.example.quiz.repository.user_ques_wrong.UserQuesWrongRepository;
 import com.example.quiz.repository.quiz_mock_test.QuizMockTestViewRepository;
+import com.example.quiz.service.user_learning_item.Sm2Service;
+import com.example.quiz.enums.LearningType;
 import com.example.quiz.service.interfaces.UserService;
+import com.example.quiz.service.quiz_mock_test.QuizSubmissionPersistenceService;
 import com.example.quiz.service.question.QuestionService;
 import com.example.quiz.service.question_group.QuestionGroupService;
 import com.example.quiz.service.question_option.QuestionOptionService;
@@ -46,7 +53,10 @@ public class QuizMockTestServiceImpl extends BaseServiceImpl<QuizMockTest, Long,
     private final QuestionOptionService questionOptionService;
     private final UserQuizMockHisRepository userQuizMockHisRepository;
     private final UserQuesWrongRepository userQuesWrongRepository;
+    private final UserQuestionAnswerRepository userQuestionAnswerRepository;
     private final UserService userService;
+    private final Sm2Service sm2Service;
+    private final QuizSubmissionPersistenceService quizSubmissionPersistenceService;
 
     public QuizMockTestServiceImpl(AdvancedFilterService advancedFilterService,
                                    QuizMockTestRepository quizMockTestRepository,
@@ -57,7 +67,10 @@ public class QuizMockTestServiceImpl extends BaseServiceImpl<QuizMockTest, Long,
                                    QuestionOptionService questionOptionService,
                                    UserQuizMockHisRepository userQuizMockHisRepository,
                                    UserQuesWrongRepository userQuesWrongRepository,
-                                   UserService userService) {
+                                   UserQuestionAnswerRepository userQuestionAnswerRepository,
+                                                       UserService userService,
+                                                       Sm2Service sm2Service,
+                                                       QuizSubmissionPersistenceService quizSubmissionPersistenceService) {
         super(advancedFilterService, quizMockTestRepository, quizMockTestMapper, quizMockTestViewRepository);
         this.quizMockTestRepository = quizMockTestRepository;
         this.quizMockTestMapper = quizMockTestMapper;
@@ -66,7 +79,10 @@ public class QuizMockTestServiceImpl extends BaseServiceImpl<QuizMockTest, Long,
         this.questionOptionService = questionOptionService;
         this.userQuizMockHisRepository = userQuizMockHisRepository;
         this.userQuesWrongRepository = userQuesWrongRepository;
+        this.userQuestionAnswerRepository = userQuestionAnswerRepository;
         this.userService = userService;
+        this.sm2Service = sm2Service;
+        this.quizSubmissionPersistenceService = quizSubmissionPersistenceService;
     }
 
     @Override
@@ -167,7 +183,6 @@ public class QuizMockTestServiceImpl extends BaseServiceImpl<QuizMockTest, Long,
         // Build response with groups and their questions
         List<Map<String, Object>> groups = new java.util.ArrayList<>();
         for (Map.Entry<Long, List<QuestionResponse>> entry : questionsByGroup.entrySet()) {
-            try {
                 // Use service to get group
                 QuestionGroupResponse group = questionGroupService.getById(entry.getKey());
 
@@ -183,9 +198,6 @@ public class QuizMockTestServiceImpl extends BaseServiceImpl<QuizMockTest, Long,
                 }
                 groupData.put("questions", groupQuestions);
                 groups.add(groupData);
-            } catch (Exception e) {
-                log.warn("Failed to load group {}: {}", entry.getKey(), e.getMessage());
-            }
         }
 
         // Build standalone questions
@@ -253,72 +265,28 @@ public class QuizMockTestServiceImpl extends BaseServiceImpl<QuizMockTest, Long,
         score = Math.round(score * 100.0) / 100.0;
 
         // persist history and wrong answers using injected repositories
-        try {
+        Long persistedHisId = null;
             Long userId = null;
             if (this.userService != null) {
-                try {
-                    com.example.quiz.model.entity.user.User user = this.userService.handleGetUserByUsernameOrEmailOrPhone(username);
+                    User user = this.userService.handleGetUserByUsernameOrEmailOrPhone(username);
                     if (user != null) userId = user.getId();
-                } catch (Exception e) {
-                    log.debug("Failed to resolve user by username: {}", e.getMessage());
-                }
             }
 
             if (userId != null && this.userQuizMockHisRepository != null) {
-                UserQuizMockHis his = UserQuizMockHis.builder()
-                        .userId(userId)
-                        .quizMockTestId(quizId)
-                        .score(score)
-                        .totalQuestions(total)
-                        .correctCount(correct)
-                        .build();
-
-                UserQuizMockHis saved = userQuizMockHisRepository.saveAndFlush(his);
-                log.debug("Saved quiz history id={} for userId={}", saved.getId(), userId);
-
-                // verify saved exists
-                try {
-                    boolean exists = userQuizMockHisRepository.findById(saved.getId()).isPresent();
-                    log.debug("Verification: userQuizMockHis exists after save? {} (id={})", exists, saved.getId());
-                } catch (Exception e) {
-                    log.warn("Failed to verify saved userQuizMockHis: {}", e.getMessage());
-                }
-
-                if (this.userQuesWrongRepository != null) {
-                    int wrongCount = 0;
-                    for (Map<String, Object> w : answersList) {
-                        Boolean isCorrectEntry = (Boolean) w.get("isCorrect");
-                        if (isCorrectEntry != null && isCorrectEntry) continue; // only persist wrong answers
-                        UserQuesWrong uw = UserQuesWrong.builder()
-                                .userQuizHisId(saved.getId())
-                                .questionId((Long) w.get("questionId"))
-                                .selectedOptionId((Long) w.get("yourOptionId"))
-                                .correctOptionId((Long) w.get("correctOptionId"))
-                                .build();
-                        UserQuesWrong savedWrong = userQuesWrongRepository.saveAndFlush(uw);
-                        wrongCount++;
-                        log.debug("Saved wrong question id={} for hisId={}", savedWrong.getId(), saved.getId());
-                        try {
-                            boolean existsW = userQuesWrongRepository.findById(savedWrong.getId()).isPresent();
-                            log.debug("Verification: userQuesWrong exists after save? {} (id={})", existsW, savedWrong.getId());
-                        } catch (Exception e) {
-                            log.warn("Failed to verify saved userQuesWrong: {}", e.getMessage());
-                        }
-                    }
-                    log.debug("Persisted {} wrong question(s) for hisId={}", wrongCount, saved.getId());
-                }
+                    // delegate persistence to new REQUIRES_NEW service to avoid marking the main tx rollback-only
+                    persistedHisId = this.quizSubmissionPersistenceService.persistResultAndDetails(userId, quizId, score,
+                            request != null && request.getTimeSpent() != null ? request.getTimeSpent() : 0,
+                            total, correct, answersList);
+                    log.debug("Persisted quiz history id={} for userId={}", persistedHisId, userId);
             } else {
                 log.debug("Skipping persisting quiz history because userId or repositories are not available (userId={})", userId);
             }
-        } catch (Exception ex) {
-            log.warn("Failed to persist quiz history: {}", ex.getMessage());
-        }
 
-        com.example.quiz.model.dto.response.SubmitQuizResponse response;
+        SubmitQuizResponse response;
         if (Boolean.TRUE.equals(quiz.getIsShowAnswer())) {
-            response = new com.example.quiz.model.dto.response.SubmitQuizResponse(score, total, correct, answersList);
+            response = new SubmitQuizResponse(score, total, correct, persistedHisId, answersList);
         } else {
-            response = new com.example.quiz.model.dto.response.SubmitQuizResponse(score, total, correct, null);
+            response = new SubmitQuizResponse(score, total, correct, persistedHisId, null);
         }
 
         return response;

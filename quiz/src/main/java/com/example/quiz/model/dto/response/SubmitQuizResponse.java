@@ -14,6 +14,7 @@ public class SubmitQuizResponse {
     private Double score; // on scale 10
     private Integer totalQuestions;
     private Integer correctCount;
+    private Long quizHisId;
     // only present when quiz.isShowAnswer == true
     private List<Map<String, Object>> answers; // list of {questionId, correctOptionId, yourOptionId, isCorrect, explanationHtml}
 }

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/me/quiz-history")
+@RequestMapping("/api/v1/user-quiz-mock-his")
 @ResourceController("USER_QUIZ_HISTORY")
 @Slf4j
 public class UserQuizMockHisController extends BaseController<UserQuizMockHis, Long, UserQuizMockHisRequestDto, UserQuizMockHisResponseDto, UserQuizMockHisView, UserQuizMockHisBaseService> {
