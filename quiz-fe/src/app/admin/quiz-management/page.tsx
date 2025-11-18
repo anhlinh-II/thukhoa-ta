@@ -39,16 +39,14 @@ export default function QuizManagementLanding() {
       <Row gutter={[24, 24]}>
         {cards.map((c) => (
           <Col key={c.key} xs={24} sm={12} lg={8}>
-            <Link href={c.href}>
-              <a>
-                <Card hoverable bodyStyle={{ padding: 20 }} style={{ borderRadius: 8 }}>
-                  <Meta
-                    avatar={<Avatar size={56} style={{ backgroundColor: '#000' }}>{c.icon}</Avatar>}
-                    title={<span className="text-lg font-medium">{c.title}</span>}
-                    description={<div className="text-sm text-gray-600 mt-2">{c.desc}</div>}
-                  />
-                </Card>
-              </a>
+            <Link href={c.href} className="block">
+              <Card hoverable bodyStyle={{ padding: 20 }} style={{ borderRadius: 8 }}>
+                <Meta
+                  avatar={<Avatar size={56} style={{ backgroundColor: '#000' }}>{c.icon}</Avatar>}
+                  title={<span className="text-lg font-medium">{c.title}</span>}
+                  description={<div className="text-sm text-gray-600 mt-2">{c.desc}</div>}
+                />
+              </Card>
             </Link>
           </Col>
         ))}

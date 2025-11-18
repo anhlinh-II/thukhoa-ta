@@ -4,7 +4,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { FilterItemDto } from "@/share/utils/types";
 import { Form, Input, Switch, InputNumber, Select, Button, Modal, Card, Tabs, Space } from "antd";
 import { ColumnsType } from "antd/es/table";
-import { EyeOutlined } from '@ant-design/icons';
+import { EyeOutlined, ImportOutlined } from '@ant-design/icons';
+import Link from 'next/link';
 import QuizMockTestFormComponent from './QuizMockTestFormComponent';
 import { CrudListComponent } from '@/share/components/base/CrudListComponent';
 import { ENV } from '@/share/utils/env';
@@ -120,6 +121,14 @@ export default function QuizMockTests() {
 
      return (
           <>
+               <div className="mb-4 flex justify-end gap-2">
+                    <Link href="/admin/quiz-management/quiz-mocktests/import">
+                         <Button type="primary" icon={<ImportOutlined />}>
+                              Import from Word
+                         </Button>
+                    </Link>
+               </div>
+
                <CrudListComponent
                     config={{
                          queryKeyPrefix: 'quiz-mock-tests',
