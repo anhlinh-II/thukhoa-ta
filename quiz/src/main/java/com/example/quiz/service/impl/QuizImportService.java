@@ -1,6 +1,7 @@
 package com.example.quiz.service.impl;
 
 import com.example.quiz.enums.QuestionType;
+import com.example.quiz.enums.QuizType;
 import com.example.quiz.model.dto.*;
 import com.example.quiz.model.entity.question.Question;
 import com.example.quiz.model.entity.question_group.QuestionGroup;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.util.HtmlUtils;
 
 import java.util.*;
 
@@ -32,7 +34,7 @@ public class QuizImportService {
      * Import quiz from elements
      * Creates quiz, groups, questions, options in a single transaction
      */
-    @Transactional(rollbackFor = Exception.class)
+    // @Transactional(rollbackFor = Exception.class)
     public QuizImportResultDto importQuiz(QuizImportRequestDto request) {
         try {
             Map<String, Integer> created = new HashMap<>();
@@ -61,8 +63,8 @@ public class QuizImportService {
             Map<String, QuestionExcelDto> questionsMap = new LinkedHashMap<>();
             Map<String, List<QuestionOptionExcelDto>> optionsByQuestion = new LinkedHashMap<>();
             
-            String currentGroupId = null;
-            String currentQuestionId = null;
+            QuestionGroupExcelDto currentGroup = null;
+            QuestionExcelDto currentQuestion = null;
             List<String> currentOptions = new ArrayList<>();
             String currentAnswerKey = null;
             StringBuilder questionContent = new StringBuilder();
@@ -71,20 +73,17 @@ public class QuizImportService {
                 switch (element.getType()) {
                     case GROUP:
                         // Save previous question if exists
-                        if (currentQuestionId != null && !questionsMap.containsKey(currentQuestionId)) {
-                            saveQuestion(questionsMap, optionsByQuestion, currentQuestionId,
-                                    questionContent.toString(), currentOptions, currentAnswerKey, errors);
+                        if (currentQuestion != null) {
+                            saveQuestionOptions(currentQuestion, currentOptions, currentAnswerKey, questionsMap, optionsByQuestion, errors);
                         }
                         
                         // Create new group
-                        currentGroupId = UUID.randomUUID().toString();
-                        QuestionGroupExcelDto group = new QuestionGroupExcelDto();
-                        group.setGroupId(currentGroupId);
-                        group.setTitle(element.getText());
-                        group.setContentHtml("");
-                        groupsMap.put(currentGroupId, group);
+                        currentGroup = new QuestionGroupExcelDto();
+                        currentGroup.setTitle(element.getText());
+                        currentGroup.setContentHtml("");
+                        groupsMap.put("group_" + groupsMap.size(), currentGroup);
                         
-                        currentQuestionId = null;
+                        currentQuestion = null;
                         questionContent = new StringBuilder();
                         currentOptions.clear();
                         currentAnswerKey = null;
@@ -92,59 +91,68 @@ public class QuizImportService {
                         
                     case QUESTION:
                         // Save previous question if exists
-                        if (currentQuestionId != null && !questionsMap.containsKey(currentQuestionId)) {
-                            saveQuestion(questionsMap, optionsByQuestion, currentQuestionId,
-                                    questionContent.toString(), currentOptions, currentAnswerKey, errors);
+                        if (currentQuestion != null) {
+                            saveQuestionOptions(currentQuestion, currentOptions, currentAnswerKey, questionsMap, optionsByQuestion, errors);
                         }
                         
                         // Create new question
-                        currentQuestionId = UUID.randomUUID().toString();
+                        currentQuestion = new QuestionExcelDto();
+                        currentQuestion.setContentHtml(element.getText());
+                        currentQuestion.setScore(1.0);
+                        currentQuestion.setOrder(questionsMap.size());
+                        
                         questionContent = new StringBuilder(element.getText());
                         currentOptions.clear();
                         currentAnswerKey = null;
                         break;
                         
                     case OPTION:
-                        if (currentQuestionId != null) {
+                        if (currentQuestion != null) {
                             currentOptions.add(element.getText());
                         }
                         break;
                         
                     case ANSWER:
-                        if (currentQuestionId != null) {
+                        if (currentQuestion != null) {
                             currentAnswerKey = element.getText();
                         }
                         break;
                         
                     case CONTENT:
-                        if (currentQuestionId != null) {
-                            questionContent.append(" ").append(element.getText());
-                        } else if (currentGroupId != null) {
-                            QuestionGroupExcelDto group1 = groupsMap.get(currentGroupId);
-                            if (group1 != null) {
-                                group1.setContentHtml(group1.getContentHtml() + " " + element.getText());
+                        // Check if this CONTENT element could be an OPTION
+                        if (currentQuestion != null && currentOptions.size() < 4) {
+                            // Try to detect if this looks like an option
+                            String text = element.getText().trim();
+                            if (isLikelyAnOption(text)) {
+                                currentOptions.add(text);
+                                log.debug("Treated CONTENT as OPTION: {}", text);
+                            } else if (questionContent.length() > 0) {
+                                // Append to question content
+                                questionContent.append(" ").append(text);
+                                currentQuestion.setContentHtml(questionContent.toString());
                             }
+                        } else if (currentGroup != null) {
+                            currentGroup.setContentHtml(currentGroup.getContentHtml() + " " + element.getText());
                         }
                         break;
                 }
             }
             
             // Save last question
-            if (currentQuestionId != null && !questionsMap.containsKey(currentQuestionId)) {
-                saveQuestion(questionsMap, optionsByQuestion, currentQuestionId,
-                        questionContent.toString(), currentOptions, currentAnswerKey, errors);
+            if (currentQuestion != null) {
+                saveQuestionOptions(currentQuestion, currentOptions, currentAnswerKey, questionsMap, optionsByQuestion, errors);
             }
             
             // 3. Create QuestionGroups in DB
             Map<String, QuestionGroup> savedGroups = new HashMap<>();
-            for (QuestionGroupExcelDto groupDto : groupsMap.values()) {
+            for (Map.Entry<String, QuestionGroupExcelDto> entry : groupsMap.entrySet()) {
                 QuestionGroup group = new QuestionGroup();
-                group.setTitle(groupDto.getTitle());
-                group.setContentHtml(groupDto.getContentHtml());
-                group.setMediaUrl(groupDto.getMediaUrl());
+                group.setTitle(entry.getValue().getTitle());
+                group.setContentHtml(entry.getValue().getContentHtml());
+                group.setMediaUrl(entry.getValue().getMediaUrl());
 
                 group = questionGroupRepository.save(group);
-                savedGroups.put(groupDto.getGroupId(), group);
+                savedGroups.put(entry.getKey(), group);
             }
             created.put("questionGroups", savedGroups.size());
             
@@ -156,6 +164,8 @@ public class QuizImportService {
                 question.setContentHtml(questionDto.getContentHtml());
                 question.setScore(questionDto.getScore() != null ? questionDto.getScore() : 1.0);
                 question.setOrderIndex(questionDto.getOrder());
+                question.setQuizId(quiz.getId());
+                question.setQuizType(QuizType.QUIZ_MOCK_TEST);
                 question.setExplanationHtml(questionDto.getExplanationHtml());
 
                 // Find associated group (first group created or standalone)
@@ -164,7 +174,7 @@ public class QuizImportService {
                 }
                 
                 question = questionRepository.save(question);
-                savedQuestions.put(questionDto.getId(), question);
+                savedQuestions.put("question_" + savedQuestions.size(), question);
             }
             created.put("questions", savedQuestions.size());
             
@@ -211,14 +221,14 @@ public class QuizImportService {
     /**
      * Helper method to save question with its options
      */
-    private void saveQuestion(Map<String, QuestionExcelDto> questions,
-                            Map<String, List<QuestionOptionExcelDto>> optionsByQuestion,
-                            String questionId, String content, List<String> options,
-                            String answerKey, List<String> errors) {
+    private void saveQuestionOptions(QuestionExcelDto question, List<String> options,
+                                   String answerKey, Map<String, QuestionExcelDto> questionsMap,
+                                   Map<String, List<QuestionOptionExcelDto>> optionsByQuestion,
+                                   List<String> errors) {
         
         // If no explicit options found, try to split content by common separators
         if (options.isEmpty()) {
-            options = tryExtractOptionsFromContent(content);
+            options = tryExtractOptionsFromContent(question.getContentHtml());
         }
         
         if (options.isEmpty()) {
@@ -231,29 +241,25 @@ public class QuizImportService {
             return;
         }
         
-        QuestionExcelDto question = new QuestionExcelDto();
-        question.setId(questionId);
         question.setType("SINGLE_CHOICE");
-        question.setContentHtml(escapeHtml(content.trim()));
         question.setScore(1.0);
-        question.setOrder(questions.size());
+        question.setContentHtml(HtmlUtils.htmlEscape(question.getContentHtml().trim()));
         
-        questions.put(questionId, question);
+        questionsMap.put("question_" + questionsMap.size(), question);
         
         // Create options
         List<QuestionOptionExcelDto> questionOptions = new ArrayList<>();
         for (int i = 0; i < options.size(); i++) {
             QuestionOptionExcelDto option = new QuestionOptionExcelDto();
-            option.setQuestionId(questionId);
             option.setMatchKey(String.valueOf((char) ('A' + i)));
-            option.setContentHtml(escapeHtml(options.get(i)));
+            option.setContentHtml(HtmlUtils.htmlEscape(options.get(i)));
             option.setIsCorrect(option.getMatchKey().equals(answerKey));
             option.setOrder(i);
             
             questionOptions.add(option);
         }
         
-        optionsByQuestion.put(questionId, questionOptions);
+        optionsByQuestion.put("question_" + (questionsMap.size() - 1), questionOptions);
     }
 
     /**
@@ -299,14 +305,28 @@ public class QuizImportService {
     }
 
     /**
-     * Escape HTML special characters
+     * Check if text looks like an option (starts with A., B., etc. or is short)
      */
-    private String escapeHtml(String text) {
-        return text
-                .replace("&", "&amp;")
-                .replace("<", "&lt;")
-                .replace(">", "&gt;")
-                .replace("\"", "&quot;")
-                .replace("'", "&#39;");
+    private boolean isLikelyAnOption(String text) {
+        if (text == null || text.trim().isEmpty()) {
+            return false;
+        }
+        
+        String trimmed = text.trim();
+        
+        // Check for explicit option markers: A., B., C., D., A), B), etc.
+        if (trimmed.matches("^[A-D][.)]\\s*.+") || 
+            trimmed.matches("^[1-4][.)]\\s*.+")) {
+            return true;
+        }
+        
+        // Check if it's a short text (likely an option) and doesn't look like a question
+        if (trimmed.length() < 100 && !trimmed.contains("?") && 
+            !trimmed.toLowerCase().contains("câu") && 
+            !trimmed.toLowerCase().contains("question")) {
+            return true;
+        }
+        
+        return false;
     }
 }

@@ -87,7 +87,7 @@ public class WordImportService {
         log.debug("Detected CONTENT: style={}, text={}", style, text.substring(0, Math.min(50, text.length())));
         
         // Default to CONTENT for regular text
-        return TextElementDto.ElementType.CONTENT;
+        return TextElementDto.ElementType.OPTION;
     }
 
     /**

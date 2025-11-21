@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { Card, Typography, Spin, Button, Radio, Space, message, Modal, Switch, Input, Popover } from "antd";
+import VocabProvider from '@/share/components/VocabProvider';
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { ClockCircleOutlined, CheckCircleOutlined, HighlightOutlined, UnderlineOutlined, StrikethroughOutlined, DeleteOutlined, EditOutlined, FlagOutlined } from "@ant-design/icons";
 import { quizMockTestService } from "@/share/services/quiz_mock_test/quiz-mocktest.service";
@@ -487,14 +488,15 @@ export default function QuizTakingPage() {
 
       <div className="pt-20 flex">
         {/* Left: Main Content */}
-        <div 
-          className="flex-1 p-6 pr-0 overflow-y-auto" 
-          style={{ 
-            maxHeight: 'calc(100vh - 80px)',
-            userSelect: highlightMode ? 'text' : 'auto',
-            cursor: highlightMode ? 'text' : 'default'
-          }}
-        >
+        <div className="flex-1 p-6 pr-0 overflow-y-auto">
+          {/* VocabProvider wraps content to enable double-click lookup only on this page */}
+          {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+          <div style={{ maxHeight: 'calc(100vh - 80px)' }}>
+            {/* We'll mount VocabProvider lazily to avoid adding global listeners unnecessarily */}
+            <React.Suspense fallback={<div />}> 
+              {/* @ts-ignore */}
+              <VocabProvider>
+                <div style={{ userSelect: highlightMode ? 'text' : 'auto', cursor: highlightMode ? 'text' : 'default' }}>
           <div className="max-w-4xl">
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
               {/* Question Groups */}
@@ -628,6 +630,10 @@ export default function QuizTakingPage() {
                 </Card>
               )}
             </Space>
+                </div>
+              </div>
+              </VocabProvider>
+            </React.Suspense>
           </div>
         </div>
 

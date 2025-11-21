@@ -127,61 +127,51 @@ export default function AdminLayout({
         collapsible
         collapsed={collapsed}
         width={240}
-        className="flex flex-col"
         style={{
           background: '#ffffff',
           boxShadow: '2px 0 8px rgba(0,0,0,0.1)',
         }}
       >
-        <div className="flex items-center justify-between h-16 border-b border-gray-200 px-4">
-          <div className="flex items-center gap-3">
-            <div className="text-gray-800 font-bold text-lg">
-              {collapsed ? 'Q' : 'Quiz Admin'}
-            </div>
-            {!collapsed && (
+        <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+          <div className="flex items-center justify-between h-16 border-b border-gray-200 px-4">
+            <div className="flex items-center gap-3">
               <button
                 onClick={() => router.push('/')}
-                className="text-sm text-gray-600 hover:text-gray-800"
-                title="Hôm nay"
+                className="text-gray-800 cursor-pointer font-bold text-lg hover:text-blue-600 transition-colors"
               >
+                {collapsed ? 'Q' : 'Trang quản trị'}
               </button>
-            )}
+            </div>
           </div>
-        </div>
 
-        {/* Navigation Menu */}
-        <Menu
-          theme="light"
-          mode="inline"
-          selectedKeys={[getActiveKey()]}
-          items={menuItems}
-          onClick={handleMenuClick}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            marginTop: '8px',
-          }}
-          className="admin-menu"
-        />
+          {/* Navigation Menu */}
+          <Menu
+            theme="light"
+            mode="inline"
+            selectedKeys={[getActiveKey()]}
+            items={menuItems}
+            onClick={handleMenuClick}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              marginTop: '8px',
+              flex: 1,
+              overflowY: 'auto',
+            }}
+            className="admin-menu"
+          />
 
-        {/* Sidebar footer: collapse control moved here */}
-        <div className="mt-auto border-t border-gray-100 dark:border-gray-800 px-3 py-2 flex items-center justify-between" style={{paddingBottom: 4}}>
-          <button
-            onClick={() => router.push('/')}
-            className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-800"
-          >
-            <CalendarOutlined />
-            {!collapsed && <span>Hôm nay</span>}
-          </button>
-
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            aria-label="Toggle sidebar"
-            className="px-3 py-1 rounded hover:bg-gray-100 text-sm text-gray-600"
-            style={{alignSelf: 'flex-end'}}
-          >
-            {collapsed ? 'Mở' : 'Thu gọn'}
-          </button>
+          {/* Sidebar footer: collapse control */}
+          <div className="border-t border-gray-100 dark:border-gray-800 px-3 py-3 flex items-center justify-center">
+            <button
+              onClick={() => setCollapsed(!collapsed)}
+              aria-label="Toggle sidebar"
+              className="px-3 py-2 rounded hover:bg-gray-100 text-gray-600 hover:text-gray-800 transition-colors flex items-center gap-2 w-full justify-center"
+            >
+              {collapsed ? <RightOutlined className="text-lg" /> : <LeftOutlined className="text-lg" />}
+              {!collapsed && <span className="text-sm">Thu gọn</span>}
+            </button>
+          </div>
         </div>
 
       </Sider>
@@ -196,12 +186,7 @@ export default function AdminLayout({
         >
           <div className="flex items-center justify-between h-full px-6">
             <div className="flex items-center space-x-4">
-              <button
-                className="text-lg p-2 hover:bg-gray-100 rounded"
-                onClick={() => setCollapsed(!collapsed)}
-              >
-                {collapsed ? '☰' : '✕'}
-              </button>
+
               <div>
                 <h1 className="text-xl font-semibold text-gray-800 m-0">
                   {getPageTitle()}

@@ -194,8 +194,10 @@ export default function QuizMockTests() {
                                                   <div dangerouslySetInnerHTML={{ __html: q.contentHtml }} />
                                                   <p><strong>Score:</strong> {q.score}</p>
                                                   {q.options?.map((opt: any, oIdx: number) => (
-                                                       <div key={oIdx} style={{ marginLeft: 16, padding: 4, background: opt.isCorrect ? '#e6ffe6' : '#fff' }}>
-                                                            {String.fromCharCode(65 + oIdx)}. {opt.contentHtml} {opt.isCorrect && '✓'}
+                                                       <div key={oIdx} style={{ marginLeft: 16, padding: 4, background: opt.isCorrect ? '#e6ffe6' : '#fff', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                                                            <div style={{ minWidth: 20 }}>{String.fromCharCode(65 + oIdx)}.</div>
+                                                            <div style={{ flex: 1 }} dangerouslySetInnerHTML={{ __html: opt.contentHtml }} />
+                                                            {opt.isCorrect && <div style={{ marginLeft: 8 }}>✓</div>}
                                                        </div>
                                                   ))}
                                              </Card>
@@ -211,8 +213,10 @@ export default function QuizMockTests() {
                                                   <div dangerouslySetInnerHTML={{ __html: q.contentHtml }} />
                                                   <p><strong>Score:</strong> {q.score}</p>
                                                   {q.options?.map((opt: any, oIdx: number) => (
-                                                       <div key={oIdx} style={{ marginLeft: 16, padding: 4, background: opt.isCorrect ? '#e6ffe6' : '#fff' }}>
-                                                            {String.fromCharCode(65 + oIdx)}. {opt.contentHtml} {opt.isCorrect && '✓'}
+                                                       <div key={oIdx} style={{ marginLeft: 16, padding: 4, background: opt.isCorrect ? '#e6ffe6' : '#fff', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                                                            <div style={{ minWidth: 20 }}>{String.fromCharCode(65 + oIdx)}.</div>
+                                                            <div style={{ flex: 1 }} dangerouslySetInnerHTML={{ __html: opt.contentHtml }} />
+                                                            {opt.isCorrect && <div style={{ marginLeft: 8 }}>✓</div>}
                                                        </div>
                                                   ))}
                                              </Card>
