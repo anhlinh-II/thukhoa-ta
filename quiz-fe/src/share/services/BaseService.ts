@@ -2,6 +2,7 @@ import { message } from 'antd';
 import apiClient from './api';
 import { AxiosRequestConfig } from 'axios';
 import { ApiResponse } from '@/share/utils/types';
+import { handleProblems } from '../utils/functions';
 
 export interface BaseEntity {
   id: number | string;
@@ -107,7 +108,7 @@ export class BaseService<
       return result.result as T;
     } catch (error: any) {
       console.error('API Error:', error);
-      message.error(error?.message || 'An error occurred');
+      handleProblems(error);
       throw error;
     }
   }

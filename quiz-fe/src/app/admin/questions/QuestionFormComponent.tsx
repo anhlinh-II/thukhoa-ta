@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect } from 'react';
-import '@/lib/client/react-dom-findnode-shim';
 import { Form, Input, InputNumber, Switch, Button, Space, Card, Tabs } from 'antd';
 import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
 import TiptapEditor from '@/share/components/base/TiptapEditor';

@@ -42,3 +42,11 @@ export const NO_HEADER_LIST = [
   "/auth/register",
   "/auth/verify-otp",
 ];
+
+export const LOCALIZED_ERRORS: Record<number, string> = {
+  1006: 'Bạn cần đăng nhập để thực hiện thao tác này.', // UNAUTHENTICATED
+  1007: 'Bạn không có quyền truy cập.', // UNAUTHORIZED
+  1002: 'Thực thể đã tồn tại.', // ENTITY_EXISTED
+  1005: 'Không tìm thấy dữ liệu.', // ENTITY_NOT_EXISTED
+  1011: 'Token truy cập không hợp lệ.', // INVALID_ACCESS_TOKEN
+};

@@ -4,9 +4,9 @@
   --background: #f8fafc;
   --foreground: #0f172a; /* darker text for good contrast on light background */
   /* Brighter brand palette: soft/pale pink primary to match home bright */
-  --brand-primary: #ffe6f0; /* pale pink */
-  --brand-primary-2: #fff0f6; /* lighter pink */
-  --brand-primary-3: #ffeef8; /* warm pink highlight */
+  --brand-primary: #f3ebee; /* pale pink */
+  --brand-primary-2: #f9f7f8; /* lighter pink */
+  --brand-primary-3: #f4edf1; /* warm pink highlight */
 }
 
 /* Theme tokens (kept as CSS variables in :root). If you need to sync runtime tokens from Ant ConfigProvider,

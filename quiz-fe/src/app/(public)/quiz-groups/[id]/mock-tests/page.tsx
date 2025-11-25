@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Typography, Spin, Breadcrumb, Modal, InputNumber, message, Divider, Card } from "antd";
+import { Typography, Spin, Breadcrumb, message, Card } from "antd";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { quizGroupService } from "@/share/services/quiz_group/quiz-group.service";
 import { LoadingOutlined, FileTextOutlined, ClockCircleOutlined, PlayCircleOutlined } from "@ant-design/icons";
@@ -15,9 +15,7 @@ export default function MockTestsListPage() {
   const router = useRouter();
   const groupId = params.id as string;
 
-  const [showConfigModal, setShowConfigModal] = useState(false);
-  const [selectedMockTest, setSelectedMockTest] = useState<any>(null);
-  const [duration, setDuration] = useState<number>(0);
+  // modal/config handled on dedicated page now
   const [groupName, setGroupName] = useState<string>('');
   const [programName, setProgramName] = useState<string>('');
   const [programIdNum, setProgramIdNum] = useState<number | null>(null);
@@ -58,24 +56,11 @@ export default function MockTestsListPage() {
   }, [groupId, searchParams]);
 
   const handleStartQuiz = (mockTest: any) => {
-    setSelectedMockTest(mockTest);
-    setDuration(mockTest.durationMinutes || 60);
-    setShowConfigModal(true);
+    // Navigate to a dedicated config + discussion page for this mock test
+    router.push(`/quiz-taking/config/${mockTest.id}?groupId=${groupId}`);
   };
 
-  const handleConfirmStart = () => {
-    if (!selectedMockTest) return;
-
-    if (duration <= 0) {
-      message.error('Vui lòng nhập thời gian hợp lệ');
-      return;
-    }
-
-    setShowConfigModal(false);
-
-    // Navigate to quiz taking page with config
-    router.push(`/quiz-taking/${selectedMockTest.id}?type=MOCK_TEST&duration=${duration}`);
-  };
+  // confirm start moved to config page
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 py-8">
@@ -116,79 +101,7 @@ export default function MockTestsListPage() {
         )}
       </div>
 
-      {/* Config Modal */}
-      <Modal
-        title={
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
-              <ClockCircleOutlined className="text-white text-xl" />
-            </div>
-            <span className="text-xl font-semibold">Cấu hình thời gian làm bài</span>
-          </div>
-        }
-        open={showConfigModal}
-        onOk={handleConfirmStart}
-        onCancel={() => setShowConfigModal(false)}
-        okText="Bắt đầu làm bài"
-        cancelText="Hủy"
-        width={500}
-        okButtonProps={{
-          size: 'large',
-          icon: <PlayCircleOutlined />,
-        }}
-        cancelButtonProps={{
-          size: 'large',
-        }}
-      >
-        {selectedMockTest && (
-          <div className="py-4">
-            <Card className="mb-4 bg-gradient-to-br from-purple-50 to-blue-50 border-purple-200">
-              <div className="space-y-3">
-                <div className="flex items-start gap-3">
-                  <FileTextOutlined className="text-purple-600 text-lg mt-1" />
-                  <div>
-                    <Text type="secondary" className="text-xs block mb-1">Bài thi</Text>
-                    <Text strong className="text-base">{selectedMockTest.examName || selectedMockTest.name}</Text>
-                  </div>
-                </div>
-
-                <Divider className="!my-3" />
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-3 bg-white rounded-lg">
-                    <FileTextOutlined className="text-2xl text-purple-600 mb-2" />
-                    <div className="text-2xl font-bold text-purple-600">{selectedMockTest.totalQuestions || 0}</div>
-                    <Text type="secondary" className="text-xs">Câu hỏi</Text>
-                  </div>
-                  <div className="text-center p-3 bg-white rounded-lg">
-                    <ClockCircleOutlined className="text-2xl text-blue-600 mb-2" />
-                    <div className="text-2xl font-bold text-blue-600">{selectedMockTest.durationMinutes || 60}</div>
-                    <Text type="secondary" className="text-xs">Phút (mặc định)</Text>
-                  </div>
-                </div>
-              </div>
-            </Card>
-
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <Text strong className="block mb-3 text-base">⏱️ Tùy chỉnh thời gian làm bài</Text>
-              <InputNumber
-                min={1}
-                max={300}
-                value={duration}
-                onChange={(value) => setDuration(value || 0)}
-                style={{ width: '100%' }}
-                placeholder="Nhập thời gian (phút)"
-                size="large"
-                suffix="phút"
-                className="rounded-lg"
-              />
-              <Text type="secondary" className="text-xs block mt-2">
-                💡 Bạn có thể điều chỉnh thời gian phù hợp với nhu cầu luyện tập
-              </Text>
-            </div>
-          </div>
-        )}
-      </Modal>
+      {/* Config moved to dedicated page */}
     </div>
   );
 }

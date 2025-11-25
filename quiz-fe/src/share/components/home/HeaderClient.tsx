@@ -4,10 +4,10 @@ import { Button, Spin } from 'antd';
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useIsAuthenticated } from '@/share/hooks/useAuth';
-import { navigateWithLoader } from '@/share/lib/navigateWithLoader';
 import { programService } from '@/share/services/program/programService';
 import { UserProfile } from '../UserProfile';
 import { NO_HEADER_LIST } from '@/share/utils/constants';
+import { navigateWithLoader } from '@/share/utils/functions';
 
 interface ProgramNode {
   id: number;
@@ -216,15 +216,13 @@ export default function HeaderClient() {
           </div>
 
           <Link href="/grammar" className="text-gray-700 font-bold hover:text-purple-600 transition-colors">Ngữ pháp</Link>
-          <Link href="/vocabulary" className="text-gray-700 font-bold hover:text-purple-600 transition-colors">Từ vựng</Link>
+          <Link href="/vocabulary/review" className="text-gray-700 font-bold hover:text-purple-600 transition-colors">Từ vựng</Link>
           <Link href="/leaderboard" className="text-gray-700 font-bold hover:text-purple-600 transition-colors">Bảng xếp hạng</Link>
           <Link href="/admin" className="text-gray-700 font-bold hover:text-purple-600 transition-colors">Quản trị</Link>
         </div>
 
         <div className="flex items-center space-x-4">
-          {isLoading ? (
-            <Button type="text" disabled>Đang tải...</Button>
-          ) : isAuthenticated ? (
+          {isAuthenticated ? (
             <UserProfile />
           ) : (
             <>

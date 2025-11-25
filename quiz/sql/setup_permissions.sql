@@ -135,3 +135,12 @@ FROM users u
 WHERE NOT EXISTS (
     SELECT 1 FROM user_roles ur WHERE ur.user_id = u.id
 );
+
+-- Permissions for quiz comments
+INSERT IGNORE INTO permissions (name, description, resource, action) VALUES
+('QUIZ_COMMENT_CREATE', 'Create comments under a quiz', 'QUIZ_COMMENT', 'CREATE'),
+('QUIZ_COMMENT_READ', 'Read comments under a quiz', 'QUIZ_COMMENT', 'READ'),
+('QUIZ_COMMENT_UPDATE', 'Update own comment', 'QUIZ_COMMENT', 'UPDATE'),
+('QUIZ_COMMENT_DELETE', 'Delete own comment', 'QUIZ_COMMENT', 'DELETE'),
+('QUIZ_COMMENT_MODERATE', 'Moderate and manage comments', 'QUIZ_COMMENT', 'MODERATE');
+

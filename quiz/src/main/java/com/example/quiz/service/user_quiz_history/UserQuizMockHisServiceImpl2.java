@@ -8,15 +8,16 @@ import com.example.quiz.model.entity.user_quiz_mock_his.UserQuizMockHisRequestDt
 import com.example.quiz.model.entity.user_quiz_mock_his.UserQuizMockHisResponseDto;
 import com.example.quiz.model.entity.user_quiz_mock_his.UserQuizMockHisView;
 import com.example.quiz.repository.user_quiz_mock_his.UserQuizMockHisRepository;
+import com.example.quiz.repository.user_quiz_mock_his.UserQuizMockHisViewRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 public class UserQuizMockHisServiceImpl2 extends BaseServiceImpl<UserQuizMockHis, Long, UserQuizMockHisRequestDto, UserQuizMockHisResponseDto, UserQuizMockHisView> implements UserQuizMockHisBaseService {
-    private final com.example.quiz.repository.user_quiz_mock_his.UserQuizMockHisViewRepository viewRepo;
+    private final UserQuizMockHisViewRepository viewRepo;
 
-    public UserQuizMockHisServiceImpl2(AdvancedFilterService advancedFilterService, UserQuizMockHisRepository repository, UserQuizMockHisMapper mapper, com.example.quiz.repository.user_quiz_mock_his.UserQuizMockHisViewRepository viewRepository) {
+    public UserQuizMockHisServiceImpl2(AdvancedFilterService advancedFilterService, UserQuizMockHisRepository repository, UserQuizMockHisMapper mapper, UserQuizMockHisViewRepository viewRepository) {
         super(advancedFilterService, repository, mapper, viewRepository);
         this.viewRepo = viewRepository;
     }
@@ -25,5 +26,4 @@ public class UserQuizMockHisServiceImpl2 extends BaseServiceImpl<UserQuizMockHis
     protected Class<UserQuizMockHisView> getViewClass() {
         return UserQuizMockHisView.class;
     }
-
 }

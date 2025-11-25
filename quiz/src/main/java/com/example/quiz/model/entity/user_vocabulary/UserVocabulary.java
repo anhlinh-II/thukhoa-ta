@@ -1,4 +1,4 @@
-package com.example.quiz.model.entity.vocab;
+package com.example.quiz.model.entity.user_vocabulary;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -7,7 +7,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.SuperBuilder;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+
+import com.example.quiz.base.BaseEntity;
 
 @Entity
 @Table(name = "user_vocabulary")
@@ -16,7 +19,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
-public class UserVocabulary {
+public class UserVocabulary extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -52,32 +55,23 @@ public class UserVocabulary {
     private Integer repetitions;
 
     @Column(name = "next_review_at")
-    private LocalDateTime nextReviewAt;
+    private Instant nextReviewAt;
+
+    @Column(name = "last_reviewed_at")
+    private Instant lastReviewedAt;
+
+    @Column(name = "lapses")
+    private Integer lapses;
+
+    @Column(name = "consecutive_fails")
+    private Integer consecutiveFails;
+
+    @Column(name = "priority")
+    private Double priority;
 
     @Column(name = "raw_entry", columnDefinition = "JSON")
     private String rawEntry;
 
     @Column(name = "notes", columnDefinition = "TEXT")
     private String notes;
-
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
-    @PrePersist
-    public void prePersist() {
-        if (this.createdAt == null) this.createdAt = LocalDateTime.now();
-        if (this.updatedAt == null) this.updatedAt = LocalDateTime.now();
-        if (this.language == null) this.language = "en";
-        if (this.ease == null) this.ease = 2.5;
-        if (this.intervalDays == null) this.intervalDays = 0;
-        if (this.repetitions == null) this.repetitions = 0;
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
 }

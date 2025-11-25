@@ -53,7 +53,11 @@ export default function QuizCard({ mockTest, index, onStart }: Props) {
 
         {/* Description */}
         {mockTest.description && (
-          <Text className="text-white/90 text-sm block mb-4 line-clamp-2">
+          <Text
+            className="text-white/90 text-sm block mb-4 line-clamp-2"
+            onClick={() => onStart(mockTest)}
+            style={{ cursor: 'pointer' }}
+          >
             {mockTest.description}
           </Text>
         )}

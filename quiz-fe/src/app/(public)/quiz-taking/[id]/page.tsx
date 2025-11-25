@@ -45,7 +45,7 @@ export default function QuizTakingPage() {
   const params = useParams();
   const router = useRouter();
   const searchParams = useSearchParams();
-  
+
   const quizId = params.id as string;
   const quizType = searchParams.get('type') || 'MOCK_TEST';
   const configDuration = parseInt(searchParams.get('duration') || '60', 10);
@@ -123,17 +123,17 @@ export default function QuizTakingPage() {
 
       const range = selection.getRangeAt(0);
       const selectedText = selection.toString().trim();
-      
+
       if (selectedText.length === 0) return;
 
       // Store selection for later use
       setSelectedText(selectedText);
       setSelectionRange(range.cloneRange());
-      
+
       // Show color picker near selection
       const rect = range.getBoundingClientRect();
       setShowColorPicker(true);
-      
+
       // Position the popover near the selection
       const popoverContainer = document.getElementById('color-picker-container');
       if (popoverContainer) {
@@ -158,37 +158,37 @@ export default function QuizTakingPage() {
     span.className = 'cursor-pointer transition-colors px-0.5 rounded-sm';
     span.setAttribute('data-highlight', 'true');
     span.setAttribute('data-color', color);
-    
+
     // Add hover effect
-    span.onmouseenter = function(e: MouseEvent) {
+    span.onmouseenter = function (e: MouseEvent) {
       const element = e.currentTarget as HTMLSpanElement;
       const currentColor = element.getAttribute('data-color') || color;
       const hoverColor = highlightColors.find(c => c.color === currentColor)?.hover || color;
       element.style.backgroundColor = hoverColor;
     };
-    span.onmouseleave = function(e: MouseEvent) {
+    span.onmouseleave = function (e: MouseEvent) {
       const element = e.currentTarget as HTMLSpanElement;
       const currentColor = element.getAttribute('data-color') || color;
       element.style.backgroundColor = currentColor;
     };
-    
+
     if (withNote && noteText) {
       span.setAttribute('data-note', noteText);
       span.setAttribute('title', `Note: ${noteText}`);
       span.className += ' border-b-2 border-dashed border-blue-500 relative';
-      
+
       // Add note icon
       const noteIcon = document.createElement('sup');
       noteIcon.innerHTML = '📝';
       noteIcon.className = 'text-xs ml-0.5';
       span.appendChild(noteIcon);
     }
-    
-    span.onclick = function(e: MouseEvent) {
+
+    span.onclick = function (e: MouseEvent) {
       e.stopPropagation();
       const element = e.currentTarget as HTMLSpanElement;
       const note = element.getAttribute('data-note');
-      
+
       if (note) {
         Modal.info({
           title: (
@@ -207,13 +207,13 @@ export default function QuizTakingPage() {
         });
       }
     };
-    
+
     // Remove highlight on double click
-    span.ondblclick = function(e: MouseEvent) {
+    span.ondblclick = function (e: MouseEvent) {
       e.stopPropagation();
       const element = e.currentTarget as HTMLSpanElement;
       const hasNote = element.getAttribute('data-note');
-      
+
       Modal.confirm({
         title: 'Xóa highlight?',
         content: hasNote ? 'Highlight này có ghi chú. Bạn có chắc muốn xóa?' : 'Bạn có chắc muốn xóa highlight này?',
@@ -370,10 +370,10 @@ export default function QuizTakingPage() {
 
   const getAllQuestions = (): Question[] => {
     if (!quizData) return [];
-    
+
     const groupQuestions = quizData.questionGroups.flatMap(g => g.questions);
     const standalone = quizData.standaloneQuestions || [];
-    
+
     return [...groupQuestions, ...standalone];
   };
 
@@ -402,7 +402,7 @@ export default function QuizTakingPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Color Picker Popover */}
       {showColorPicker && (
-        <div 
+        <div
           id="color-picker-container"
           className="fixed bg-white rounded-lg shadow-xl border border-gray-200 p-3 animate-fade-in"
           style={{ zIndex: 9999 }}
@@ -422,7 +422,7 @@ export default function QuizTakingPage() {
               animation: fade-in 0.2s ease-out;
             }
           `}</style>
-          
+
           <div className="flex items-center gap-2 mb-3">
             {highlightColors.map((colorItem) => (
               <button
@@ -434,7 +434,7 @@ export default function QuizTakingPage() {
               />
             ))}
           </div>
-          
+
           <div className="flex items-center gap-2 pt-2 border-t border-gray-200">
             <button
               onClick={() => {
@@ -450,7 +450,7 @@ export default function QuizTakingPage() {
               <EditOutlined />
               <span>Thêm note</span>
             </button>
-            
+
             <button
               onClick={() => setShowColorPicker(false)}
               className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded text-sm transition-colors"
@@ -470,8 +470,8 @@ export default function QuizTakingPage() {
             <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 rounded-lg border border-gray-200">
               <HighlightOutlined className={highlightMode ? 'text-yellow-500' : 'text-gray-400'} />
               <Text type="secondary" className="text-sm mr-2">Highlight</Text>
-              <Switch 
-                checked={highlightMode} 
+              <Switch
+                checked={highlightMode}
                 onChange={setHighlightMode}
                 size="small"
               />
@@ -493,145 +493,145 @@ export default function QuizTakingPage() {
           {/* eslint-disable-next-line @next/next/no-page-custom-font */}
           <div style={{ maxHeight: 'calc(100vh - 80px)' }}>
             {/* We'll mount VocabProvider lazily to avoid adding global listeners unnecessarily */}
-            <React.Suspense fallback={<div />}> 
+            <React.Suspense fallback={<div />}>
               {/* @ts-ignore */}
               <VocabProvider>
                 <div style={{ userSelect: highlightMode ? 'text' : 'auto', cursor: highlightMode ? 'text' : 'default' }}>
-          <div className="max-w-4xl">
-            <Space direction="vertical" size="large" style={{ width: '100%' }}>
-              {/* Question Groups */}
-              {quizData.questionGroups.map((group, groupIndex) => (
-                <Card key={group.id} className="shadow-sm">
-                  <Title level={5} className="!mb-4">{group.title}</Title>
-                  
-                  {group.contentHtml && (
-                    <div 
-                      className="mb-6 p-4 bg-gray-50 rounded border border-gray-200"
-                      dangerouslySetInnerHTML={{ __html: group.contentHtml }}
-                    />
-                  )}
-                  
-                  {group.questions.map((question, qIndex) => {
-                    const questionNumber = quizData.questionGroups
-                      .slice(0, groupIndex)
-                      .reduce((sum, g) => sum + g.questions.length, 0) + qIndex + 1;
-                    
-                    return (
-                      <div 
-                        key={question.id}
-                        id={`question-${question.id}`}
-                        className="mb-6 scroll-mt-24"
-                      >
-                        <div className="mb-3 flex items-center justify-between">
-                          <Text strong className="text-base">Câu {questionNumber}</Text>
-                          <div className="flex items-center gap-2">
-                            <Button
-                              type="text"
-                              size="small"
-                              onClick={() => toggleMark(question.id)}
-                              title={marks[question.id] ? 'Bỏ đánh dấu chưa chắc chắn' : 'Đánh dấu chưa chắc chắn'}
-                              className="!p-0"
-                            >
-                              <FlagOutlined style={{ color: marks[question.id] ? '#f5222d' : '#9aa0a6' }} />
-                            </Button>
-                          </div>
-                        </div>
-                        
-                        <div 
-                          className="mb-4 prose max-w-none"
-                          dangerouslySetInnerHTML={{ __html: question.contentHtml }}
-                        />
-                        
-                        <Radio.Group
-                          value={answers[question.id]}
-                          onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-                          className="w-full"
-                        >
-                          <Space direction="vertical" className="w-full">
-                            {question.options.map((option, optIndex) => (
-                              <Radio 
-                                key={option.id} 
-                                value={option.id}
-                                className="w-full p-3 border border-gray-200 rounded hover:bg-blue-50 hover:border-blue-300 transition-all"
-                              >
-                                <div className="flex items-start gap-2">
-                                  <span className="font-bold min-w-[24px]">
-                                    {String.fromCharCode(65 + optIndex)}.
-                                  </span>
-                                  <div 
-                                    className="flex-1 prose max-w-none"
-                                    dangerouslySetInnerHTML={{ __html: option.contentHtml }} 
-                                  />
-                                </div>
-                              </Radio>
-                            ))}
-                          </Space>
-                        </Radio.Group>
-                      </div>
-                    );
-                  })}
-                </Card>
-              ))}
+                  <div className="max-w-4xl">
+                    <Space direction="vertical" size="large" style={{ width: '100%' }}>
+                      {/* Question Groups */}
+                      {quizData.questionGroups.map((group, groupIndex) => (
+                        <Card key={group.id} className="shadow-sm">
+                          <Title level={5} className="!mb-4">{group.title}</Title>
 
-              {/* Standalone Questions */}
-              {quizData.standaloneQuestions && quizData.standaloneQuestions.length > 0 && (
-                <Card className="shadow-sm">
-                  <Title level={5} className="!mb-4">Câu hỏi độc lập</Title>
-                  
-                  {quizData.standaloneQuestions.map((question, qIndex) => {
-                    const questionNumber = quizData.questionGroups.reduce(
-                      (sum, g) => sum + g.questions.length, 
-                      0
-                    ) + qIndex + 1;
-                    
-                    return (
-                      <div 
-                        key={question.id}
-                        id={`question-${question.id}`}
-                        className="mb-6 scroll-mt-24"
-                      >
-                        <div className="mb-3">
-                          <Text strong className="text-base">Câu {questionNumber}</Text>
-                        </div>
-                        
-                        <div 
-                          className="mb-4 prose max-w-none"
-                          dangerouslySetInnerHTML={{ __html: question.contentHtml }}
-                        />
-                        
-                        <Radio.Group
-                          value={answers[question.id]}
-                          onChange={(e) => handleAnswerChange(question.id, e.target.value)}
-                          className="w-full"
-                        >
-                          <Space direction="vertical" className="w-full">
-                            {question.options.map((option, optIndex) => (
-                              <Radio 
-                                key={option.id} 
-                                value={option.id}
-                                className="w-full p-3 border border-gray-200 rounded hover:bg-blue-50 hover:border-blue-300 transition-all"
+                          {group.contentHtml && (
+                            <div
+                              className="mb-6 p-4 bg-gray-50 rounded border border-gray-200"
+                              dangerouslySetInnerHTML={{ __html: group.contentHtml }}
+                            />
+                          )}
+
+                          {group.questions.map((question, qIndex) => {
+                            const questionNumber = quizData.questionGroups
+                              .slice(0, groupIndex)
+                              .reduce((sum, g) => sum + g.questions.length, 0) + qIndex + 1;
+
+                            return (
+                              <div
+                                key={question.id}
+                                id={`question-${question.id}`}
+                                className="mb-6 scroll-mt-24"
                               >
-                                <div className="flex items-start gap-2">
-                                  <span className="font-bold min-w-[24px]">
-                                    {String.fromCharCode(65 + optIndex)}.
-                                  </span>
-                                  <div 
-                                    className="flex-1 prose max-w-none"
-                                    dangerouslySetInnerHTML={{ __html: option.contentHtml }} 
-                                  />
+                                <div className="mb-3 flex items-center justify-between">
+                                  <Text strong className="text-base">Câu {questionNumber}</Text>
+                                  <div className="flex items-center gap-2">
+                                    <Button
+                                      type="text"
+                                      size="small"
+                                      onClick={() => toggleMark(question.id)}
+                                      title={marks[question.id] ? 'Bỏ đánh dấu chưa chắc chắn' : 'Đánh dấu chưa chắc chắn'}
+                                      className="!p-0"
+                                    >
+                                      <FlagOutlined style={{ color: marks[question.id] ? '#f5222d' : '#9aa0a6' }} />
+                                    </Button>
+                                  </div>
                                 </div>
-                              </Radio>
-                            ))}
-                          </Space>
-                        </Radio.Group>
-                      </div>
-                    );
-                  })}
-                </Card>
-              )}
-            </Space>
+
+                                <div
+                                  className="mb-4 prose max-w-none"
+                                  dangerouslySetInnerHTML={{ __html: question.contentHtml }}
+                                />
+
+                                <Radio.Group
+                                  value={answers[question.id]}
+                                  onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                                  className="w-full"
+                                >
+                                  <Space direction="vertical" className="w-full">
+                                    {question.options.map((option, optIndex) => (
+                                      <Radio
+                                        key={option.id}
+                                        value={option.id}
+                                        className="w-full p-3 border border-gray-200 rounded hover:bg-blue-50 hover:border-blue-300 transition-all"
+                                      >
+                                        <div className="flex items-start gap-2">
+                                          <span className="font-bold min-w-[24px]">
+                                            {String.fromCharCode(65 + optIndex)}.
+                                          </span>
+                                          <div
+                                            className="flex-1 prose max-w-none"
+                                            dangerouslySetInnerHTML={{ __html: option.contentHtml }}
+                                          />
+                                        </div>
+                                      </Radio>
+                                    ))}
+                                  </Space>
+                                </Radio.Group>
+                              </div>
+                            );
+                          })}
+                        </Card>
+                      ))}
+
+                      {/* Standalone Questions */}
+                      {quizData.standaloneQuestions && quizData.standaloneQuestions.length > 0 && (
+                        <Card className="shadow-sm">
+                          <Title level={5} className="!mb-4">Câu hỏi độc lập</Title>
+
+                          {quizData.standaloneQuestions.map((question, qIndex) => {
+                            const questionNumber = quizData.questionGroups.reduce(
+                              (sum, g) => sum + g.questions.length,
+                              0
+                            ) + qIndex + 1;
+
+                            return (
+                              <div
+                                key={question.id}
+                                id={`question-${question.id}`}
+                                className="mb-6 scroll-mt-24"
+                              >
+                                <div className="mb-3">
+                                  <Text strong className="text-base">Câu {questionNumber}</Text>
+                                </div>
+
+                                <div
+                                  className="mb-4 prose max-w-none"
+                                  dangerouslySetInnerHTML={{ __html: question.contentHtml }}
+                                />
+
+                                <Radio.Group
+                                  value={answers[question.id]}
+                                  onChange={(e) => handleAnswerChange(question.id, e.target.value)}
+                                  className="w-full"
+                                >
+                                  <Space direction="vertical" className="w-full">
+                                    {question.options.map((option, optIndex) => (
+                                      <Radio
+                                        key={option.id}
+                                        value={option.id}
+                                        className="w-full p-3 border border-gray-200 rounded hover:bg-blue-50 hover:border-blue-300 transition-all"
+                                      >
+                                        <div className="flex items-start gap-2">
+                                          <span className="font-bold min-w-[24px]">
+                                            {String.fromCharCode(65 + optIndex)}.
+                                          </span>
+                                          <div
+                                            className="flex-1 prose max-w-none"
+                                            dangerouslySetInnerHTML={{ __html: option.contentHtml }}
+                                          />
+                                        </div>
+                                      </Radio>
+                                    ))}
+                                  </Space>
+                                </Radio.Group>
+                              </div>
+                            );
+                          })}
+                        </Card>
+                      )}
+                    </Space>
+                  </div>
                 </div>
-              </div>
               </VocabProvider>
             </React.Suspense>
           </div>
@@ -643,9 +643,8 @@ export default function QuizTakingPage() {
             {/* Timer */}
             <Card className="mb-6 text-center" bordered={false}>
               <Text type="secondary" className="block mb-2">Thời gian còn lại</Text>
-              <div className={`text-4xl font-bold mb-4 ${
-                timeLeft < 300 ? 'text-red-600' : 'text-blue-600'
-              }`}>
+              <div className={`text-4xl font-bold mb-4 ${timeLeft < 300 ? 'text-red-600' : 'text-blue-600'
+                }`}>
                 {formatTime(timeLeft)}
               </div>
               <Text type="secondary" className="text-sm block mb-4">
@@ -661,7 +660,7 @@ export default function QuizTakingPage() {
               >
                 NỘP BÀI
               </Button>
-              
+
               {/* Clear Highlights Button */}
               {highlightMode && (
                 <Button
@@ -691,7 +690,7 @@ export default function QuizTakingPage() {
                   </Text>
                 </div>
               )}
-              
+
               <div className="text-center mb-4">
                 <Text className="text-2xl font-bold text-green-600">{answeredCount}</Text>
                 <Text className="text-gray-400 mx-2">/</Text>
@@ -707,7 +706,7 @@ export default function QuizTakingPage() {
                   Tip: Click số câu để di chuyển
                 </Text>
               </div>
-              
+
               <div className="grid grid-cols-5 gap-2">
                 {getAllQuestions().map((q, index) => (
                   <button
@@ -716,11 +715,10 @@ export default function QuizTakingPage() {
                       const element = document.getElementById(`question-${q.id}`);
                       element?.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }}
-                    className={`h-10 rounded-md flex items-center justify-center text-sm font-semibold transition-all relative ${
-                      answers[q.id]
+                    className={`h-10 rounded-md flex items-center justify-center text-sm font-semibold transition-all relative ${answers[q.id]
                         ? 'bg-green-500 text-white hover:bg-green-600 shadow-sm'
                         : 'bg-gray-100 border border-gray-300 text-gray-700 hover:bg-gray-200'
-                    }`}
+                      }`}
                   >
                     {index + 1}
                     {marks[q.id] && (

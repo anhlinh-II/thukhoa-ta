@@ -1,0 +1,12 @@
+[
+  {"word":"house","definitions":[{"definition":"a building for human habitation","partOfSpeech":"noun","example":"He returned to his house."}]},
+  {"word":"run","definitions":[{"definition":"to move at a speed faster than a walk","partOfSpeech":"verb","example":"She can run fast."}]},
+  {"word":"happy","definitions":[{"definition":"feeling or showing pleasure or contentment","partOfSpeech":"adjective","example":"They were very happy."}]},
+  {"word":"blue","definitions":[{"definition":"of a color intermediate between green and violet","partOfSpeech":"adjective","example":"The sky is blue."}]},
+  {"word":"book","definitions":[{"definition":"a written or printed work consisting of pages glued or sewn together","partOfSpeech":"noun","example":"I read a book."}]},
+  {"word":"speak","definitions":[{"definition":"to say something in order to convey information","partOfSpeech":"verb","example":"Please speak clearly."}]},
+  {"word":"large","definitions":[{"definition":"of considerable or relatively great size","partOfSpeech":"adjective","example":"A large house."}]},
+  {"word":"small","definitions":[{"definition":"of a size that is less than normal or usual","partOfSpeech":"adjective","example":"A small dog."}]},
+  {"word":"write","definitions":[{"definition":"to mark (letters, words, or other symbols) on a surface","partOfSpeech":"verb","example":"Write your name."}]},
+  {"word":"idea","definitions":[{"definition":"a thought or suggestion as to a possible course of action","partOfSpeech":"noun","example":"He had a good idea."}]}
+]

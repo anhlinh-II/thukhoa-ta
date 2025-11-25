@@ -35,10 +35,10 @@ import com.example.quiz.utils.SlugService;
 @Slf4j
 public abstract class BaseServiceImpl<E, ID, R, P, V> implements BaseService<E, ID, R, P, V> {
 
-    private final AdvancedFilterService advancedFilterService;
-    private final BaseRepository<E, ID> repository;
-    private final BaseMapstruct<E, R, P, V> mapper;
-    private final JpaRepository<V, ID> viewRepository;
+    protected final AdvancedFilterService advancedFilterService;
+    protected final BaseRepository<E, ID> repository;
+    protected final BaseMapstruct<E, R, P, V> mapper;
+    protected final JpaRepository<V, ID> viewRepository;
     
     @jakarta.persistence.PersistenceContext
     private jakarta.persistence.EntityManager entityManager;

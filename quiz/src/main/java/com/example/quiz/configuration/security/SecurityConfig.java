@@ -26,9 +26,9 @@ public class SecurityConfig {
     public static final String[] WHITE_LIST = {
             "/api/users/login", "/api/users/refresh", "/api/users/register", "/api/users/verify-otp", "/api/users/logout", "/ws/**", "/api/v1/users/views/list", 
             "/oauth2/**", "/login/oauth2/**", "/api/users/oauth2-url", "/api/users/forgot-password", "/api/users/reset-password", "/api/v1/programs/tree",
-            // Allow v1 user endpoints (frontend uses /api/v1/...)
             "/api/v1/users/**",
-            // Allow public preview of quiz mock tests so unauthenticated users can load quiz preview
+            "/api/v1/user-vocabulary/**",
+            "/api/v1/quiz-comments/**",
             "/api/v1/quiz-mock-tests/*/preview"
     };
 

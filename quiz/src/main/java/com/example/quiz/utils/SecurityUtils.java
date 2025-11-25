@@ -18,6 +18,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -63,7 +64,60 @@ public class SecurityUtils {
      */
     public static Optional<String> getCurrentUserJWT() {
         SecurityContext securityContext = SecurityContextHolder.getContext();
-        return Optional.ofNullable(securityContext.getAuthentication()).filter(authentication -> authentication.getCredentials() instanceof String).map(authentication -> (String) authentication.getCredentials());
+        return Optional.ofNullable(securityContext.getAuthentication())
+                .filter(authentication -> authentication.getCredentials() instanceof String)
+                .map(authentication -> (String) authentication.getCredentials());
+    }
+
+    /**
+     * Try to extract the current user's id from the SecurityContext.
+     * Supports JWT principal (claim "user_id" or nested "user.id").
+     */
+    public static Optional<Long> getCurrentUserId() {
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        if (securityContext == null)
+            return Optional.empty();
+        var authentication = securityContext.getAuthentication();
+        if (authentication == null)
+            return Optional.empty();
+
+        Object principal = authentication.getPrincipal();
+        if (principal instanceof Jwt jwt) {
+            try {
+                Object idClaim = jwt.getClaims().get("user_id");
+                if (idClaim instanceof Number)
+                    return Optional.of(((Number) idClaim).longValue());
+                if (idClaim instanceof String) {
+                    try {
+                        return Optional.of(Long.valueOf((String) idClaim));
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
+                // fallback to nested user object
+                Object userObj = jwt.getClaims().get("user");
+                if (userObj instanceof Map) {
+                    Object nestedId = ((Map<?, ?>) userObj).get("id");
+                    if (nestedId instanceof Number)
+                        return Optional.of(((Number) nestedId).longValue());
+                    if (nestedId instanceof String) {
+                        try {
+                            return Optional.of(Long.valueOf((String) nestedId));
+                        } catch (NumberFormatException ignored) {
+                        }
+                    }
+                }
+            } catch (Exception ignored) {
+            }
+        }
+
+        // If principal is a UserDetails implementation that exposes id, cast and try to
+        // extract (optional)
+        if (principal instanceof UserDetails userDetails) {
+            // default Spring UserDetails doesn't expose id; if your UserDetails
+            // implementation does, add extraction here
+        }
+
+        return Optional.empty();
     }
 
     private SecretKey getSecretKey() {
@@ -72,7 +126,8 @@ public class SecurityUtils {
     }
 
     public Jwt checkValidRefreshToken(String token) {
-        NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(getSecretKey()).macAlgorithm(JWT_ALGORITHM).build();
+        NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withSecretKey(getSecretKey()).macAlgorithm(JWT_ALGORITHM)
+                .build();
         try {
             return jwtDecoder.decode(token);
         } catch (JwtException e) {
@@ -96,7 +151,7 @@ public class SecurityUtils {
         }
         Instant now = Instant.now();
         Instant validity = now.plus(accessTokenExpiration, ChronoUnit.SECONDS);
-        
+
         JwtClaimsSet.Builder claimsBuilder = JwtClaimsSet.builder()
                 .issuedAt(now)
                 .expiresAt(validity)

@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Popover, Button, Spin, message } from "antd";
+import { Popover, Button, Spin, notification } from "antd";
 import { SaveOutlined, CloseOutlined } from "@ant-design/icons";
-import { lookupWord, saveVocab } from "../services/vocabService";
+import { lookupWord } from "../services/vocabService";
+import { handleProblems } from '@/share/utils/functions';
+import { userVocabularyService } from "../services/user_vocabulary/user-vocabulary.service";
 
 type LookupResult = {
      word: string;
@@ -11,7 +13,7 @@ type LookupResult = {
      meanings?: Array<any>;
 };
 
-export default function VocabProvider({ children }: { children: React.ReactNode }) { 
+export default function VocabProvider({ children }: { children: React.ReactNode }) {
      const containerRef = useRef<HTMLDivElement | null>(null);
      const [selectedWord, setSelectedWord] = useState<string | null>(null);
      const [anchor, setAnchor] = useState<{ x: number; y: number } | null>(null);
@@ -87,7 +89,7 @@ export default function VocabProvider({ children }: { children: React.ReactNode 
                setLookup(res);
           } catch (err) {
                console.error(err);
-               message.error("Không tìm thấy từ hoặc lỗi kết nối");
+               notification.error({ message: "Không tìm thấy từ hoặc lỗi kết nối" });
           } finally {
                setLoading(false);
           }
@@ -97,11 +99,13 @@ export default function VocabProvider({ children }: { children: React.ReactNode 
           if (!selectedWord || !lookup) return;
           setSaving(true);
           try {
-               await saveVocab({ word: selectedWord, data: lookup });
-               message.success("Đã lưu từ vựng");
+               await userVocabularyService.saveVocab({ word: selectedWord, data: lookup });
+               console.debug('VocabProvider: save succeeded');
+               notification.success({ message: 'Đã lưu từ vựng', duration: 4 });
           } catch (err) {
-               console.error(err);
-               message.error("Lưu thất bại");
+               console.error('VocabProvider: save failed', err);
+               // Use centralized handler so backend codes are localized
+               try { handleProblems(err); } catch (e) { notification.error({ message: 'Lưu thất bại' }); }
           } finally {
                setSaving(false);
                setShowPopover(false);
@@ -120,7 +124,7 @@ export default function VocabProvider({ children }: { children: React.ReactNode 
      }, [showPopover]);
 
      const popoverContent = (
-     <div style={{ minWidth: 320, maxWidth: '33vw' }}>
+          <div style={{ minWidth: 320, maxWidth: '33vw' }}>
                {loading ? (
                     <div className="py-6 flex justify-center"><Spin /></div>
                ) : lookup ? (
