@@ -117,6 +117,13 @@
 			<version>8.5.4</version>
 		</dependency>
 
+		<!-- Google Auth library to obtain OAuth2 tokens from service account JSON -->
+		<dependency>
+			<groupId>com.google.auth</groupId>
+			<artifactId>google-auth-library-oauth2-http</artifactId>
+			<version>1.16.0</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi</artifactId>

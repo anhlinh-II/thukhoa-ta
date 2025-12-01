@@ -51,7 +51,7 @@ public class User extends BaseEntity {
 
     private String location;
 
-    @Column(name = "avatar_url")
+    @Column(columnDefinition = "TEXT")
     private String avatarUrl;
 
     @Column(columnDefinition = "MEDIUMTEXT")

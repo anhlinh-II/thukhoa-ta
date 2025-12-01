@@ -15,6 +15,7 @@ const GROUP_TYPE_CONFIG = {
     title: "ĐỀ KIỂM TRA",
     label: "Bài",
     color: "from-green-100 to-green-50",
+    numberColor: "text-green-700",
     icon: (
       <div className="w-20 h-20 bg-white rounded-lg flex items-center justify-center shadow-md">
         <svg className="w-12 h-12" viewBox="0 0 48 48" fill="none">
@@ -32,6 +33,7 @@ const GROUP_TYPE_CONFIG = {
     title: "BÀI TẬP BỔ TRỢ",
     label: "Bài",
     color: "from-blue-100 to-blue-50",
+    numberColor: "text-blue-700",
     icon: (
       <div className="w-20 h-20 bg-white rounded-lg flex items-center justify-center shadow-md">
         <svg className="w-12 h-12" viewBox="0 0 48 48" fill="none">
@@ -47,6 +49,7 @@ const GROUP_TYPE_CONFIG = {
     title: "LUYỆN CHỦ ĐIỂM",
     label: "Chủ điểm",
     color: "from-purple-100 to-purple-50",
+    numberColor: "text-purple-700",
     icon: (
       <div className="w-20 h-20 bg-white rounded-lg flex items-center justify-center shadow-md">
         <svg className="w-12 h-12" viewBox="0 0 48 48" fill="none">
@@ -62,6 +65,7 @@ const GROUP_TYPE_CONFIG = {
     title: "KHÁC",
     label: "Bài",
     color: "from-gray-100 to-gray-50",
+    numberColor: "text-gray-700",
     icon: (
       <div className="w-20 h-20 bg-white rounded-lg flex items-center justify-center shadow-md">
         <svg className="w-12 h-12" viewBox="0 0 48 48" fill="none">
@@ -162,6 +166,25 @@ export default function ProgramQuizGroupsPage() {
         </Breadcrumb>
       </div>
 
+      {/* Hero banner above quiz group cards */}
+      <div className="mb-6">
+        <div className="relative w-full rounded-lg overflow-hidden">
+          <img src="/img/vao-6-desktop-1000-1.png" alt="Course hero" className="w-full h-56 md:h-72 lg:h-96 object-cover" loading="lazy" />
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-center px-6">
+              <h1 className="text-2xl md:text-4xl lg:text-5xl font-extrabold text-gray-900 drop-shadow-lg">Learn English</h1>
+              <p className="mt-3 text-sm md:text-base text-gray-800">Suitable for learners of all levels — build strong foundations and gain confidence in English.</p>
+              <div className="mt-5">
+                <button onClick={() => router.push('/programs')}
+                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-full shadow-md">
+                  Start Free Trial
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {loading ? (
         <div className="w-full text-center py-12">
           <Spin size="large" />
@@ -173,62 +196,107 @@ export default function ProgramQuizGroupsPage() {
           </Card>
         </div>
       ) : (
-        <div className="space-y-4">
-          {quizGroups.map((group) => {
-            const config = getGroupConfig(group.groupType);
-            let quizCount = 0;
-            if (group.groupType === GroupType.MOCK_TEST && group.totalMockTest) {
-              quizCount = group.totalMockTest;
-            } else if (group.groupType === GroupType.FORMAT && group.totalFormat) {
-              quizCount = group.totalFormat;
-            } else if (group.groupType === GroupType.TOPIC && group.totalTopic) {
-              quizCount = group.totalTopic;
-            }
+        <>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {quizGroups.map((group) => {
+              const config = getGroupConfig(group.groupType);
+              let quizCount = 0;
+              if (group.groupType === GroupType.MOCK_TEST && group.totalMockTest) {
+                quizCount = group.totalMockTest;
+              } else if (group.groupType === GroupType.FORMAT && group.totalFormat) {
+                quizCount = group.totalFormat;
+              } else if (group.groupType === GroupType.TOPIC && group.totalTopic) {
+                quizCount = group.totalTopic;
+              }
 
-            return (
-              <Card 
-                key={group.id}
-                hoverable
-                className={`bg-gradient-to-r ${config.color} border-none shadow-md hover:shadow-lg transition-shadow cursor-pointer`}
-                onClick={() => handleCardClick(group.id)}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-6">
-                    {config.icon}
-                    <div>
-                      <div className="flex items-center gap-3">
-                        <Title level={4} className="!m-0 !text-gray-800">
-                          {group.name}
-                        </Title>
-                        <ArrowRightOutlined className="text-gray-400" />
+              return (
+                <div key={group.id} onClick={() => handleCardClick(group.id)} className={`cursor-pointer rounded-lg overflow-hidden shadow-md transition-shadow hover:shadow-lg bg-gradient-to-r ${config.color}`}>
+                  <div className="p-5 flex items-center justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <div className="text-sm text-gray-700 font-semibold flex items-center gap-2">
+                          <span>{config.title}</span>
+                          <ArrowRightOutlined className="text-gray-400" />
+                        </div>
                       </div>
-                      {group.description && (
-                        <Text type="secondary" className="text-sm block mt-1">
-                          {group.description}
-                        </Text>
-                      )}
-                      <div className="mt-2">
-                        <span className="text-3xl font-bold text-green-600">{quizCount || 0}</span>
-                        <span className="ml-2 text-gray-600">{config.label}</span>
+
+                      <div className="mt-4">
+                        <div className={`text-4xl font-extrabold ${config.numberColor}`}>{quizCount || 0}</div>
+                        <div className="text-sm text-gray-600 mt-1">{config.label}</div>
+                      </div>
+                    </div>
+
+                    <div className="ml-6">
+                      <div className="w-20 h-20 bg-white rounded-lg flex items-center justify-center shadow-md">
+                        {config.icon}
                       </div>
                     </div>
                   </div>
-                  <Button
-                    type="primary"
-                    size="large"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleCardClick(group.id);
-                    }}
-                    className="px-8"
-                  >
-                    Bắt đầu
-                  </Button>
                 </div>
-              </Card>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+
+          {/* Roadmap section: khai thác hiệu quả (sử dụng màu chủ đạo sky-500) */}
+          <div className="mt-10 p-6 rounded-lg border-2 border-dashed border-sky-500">
+            <div className="max-w-7xl mx-auto">
+              <div className="text-center mb-6">
+                <h2 className="text-xl md:text-2xl font-extrabold">💡 Lộ trình khai thác hiệu quả</h2>
+                <p className="mt-2 text-sm text-gray-600">Theo dõi từng bước để tận dụng tối đa nguồn luyện tập trên nền tảng.</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="bg-white rounded-lg shadow p-6">
+                  <div className="flex items-center justify-center mb-4">
+                    <div className="w-16 h-16 rounded-full bg-sky-100 flex items-center justify-center">
+                      <svg className="w-8 h-8 text-sky-600" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h10M4 18h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm font-semibold text-sky-600">GIAI ĐOẠN 1</div>
+                    <h3 className="mt-4 font-bold text-md">Ôn theo dạng</h3>
+                    <ul className="mt-4 text-sm text-gray-700 space-y-2 text-left">
+                      <li className="flex items-start"><span className="text-sky-500 mr-2">✔</span>Ôn các dạng bài trọng tâm (ngữ pháp, đọc hiểu, trắc nghiệm).</li>
+                      <li className="flex items-start"><span className="text-sky-500 mr-2">✔</span>Làm đề mẫu để nhận diện dạng và chiến lược làm bài.</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg shadow p-6">
+                  <div className="flex items-center justify-center mb-4">
+                    <div className="w-16 h-16 rounded-full bg-sky-100 flex items-center justify-center">
+                      <svg className="w-8 h-8 text-sky-600" viewBox="0 0 24 24" fill="none"><path d="M12 20v-6M6 8h12M6 12h12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm font-semibold text-sky-600">GIAI ĐOẠN 2</div>
+                    <h3 className="mt-4 font-bold text-md">Ôn theo chủ đề</h3>
+                    <ul className="mt-4 text-sm text-gray-700 space-y-2 text-left">
+                      <li className="flex items-start"><span className="text-sky-500 mr-2">✔</span>Luyện theo topic để mở rộng từ vựng và ngữ cảnh sử dụng.</li>
+                      <li className="flex items-start"><span className="text-sky-500 mr-2">✔</span>Ghép các bài theo chủ đề để củng cố lâu dài.</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-lg shadow p-6">
+                  <div className="flex items-center justify-center mb-4">
+                    <div className="w-16 h-16 rounded-full bg-sky-100 flex items-center justify-center">
+                      <svg className="w-8 h-8 text-sky-600" viewBox="0 0 24 24" fill="none"><path d="M11 11V7a4 4 0 1 1 4 4h-4zM5 20v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-sm font-semibold text-sky-600">GIAI ĐOẠN 3</div>
+                    <h3 className="mt-4 font-bold text-md">Luyện từ vựng đã lưu</h3>
+                    <ul className="mt-4 text-sm text-gray-700 space-y-2 text-left">
+                      <li className="flex items-start"><span className="text-sky-500 mr-2">✔</span>Làm quiz từ chính danh sách từ bạn đã lưu.</li>
+                      <li className="flex items-start"><span className="text-sky-500 mr-2">✔</span>Xem báo cáo từ sai/nhớ để ôn lại hiệu quả.</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );

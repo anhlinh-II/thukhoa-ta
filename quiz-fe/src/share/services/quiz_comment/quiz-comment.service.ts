@@ -11,6 +11,11 @@ class QuizCommentService extends BaseService<any, any, any, any> {
     return this.handleRequest<any>(url);
   }
 
+  async getReplies(parentId: number, page = 0, size = 20) {
+    const url = `${this.getEndpoint()}/${parentId}/replies?page=${page}&size=${size}`;
+    return this.handleRequest<any>(url);
+  }
+
   async create(payload: { quizId: number; parentId?: number; content: string }) {
     return this.handleRequest<any>(`${this.getEndpoint()}/create`, {
       method: 'POST',

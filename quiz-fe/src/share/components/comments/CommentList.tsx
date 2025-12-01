@@ -59,7 +59,13 @@ export default function CommentList({ quizId }: any) {
         <Skeleton active />
       ) : (
         <List
-          dataSource={comments}
+          dataSource={comments.filter((c: any) => {
+            // only top-level comments (no parent) should be rendered here
+            if (c == null) return false;
+            if (c.parentId !== undefined) return c.parentId === null;
+            // some DTOs may include a parent object
+            return !c.parent;
+          })}
           renderItem={(item: any) => (
             <CommentItem comment={item} onReply={handleReply} />
           )}

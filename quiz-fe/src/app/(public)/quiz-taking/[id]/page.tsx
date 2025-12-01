@@ -5,6 +5,7 @@ import { Card, Typography, Spin, Button, Radio, Space, message, Modal, Switch, I
 import VocabProvider from '@/share/components/VocabProvider';
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { ClockCircleOutlined, CheckCircleOutlined, HighlightOutlined, UnderlineOutlined, StrikethroughOutlined, DeleteOutlined, EditOutlined, FlagOutlined } from "@ant-design/icons";
+import AIHelper from '@/share/components/AIHelper';
 import { quizMockTestService } from "@/share/services/quiz_mock_test/quiz-mocktest.service";
 import { userQuestionAnswerService } from '@/share/services/user_question_answer/user-question-answer.service';
 import { ENV } from "@/share/utils/env";
@@ -482,6 +483,7 @@ export default function QuizTakingPage() {
             >
               Thoát
             </Button>
+            <AIHelper selectedText={selectedText} />
           </div>
         </div>
       </div>

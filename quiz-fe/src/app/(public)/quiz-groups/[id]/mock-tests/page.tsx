@@ -63,9 +63,9 @@ export default function MockTestsListPage() {
   // confirm start moved to config page
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 py-2">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="mb-8">
+        <div className="mb-2">
           <Breadcrumb className="mb-4 cursor-pointer">
             <Breadcrumb.Item onClick={() => router.push('/')}>Trang chủ</Breadcrumb.Item>
             <Breadcrumb.Item

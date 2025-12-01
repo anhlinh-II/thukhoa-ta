@@ -144,3 +144,13 @@ INSERT IGNORE INTO permissions (name, description, resource, action) VALUES
 ('QUIZ_COMMENT_DELETE', 'Delete own comment', 'QUIZ_COMMENT', 'DELETE'),
 ('QUIZ_COMMENT_MODERATE', 'Moderate and manage comments', 'QUIZ_COMMENT', 'MODERATE');
 
+-- Course permissions
+INSERT IGNORE INTO permissions (name, description, resource, action) VALUES
+('COURSE_CREATE', 'Create new courses', 'COURSE', 'CREATE'),
+('COURSE_READ', 'View courses', 'COURSE', 'READ'),
+('COURSE_UPDATE', 'Update courses', 'COURSE', 'UPDATE'),
+('COURSE_DELETE', 'Delete courses', 'COURSE', 'DELETE'),
+('COURSE_MANAGE', 'Full course management', 'COURSE', 'MANAGE'),
+('COURSE_ENROLL', 'Enroll users into courses', 'COURSE', 'ENROLL'),
+('COURSE_ENTITLEMENT_MANAGE', 'Manage course entitlements', 'COURSE', 'ENTITLEMENT');
+

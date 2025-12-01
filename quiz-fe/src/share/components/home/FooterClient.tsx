@@ -6,7 +6,9 @@ import { NO_HEADER_LIST } from "@/share/utils/constants";
 
 const FooterClient: React.FC = () => {
   const pathname = usePathname() ?? "/";
-  const shouldHide = NO_HEADER_LIST.some((prefix) => pathname.startsWith(prefix));
+  // Hide footer on routes in NO_HEADER_LIST but allow exceptions (e.g. '/quiz-taking/config/*')
+  const shouldHide = NO_HEADER_LIST.some((prefix) => pathname.startsWith(prefix))
+    && !pathname.startsWith('/quiz-taking/config');
   if (shouldHide) return null;
 
   const [email, setEmail] = useState("");

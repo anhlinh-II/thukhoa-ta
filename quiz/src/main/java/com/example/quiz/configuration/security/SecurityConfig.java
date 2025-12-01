@@ -29,6 +29,7 @@ public class SecurityConfig {
             "/api/v1/users/**",
             "/api/v1/user-vocabulary/**",
             "/api/v1/quiz-comments/**",
+            "/api/v1/files/**",
             "/api/v1/quiz-mock-tests/*/preview"
     };
 

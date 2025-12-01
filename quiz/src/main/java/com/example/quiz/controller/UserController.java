@@ -13,6 +13,7 @@ import com.example.quiz.model.entity.user.User;
 import com.example.quiz.model.entity.user.UserView;
 import com.example.quiz.service.interfaces.UserService;
 import com.example.quiz.utils.SecurityUtils;
+import com.example.quiz.validators.requirePermission.ResourceController;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -26,6 +27,7 @@ import java.util.Map;
 @RestController
 @Slf4j
 @RequestMapping("/api/v1/users")
+@ResourceController("USER")
 public class UserController extends BaseController<User, Long, UserRequest, UserResponse, UserView, UserService> {
 
     private final SecurityUtils securityUtils;

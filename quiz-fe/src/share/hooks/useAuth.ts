@@ -1,11 +1,11 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useRouter } from 'next/navigation';
-import { authService, LoginRequest } from '../services/authService';
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { authService, LoginRequest } from "../services/authService";
 
 const AUTH_QUERY_KEYS = {
-  all: ['auth'] as const,
-  account: () => [...AUTH_QUERY_KEYS.all, 'account'] as const,
-  login: () => [...AUTH_QUERY_KEYS.all, 'login'] as const,
+  all: ["auth"] as const,
+  account: () => [...AUTH_QUERY_KEYS.all, "account"] as const,
+  login: () => [...AUTH_QUERY_KEYS.all, "login"] as const,
 };
 
 /**
@@ -25,19 +25,38 @@ export const useAccount = () => {
         const userObj = response.result?.user ?? response.result;
         if (!userObj) return userObj;
 
-        const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
-        // prefer `avatar` but fall back to `avatarUrl` from backend
+        const apiBase =
+          process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1";
+        const minioBase =
+          process.env.NEXT_PUBLIC_MINIO_URL || "http://localhost:9000";
+        const minioBucket =
+          process.env.NEXT_PUBLIC_MINIO_BUCKET || "quiz-files";
+
         let avatar = userObj.avatar ?? userObj.avatarUrl;
-        // if avatar is a storage path (no scheme), prefix with backend download endpoint
-        if (avatar && typeof avatar === 'string' && !/^https?:\/\//i.test(avatar)) {
-          avatar = `${apiBase}/files/download?path=${encodeURIComponent(userObj.avatarUrl || avatar)}`;
+        if (avatar && typeof avatar === "string") {
+          if (/^https?:\/\//i.test(avatar)) {
+          } else if (
+            process.env.NEXT_PUBLIC_MINIO_PUBLIC === "true" &&
+            minioBase &&
+            minioBucket
+          ) {
+            avatar = `${minioBase.replace(
+              /\/$/,
+              ""
+            )}/${minioBucket}/${avatar.replace(/^\/+/, "")}`;
+          } else {
+            avatar = `${apiBase}/files/public/view?path=${encodeURIComponent(
+              avatar
+            )}`;
+          }
         }
 
         return { ...userObj, avatar };
       }
-      throw new Error(response.message || 'Failed to get account');
+      throw new Error(response.message || "Failed to get account");
     },
-    enabled: typeof window !== 'undefined' && !!localStorage.getItem('access_token'),
+    enabled:
+      typeof window !== "undefined" && !!localStorage.getItem("access_token"),
     retry: 1,
     staleTime: 5 * 60 * 1000, // 5 minutes
   });
@@ -55,23 +74,23 @@ export const useLogin = () => {
       const response = await authService.login(credentials);
       if (response.code === 1000 && response.result) {
         // Store token
-        localStorage.setItem('access_token', response.result.access_token);
+        localStorage.setItem("access_token", response.result.access_token);
         if (response.result.refresh_token) {
-          localStorage.setItem('refresh_token', response.result.refresh_token);
+          localStorage.setItem("refresh_token", response.result.refresh_token);
         }
         return response.result;
       }
-      throw new Error(response.message || 'Login failed');
+      throw new Error(response.message || "Login failed");
     },
     onSuccess: (data) => {
       // Invalidate account query to refetch user data
       queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEYS.account() });
-      
+
       // Store user in cache
       queryClient.setQueryData(AUTH_QUERY_KEYS.account(), data.user);
     },
     onError: (error) => {
-      console.error('Login error:', error);
+      console.error("Login error:", error);
     },
   });
 };
@@ -86,24 +105,24 @@ export const useLogout = () => {
   return useMutation({
     mutationFn: async () => {
       const response = await authService.logout();
-      
+
       // Clear storage
-      localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
-      
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+
       return response;
     },
     onSuccess: () => {
       // Clear all auth queries
       queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEYS.all });
-      
+
       // Redirect to login
-      router.push('/auth/login');
+      router.push("/auth/login");
     },
     onError: (error) => {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
       // Still redirect to login even if logout API fails
-      router.push('/auth/login');
+      router.push("/auth/login");
     },
   });
 };
@@ -119,13 +138,13 @@ export const useRefreshToken = () => {
       const response = await authService.refreshToken();
       if (response.code === 1000 && response.result) {
         // Update token
-        localStorage.setItem('access_token', response.result.access_token);
+        localStorage.setItem("access_token", response.result.access_token);
         if (response.result.refresh_token) {
-          localStorage.setItem('refresh_token', response.result.refresh_token);
+          localStorage.setItem("refresh_token", response.result.refresh_token);
         }
         return response.result;
       }
-      throw new Error(response.message || 'Refresh failed');
+      throw new Error(response.message || "Refresh failed");
     },
     onSuccess: (data) => {
       // Invalidate account query to refetch with new token
@@ -139,7 +158,7 @@ export const useRefreshToken = () => {
  */
 export const useIsAuthenticated = () => {
   const { data: account, isLoading, error } = useAccount();
-  
+
   return {
     isAuthenticated: !!account && !error,
     user: account,

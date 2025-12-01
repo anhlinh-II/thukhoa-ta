@@ -1,12 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
+  --background: #e8f2ff;
   --foreground: #0f172a; /* darker text for good contrast on light background */
   /* Brighter brand palette: soft/pale pink primary to match home bright */
-  --brand-primary: #f3ebee; /* pale pink */
-  --brand-primary-2: #f9f7f8; /* lighter pink */
-  --brand-primary-3: #f4edf1; /* warm pink highlight */
+  --brand-primary: #e8f2ff; /* pale pink */
+  --brand-primary-2: #e8f2ff; /* lighter pink */
+  --brand-primary-3: #e8f2ff; /* warm pink highlight */
 }
 
 /* Theme tokens (kept as CSS variables in :root). If you need to sync runtime tokens from Ant ConfigProvider,
@@ -37,6 +37,7 @@ body {
   );
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+    /* font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', 'Segoe UI', Arial, sans-serif; */
 }
 
 /* Bright home page background matching login gradient */

@@ -1,10 +1,11 @@
 package com.example.quiz.service.storage;
 
 import io.minio.GetObjectArgs;
+import io.minio.GetPresignedObjectUrlArgs;
+import io.minio.http.Method;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import io.minio.RemoveObjectArgs;
-import io.minio.errors.MinioException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
@@ -77,19 +78,49 @@ public class MinioStorageService implements StorageService {
                     .build());
         }
 
-        return objectName;
+        // Return a presigned GET URL so frontend can access the object directly (expires in 1 hour)
+        String presigned = client.getPresignedObjectUrl(GetPresignedObjectUrlArgs.builder()
+                .method(Method.GET)
+                .bucket(bucket)
+                .object(objectName)
+                .expiry(60 * 60)
+                .build());
+        return presigned;
     }
 
     @Override
     public void delete(String path) throws Exception {
         if (client == null) throw new IllegalStateException("MinIO client is not initialized");
-        client.removeObject(RemoveObjectArgs.builder().bucket(bucket).object(path).build());
+        String objectPath = normalizePath(path);
+        client.removeObject(RemoveObjectArgs.builder().bucket(bucket).object(objectPath).build());
     }
 
     @Override
     public Resource download(String path) throws Exception {
         if (client == null) throw new IllegalStateException("MinIO client is not initialized");
-        InputStream is = client.getObject(GetObjectArgs.builder().bucket(bucket).object(path).build());
+        String objectPath = normalizePath(path);
+        InputStream is = client.getObject(GetObjectArgs.builder().bucket(bucket).object(objectPath).build());
         return new InputStreamResource(is);
+    }
+
+    // If given a full presigned URL or public URL, strip prefix to get object name.
+    private String normalizePath(String path) {
+        if (path == null) return null;
+        String base = (minioUrl != null) ? minioUrl.replaceAll("/+$", "") : "";
+        String prefix = base + "/" + bucket + "/";
+        if (path.startsWith(prefix)) {
+            return path.substring(prefix.length());
+        }
+        // Also handle if path equals bucket/object or already object name
+        if (path.startsWith(bucket + "/")) {
+            return path.substring((bucket + "/").length());
+        }
+        // If path contains ? (presigned URL), extract path part after bucket/
+        if (path.contains("/" + bucket + "/")) {
+            int idx = path.indexOf("/" + bucket + "/");
+            return path.substring(idx + bucket.length() + 2).split("\\?")[0];
+        }
+        // fallback: return as-is
+        return path;
     }
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   Typography,
@@ -37,6 +37,7 @@ import {
   SettingOutlined,
   LogoutOutlined,
   CameraOutlined,
+  PictureOutlined,
   MailOutlined,
   PhoneOutlined,
   CalendarOutlined,
@@ -54,6 +55,7 @@ import {
   RocketOutlined
 } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from '@tanstack/react-query';
 import dayjs from "dayjs";
 import {
   Chart as ChartJS,
@@ -99,7 +101,31 @@ export default function ProfilePage() {
   const [form] = Form.useForm();
   const [isEditing, setIsEditing] = useState(false);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
+  const [avatarOptions, setAvatarOptions] = useState<string[]>([]);
   const fileInputRef = React.useRef<HTMLInputElement | null>(null);
+  const queryClient = useQueryClient();
+
+  const normalizeAvatarUrl = (url?: string) => {
+    if (!url) return url;
+    try {
+      if (!/^https?:\/\//i.test(url)) return url;
+
+      const u = new URL(url);
+      if (u.hostname.includes("googleusercontent.com") || u.hostname.includes("lh3.googleusercontent.com")) {
+        if (u.searchParams.has("sz")) {
+          u.searchParams.set("sz", "200");
+        } else if (/\/s\d+-c\//.test(u.pathname)) {
+          u.pathname = u.pathname.replace(/\/s\d+-c\//, "/s200-c/");
+        }
+        return u.toString();
+      }
+
+      return url;
+    } catch (e) {
+      return url;
+    }
+  };
 
   // Mock data - replace with real data from API
   const stats = {
@@ -336,6 +362,71 @@ export default function ProfilePage() {
     }
   };
 
+  useEffect(() => {
+    const load = async () => {
+
+      const fallback = [] as string[];
+      for (let i = 1; i <= 7; i++) fallback.push(`/avatar/avatar${i}.jpg`);
+      setAvatarOptions(fallback);
+    };
+    load();
+  }, []);
+
+  const handleChooseAvatar = async (path: string) => {
+    // If path refers to the local bundled avatar (e.g. /avatar/avatar2.jpg),
+    // fetch it from the frontend public folder, upload to storage via fileService,
+    // then send the returned storage path to the user update endpoint.
+    try {
+      setUploadingAvatar(true);
+
+      let finalPath = path;
+
+      const isLocalAvatar = path.startsWith('/avatar') || path.startsWith('avatar/');
+      if (isLocalAvatar) {
+        try {
+          const fetchPath = path.startsWith('/') ? path : `/${path}`;
+          const resp = await fetch(fetchPath);
+          if (!resp.ok) throw new Error(`Failed to fetch local avatar: ${resp.status}`);
+          const blob = await resp.blob();
+          const filename = fetchPath.substring(fetchPath.lastIndexOf('/') + 1) || `avatar.jpg`;
+          const file = new File([blob], filename, { type: blob.type || 'image/jpeg' });
+
+          // Upload to backend/MinIO
+          const uploadRes = await fileService.upload(file, 'user/avatar', String(user.id));
+          finalPath = uploadRes?.result ?? uploadRes;
+          if (!finalPath) throw new Error('Upload did not return a path');
+        } catch (uploadErr) {
+          console.error('Failed to upload default avatar to storage', uploadErr);
+          message.error('Tải avatar lên bộ nhớ thất bại');
+          setUploadingAvatar(false);
+          return;
+        }
+      }
+
+      // Update via existing user edit endpoint with the storage path (or original path if not uploaded)
+      await apiClient.put(`/users/edit/${user.id}`, { avatarUrl: finalPath });
+      // update react-query cache so UI updates without reload
+      try {
+        queryClient.setQueryData(['auth', 'account'], (old: any) => {
+          if (!old) return old;
+          return { ...old, avatar: finalPath };
+        });
+      } catch (e) {
+        // fallback to reload
+        console.error('Failed to update cache after choosing avatar', e);
+        window.location.reload();
+      }
+
+      message.success('Cập nhật ảnh đại diện thành công');
+      setShowAvatarPicker(false);
+    } catch (err) {
+      console.error(err);
+      message.error('Cập nhật ảnh thất bại');
+    } finally {
+      setUploadingAvatar(false);
+    }
+  };
+
   const handleLogout = () => {
     Modal.confirm({
       title: "Đăng xuất",
@@ -372,36 +463,69 @@ export default function ProfilePage() {
     return null;
   }
 
+  // normalize avatar once (guard against undefined)
+  const avatarUrl = normalizeAvatarUrl(user.avatar);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 py-8">
       <div className="max-w-7xl mx-auto px-6">
         {/* Profile Header */}
         <Card className="mb-6 rounded-2xl shadow-xl border-0 overflow-hidden">
           <div className="relative">
-            {/* Cover Background */}
-            <div
-              className="absolute inset-0 h-32 bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500"
-              style={{ zIndex: 0 }}
-            />
-
-            {/* Content */}
-            <div className="relative z-10 pt-20 pb-6">
+            {/* Content (removed bright linear background for a cleaner look) */}
+            <div className="relative z-10 pb-6">
               <Row gutter={[24, 24]} align="middle">
                 <Col xs={24} md={8} className="text-center md:text-left">
                   <div className="flex flex-col md:flex-row items-center gap-4">
-                    <div className="relative">
+                    <div className="relative group" style={{ width: 120, height: 120 }}>
                       <Avatar
                         size={120}
                         className="border-4 border-white shadow-xl"
                         style={{ backgroundColor: '#667eea' }}
+                        src={undefined}
                       >
-                        {user.avatar ? (
-                          <img src={user.avatar} alt="avatar" />
+                        {avatarUrl ? (
+                          /^https?:\/\//i.test(avatarUrl) ? (
+                            <img
+                              src={avatarUrl}
+                              alt="avatar"
+                              loading="lazy"
+                              referrerPolicy="no-referrer"
+                              crossOrigin="anonymous"
+                              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+                            />
+                          ) : (
+                            <img
+                              src={avatarUrl}
+                              alt="avatar"
+                              style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+                            />
+                          )
                         ) : (
                           <span className="text-4xl">{getInitials(user.name || user.username)}</span>
                         )}
                       </Avatar>
-                      {/* Camera upload button */}
+
+                      {/* Hover overlay (bottom half only) */}
+                      <div
+                        className="absolute left-0 right-0 bottom-0 h-1/2 flex items-center justify-center gap-2 transition-opacity duration-150 opacity-0 group-hover:opacity-100"
+                        style={{
+                          background: 'rgba(0,0,0,0.35)',
+                          borderBottomLeftRadius: '9999px',
+                          borderBottomRightRadius: '9999px',
+                        }}
+                      >
+                        {/* Larger camera button for easier interaction */}
+                        <button
+                          className="bg-white  rounded-full shadow-lg w-11 h-11 flex items-center justify-center"
+                          title="Chọn avatar mặc định"
+                          onClick={() => setShowAvatarPicker(true)}
+                        >
+                          <CameraOutlined className="text-2xl" />
+                        </button>
+                      </div>
+
+                      {/* Hidden file input */}
                       <input
                         ref={fileInputRef}
                         type="file"
@@ -419,8 +543,16 @@ export default function ProfilePage() {
                             // update user via base PUT endpoint
                             await apiClient.put(`/users/edit/${user.id}`, { avatarUrl: path });
                             message.success('Cập nhật ảnh đại diện thành công');
-                            // reload or refresh account cache - simple page reload for now
-                            window.location.reload();
+                            // update react-query account cache so UI updates without reload
+                            try {
+                              queryClient.setQueryData(['auth', 'account'], (old: any) => {
+                                if (!old) return old;
+                                return { ...old, avatar: path };
+                              });
+                            } catch (err) {
+                              console.error('Failed to update account cache', err);
+                              window.location.reload();
+                            }
                           } catch (err) {
                             console.error(err);
                             message.error('Cập nhật ảnh thất bại');
@@ -431,21 +563,30 @@ export default function ProfilePage() {
                           }
                         }}
                       />
-                      <Button
-                        type="primary"
-                        shape="circle"
-                        icon={uploadingAvatar ? <Spin /> : <CameraOutlined />}
-                        className="absolute bottom-0 right-0 shadow-lg"
-                        size="small"
-                        onClick={() => fileInputRef.current?.click()}
-                      />
-                      {/* <Button
-                        type="primary"
-                        shape="circle"
-                        icon={<CameraOutlined />}
-                        className="absolute bottom-0 right-0 shadow-lg"
-                        size="small"
-                      /> */}
+
+                      {/* Avatar picker modal */}
+                      <Modal
+                        title="Chọn avatar mặc định"
+                        open={showAvatarPicker}
+                        onCancel={() => setShowAvatarPicker(false)}
+                        footer={null}
+                        centered
+                      >
+                        <div className="grid grid-cols-4 gap-3">
+                          {avatarOptions.map((p, idx) => (
+                            <div key={p} className="p-1 border rounded cursor-pointer hover:shadow-md flex items-center justify-center" onClick={() => handleChooseAvatar(p)}>
+                              <img src={p} alt={p} className="w-20 h-20 object-cover rounded" />
+                            </div>
+                          ))}
+
+                          {/* Upload cell (last cell) */}
+                          <div className="p-1 border rounded cursor-pointer hover:shadow-md flex items-center justify-center" onClick={() => fileInputRef.current?.click()}>
+                            <div className="w-20 h-20 flex items-center justify-center rounded bg-gray-100 text-gray-600 text-2xl">
+                              <span>+</span>
+                            </div>
+                          </div>
+                        </div>
+                      </Modal>
                     </div>
                     <div>
                       <Title level={3} className="!mb-1">
@@ -470,27 +611,55 @@ export default function ProfilePage() {
                 <Col xs={24} md={16}>
                   <Row gutter={[16, 16]}>
                     <Col xs={12} sm={6}>
-                      <div className="bg-white rounded-xl p-4 text-center shadow-md">
-                        <div className="text-3xl font-bold text-purple-600">{stats.testsCompleted}</div>
-                        <Text type="secondary" className="text-xs">Bài đã làm</Text>
+                      <div className="bg-white rounded-xl p-4 text-left shadow-md border-2 border-sky-100">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-full bg-sky-500 flex items-center justify-center text-white">
+                            <BookOutlined className="text-lg" />
+                          </div>
+                          <div>
+                            <div className="text-xl font-semibold text-sky-700">{stats.testsCompleted}</div>
+                            <Text type="secondary" className="text-xs">Bài đã làm</Text>
+                          </div>
+                        </div>
                       </div>
                     </Col>
                     <Col xs={12} sm={6}>
-                      <div className="bg-white rounded-xl p-4 text-center shadow-md">
-                        <div className="text-3xl font-bold text-blue-600">{stats.averageScore}</div>
-                        <Text type="secondary" className="text-xs">Điểm TB</Text>
+                      <div className="bg-white rounded-xl p-4 text-left shadow-md border-2 border-sky-100">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-full bg-sky-500 flex items-center justify-center text-white">
+                            <RiseOutlined className="text-lg" />
+                          </div>
+                          <div>
+                            <div className="text-xl font-semibold text-sky-700">{stats.averageScore}</div>
+                            <Text type="secondary" className="text-xs">Điểm TB</Text>
+                          </div>
+                        </div>
                       </div>
                     </Col>
                     <Col xs={12} sm={6}>
-                      <div className="bg-white rounded-xl p-4 text-center shadow-md">
-                        <div className="text-3xl font-bold text-green-600">{stats.studyTime}h</div>
-                        <Text type="secondary" className="text-xs">Thời gian học</Text>
+                      <div className="bg-white rounded-xl p-4 text-left shadow-md border-2 border-sky-100">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-full bg-sky-500 flex items-center justify-center text-white">
+                            <ClockCircleOutlined className="text-lg" />
+                          </div>
+                          <div>
+                            <div className="text-xl font-semibold text-sky-700">{stats.studyTime}h</div>
+                            <Text type="secondary" className="text-xs">Thời gian học</Text>
+                          </div>
+                        </div>
                       </div>
                     </Col>
                     <Col xs={12} sm={6}>
-                      <div className="bg-white rounded-xl p-4 text-center shadow-md">
-                        <div className="text-3xl font-bold text-orange-600">{stats.totalScore}</div>
-                        <Text type="secondary" className="text-xs">Tổng điểm</Text>
+                      <div className="bg-white rounded-xl p-4 text-left shadow-md border-2 border-sky-100">
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 rounded-full bg-sky-500 flex items-center justify-center text-white">
+                            <RocketOutlined className="text-lg" />
+                          </div>
+                          <div>
+                            <div className="text-xl font-semibold text-sky-700">{stats.totalScore}</div>
+                            <Text type="secondary" className="text-xs">Tổng điểm</Text>
+                          </div>
+                        </div>
                       </div>
                     </Col>
                   </Row>
@@ -513,45 +682,45 @@ export default function ProfilePage() {
                 <Col xs={24}>
                   <Row gutter={[16, 16]}>
                     <Col xs={12} sm={6}>
-                      <Card className="text-center shadow-md rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 border-0">
+                      <Card className="text-center shadow-md rounded-xl border-0">
                         <Statistic
-                          title={<span className="text-white text-opacity-90">Hôm nay</span>}
+                          title={<span className="text-black text-opacity-90">Hôm nay</span>}
                           value={5}
                           suffix="bài"
-                          valueStyle={{ color: 'white', fontWeight: 'bold' }}
+                          valueStyle={{ color: 'black', fontWeight: 'bold' }}
                           prefix={<BookOutlined />}
                         />
                       </Card>
                     </Col>
                     <Col xs={12} sm={6}>
-                      <Card className="text-center shadow-md rounded-xl bg-gradient-to-br from-green-500 to-green-600 border-0">
+                      <Card className="text-center shadow-md rounded-xl border-0">
                         <Statistic
-                          title={<span className="text-white text-opacity-90">Độ chính xác</span>}
+                          title={<span className="text-black text-opacity-90">Độ chính xác</span>}
                           value={87}
                           suffix="%"
-                          valueStyle={{ color: 'white', fontWeight: 'bold' }}
+                          valueStyle={{ color: '#000', fontWeight: 'bold' }}
                           prefix={<RiseOutlined />}
                         />
                       </Card>
                     </Col>
                     <Col xs={12} sm={6}>
-                      <Card className="text-center shadow-md rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 border-0">
+                      <Card className="text-center shadow-md rounded-xl border-0">
                         <Statistic
-                          title={<span className="text-white text-opacity-90">Thời gian</span>}
+                          title={<span className="text-black text-opacity-90">Thời gian</span>}
                           value={2.5}
                           suffix="giờ"
-                          valueStyle={{ color: 'white', fontWeight: 'bold' }}
+                          valueStyle={{ color: 'black', fontWeight: 'bold' }}
                           prefix={<ClockCircleOutlined />}
                         />
                       </Card>
                     </Col>
                     <Col xs={12} sm={6}>
-                      <Card className="text-center shadow-md rounded-xl bg-gradient-to-br from-orange-500 to-orange-600 border-0">
+                      <Card className="text-center shadow-md rounded-xl border-0">
                         <Statistic
-                          title={<span className="text-white text-opacity-90">Cải thiện</span>}
+                          title={<span className="text-black text-opacity-90">Cải thiện</span>}
                           value={12}
                           suffix="%"
-                          valueStyle={{ color: 'white', fontWeight: 'bold' }}
+                          valueStyle={{ color: 'black', fontWeight: 'bold' }}
                           prefix={<RocketOutlined />}
                         />
                       </Card>
@@ -706,7 +875,7 @@ export default function ProfilePage() {
                     <Divider />
 
                     {/* Motivational Card */}
-                    <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-4 text-center text-white">
+                    {/* <div className="bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl p-4 text-center text-white">
                       <BulbOutlined className="text-3xl mb-2" />
                       <Text strong className="block text-white mb-1">
                         Bạn đã hoàn thành {((24 / 30) * 100).toFixed(0)}% mục tiêu!
@@ -714,7 +883,7 @@ export default function ProfilePage() {
                       <Text className="text-white text-opacity-90 text-sm">
                         Còn 6 bài nữa là đạt mục tiêu tháng này!
                       </Text>
-                    </div>
+                    </div> */}
                   </Card>
                 </Col>
 
@@ -976,6 +1145,11 @@ export default function ProfilePage() {
                           size="large"
                           placeholder="0123456789"
                         />
+                      </Form.Item>
+                    </Col>
+                    <Col xs={24} md={24}>
+                      <Form.Item label="Bio" name="bio">
+                        <Input.TextArea rows={3} placeholder="Viết một vài dòng giới thiệu về bạn (ví dụ: học IELTS, thích đọc sách...)" />
                       </Form.Item>
                     </Col>
                     <Col xs={24} md={12}>

@@ -100,11 +100,17 @@ export default function HeaderClient() {
   }, []);
 
   // Hide header on specific routes (admin, quiz-taking, etc.)
-  // Use startsWith so subroutes are also covered.
+  // Use startsWith so subroutes are also covered. Allow explicit exceptions
+  // (e.g. keep header on '/quiz-taking/config/*').
   if (typeof pathname === 'string') {
     const hidePrefixes = NO_HEADER_LIST;
     if (hidePrefixes.some(prefix => pathname.startsWith(prefix))) {
-      return null;
+      // Exception: show header for quiz-taking config pages
+      if (pathname.startsWith('/quiz-taking/config')) {
+        // continue rendering header
+      } else {
+        return null;
+      }
     }
   }
 
@@ -173,13 +179,12 @@ export default function HeaderClient() {
   };
 
   return (
-    <header className={`sticky top-0 z-30 px-6 py-4 transition-colors duration-200 ${scrolled ? 'bg-white/90 backdrop-blur-md shadow-md' : 'bg-white/60 backdrop-blur-sm'}`}>
+    <header className={`sticky top-0 z-30 px-6 py-2 transition-colors duration-200 ${scrolled ? 'bg-white backdrop-blur-md shadow-md' : 'bg-white backdrop-blur-sm'}`}>
       <nav className={`flex items-center justify-between max-w-7xl mx-auto text-gray-800`}> 
-        <div className="flex items-center space-x-3">
-          <div className="bg-white p-2 rounded-lg flex items-center justify-center shadow-lg">
-            <span className="text-purple-600 font-bold text-xl">TKA</span>
-          </div>
-          <span className="text-gray-800 font-bold text-xl">ThuKhoa-TA</span>
+        <div className="text-5xl">
+          <Link href="/">
+              <img src="/img/logo.png" alt="ThuKhoa-TA" className="h-12 w-40 object-contain" />
+          </Link>
         </div>
 
         <div className="hidden md:flex items-center space-x-8 font-semibold">
@@ -189,7 +194,7 @@ export default function HeaderClient() {
             onMouseEnter={() => setShowProgramMenu(true)}
             onMouseLeave={() => setShowProgramMenu(false)}
           >
-            <span className="text-gray-700 font-bold hover:text-purple-600 transition-colors cursor-pointer">
+            <span className="text-gray-500 font-semibold text-sm hover:text-sky-600 transition-colors cursor-pointer">
               Chương trình ôn luyện
             </span>
             
@@ -215,10 +220,12 @@ export default function HeaderClient() {
             )}
           </div>
 
-          <Link href="/grammar" className="text-gray-700 font-bold hover:text-purple-600 transition-colors">Ngữ pháp</Link>
-          <Link href="/vocabulary/review" className="text-gray-700 font-bold hover:text-purple-600 transition-colors">Từ vựng</Link>
-          <Link href="/leaderboard" className="text-gray-700 font-bold hover:text-purple-600 transition-colors">Bảng xếp hạng</Link>
-          <Link href="/admin" className="text-gray-700 font-bold hover:text-purple-600 transition-colors">Quản trị</Link>
+          {false && (
+            <Link href="/grammar" className="text-gray-500 font-semibold text-sm hover:text-sky-600 transition-colors">Ngữ pháp</Link>
+          )}
+          <Link href="/vocabulary/review" className="text-gray-500 font-semibold text-sm hover:text-sky-600 transition-colors">Từ vựng</Link>
+          <Link href="/leaderboard" className="text-gray-500 font-semibold text-sm hover:text-sky-600 transition-colors">Bảng xếp hạng</Link>
+          <Link href="/admin" className="text-gray-500 font-semibold text-sm hover:text-sky-600 transition-colors">Quản trị</Link>
         </div>
 
         <div className="flex items-center space-x-4">
@@ -227,7 +234,7 @@ export default function HeaderClient() {
           ) : (
             <>
               <Link href="/auth/login">
-                <Button type="text" className="text-gray-800 border-gray-300 hover:bg-purple-50 hover:text-purple-600 transition-all">
+                <Button type="text" className="text-gray-800 border-gray-300 hover:bg-purple-50 hover:text-sky-600 transition-all">
                   Đăng nhập
                 </Button>
               </Link>

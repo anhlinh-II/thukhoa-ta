@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   Typography,
@@ -28,6 +28,7 @@ import {
   ThunderboltOutlined,
 } from "@ant-design/icons";
 import { useAccount } from "@/share/hooks/useAuth";
+import { userService } from '@/share/services/user_service/user.service';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -49,55 +50,16 @@ export default function LeaderboardPage() {
   const [timeRange, setTimeRange] = useState<"week" | "month" | "alltime">("week");
   const [category, setCategory] = useState<"all" | "reading" | "listening" | "writing">("all");
 
-  // Mock data - Replace with real API calls
-  const topUsers: LeaderboardUser[] = [
-    {
-      rank: 1,
-      id: "1",
-      name: "Nguyễn Văn A",
-      avatar: undefined,
-      score: 2850,
-      tests: 45,
-      accuracy: 95,
-      streak: 30,
-      change: 2,
-    },
-    {
-      rank: 2,
-      id: "2",
-      name: "Trần Thị B",
-      avatar: undefined,
-      score: 2720,
-      tests: 42,
-      accuracy: 92,
-      streak: 28,
-      change: -1,
-    },
-    {
-      rank: 3,
-      id: "3",
-      name: "Lê Văn C",
-      avatar: undefined,
-      score: 2650,
-      tests: 40,
-      accuracy: 90,
-      streak: 25,
-      change: 1,
-    },
-    ...Array.from({ length: 47 }, (_, i) => ({
-      rank: i + 4,
-      id: `${i + 4}`,
-      name: `Học viên ${i + 4}`,
-      avatar: undefined,
-      score: 2500 - i * 50,
-      tests: 38 - i,
-      accuracy: 88 - i,
-      streak: 20 - i,
-      change: Math.floor(Math.random() * 21) - 10,
-    })),
-  ];
+  // State for users fetched from API (fallback to mock if API fails)
+  const [topUsers, setTopUsers] = useState<LeaderboardUser[] | null>(null);
+  const [loadingUsers, setLoadingUsers] = useState(false);
+  const [confettiActive, setConfettiActive] = useState(false);
+  const confettiCanvasRef = React.useRef<HTMLCanvasElement | null>(null);
+  const confettiLaunchedRef = React.useRef(false);
 
-  const currentUserRank = topUsers.find((u) => u.id === currentUser?.id) || {
+  const currentUserId = currentUser?.id ? String(currentUser.id) : undefined;
+
+  const currentUserRank = (topUsers || []).find((u) => u.id === currentUserId) || {
     rank: 128,
     id: currentUser?.id || "current",
     name: currentUser?.name || "Bạn",
@@ -113,6 +75,60 @@ export default function LeaderboardPage() {
     topScore: 2850,
     yourRank: currentUserRank.rank,
   };
+
+  useEffect(() => {
+    const loadUsers = async () => {
+      setLoadingUsers(true);
+      try {
+        // Attempt to fetch paged user views from backend
+        const res = await userService.getViewsPagedWithFilter({ skip: 0, take: 100, columns: "*" });
+        // Map backend view to LeaderboardUser with sensible defaults for missing fields
+        const mapped: LeaderboardUser[] = (res.data || []).map((u: any, idx: number) => ({
+          rank: idx + 1,
+          id: String(u.id || `u-${idx}`),
+          name: u.fullName || u.username || u.firstName || `Người dùng ${idx + 1}`,
+          avatar: u.avatarUrl || u.avatar || undefined,
+          score: u.score ?? Math.max(1000, (res.summary && res.summary.topScore) || 2000 - idx * 10),
+          tests: u.tests ?? Math.max(1, 50 - idx),
+          accuracy: u.accuracy ?? Math.max(50, 95 - idx),
+          streak: u.streak ?? Math.max(0, 30 - idx),
+          change: (Math.floor(Math.random() * 21) - 10),
+        }));
+
+        setTopUsers(mapped);
+        // Launch confetti once when leaderboard loads with data
+        if (!confettiLaunchedRef.current) {
+          confettiLaunchedRef.current = true;
+          // small delay so UI settles
+          setTimeout(() => setConfettiActive(true), 250);
+        }
+      } catch (err) {
+        console.error('Failed to load users, falling back to mock', err);
+        // Fallback mock
+        const fallback: LeaderboardUser[] = [
+          { rank: 1, id: '1', name: 'Nguyễn Văn A', avatar: undefined, score: 2850, tests: 45, accuracy: 95, streak: 30, change: 2 },
+          { rank: 2, id: '2', name: 'Trần Thị B', avatar: undefined, score: 2720, tests: 42, accuracy: 92, streak: 28, change: -1 },
+          { rank: 3, id: '3', name: 'Lê Văn C', avatar: undefined, score: 2650, tests: 40, accuracy: 90, streak: 25, change: 1 },
+          ...Array.from({ length: 47 }, (_, i) => ({
+            rank: i + 4,
+            id: `${i + 4}`,
+            name: `Học viên ${i + 4}`,
+            avatar: undefined,
+            score: 2500 - i * 50,
+            tests: 38 - i,
+            accuracy: Math.max(50, 88 - i),
+            streak: Math.max(0, 20 - i),
+            change: Math.floor(Math.random() * 21) - 10,
+          })),
+        ];
+        setTopUsers(fallback);
+      } finally {
+        setLoadingUsers(false);
+      }
+    };
+
+    loadUsers();
+  }, []);
 
   const getInitials = (name: string) => {
     return name
@@ -148,6 +164,116 @@ export default function LeaderboardPage() {
         return "bg-gradient-to-br from-purple-500 to-blue-500";
     }
   };
+
+  // --- Confetti / Fireworks (simple canvas confetti) ---
+  const startConfetti = (canvas: HTMLCanvasElement, duration = 3000, particleCount = 120) => {
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let W = (canvas.width = window.innerWidth);
+    let H = (canvas.height = window.innerHeight);
+
+    const colors = ['#ef4444', '#f97316', '#f59e0b', '#10b981', '#06b6d4', '#3b82f6', '#8b5cf6'];
+
+    const rand = (min: number, max: number) => Math.random() * (max - min) + min;
+
+    type Particle = {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      size: number;
+      color: string;
+      rotate: number;
+      vr: number;
+    };
+
+    const particles: Particle[] = [];
+    for (let i = 0; i < particleCount; i++) {
+      const angle = rand(0, Math.PI * 2);
+      const speed = rand(2, 8);
+      particles.push({
+        x: W / 2 + rand(-200, 200),
+        y: H * 0.25 + rand(-50, 50),
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - rand(2, 6),
+        size: Math.floor(rand(6, 14)),
+        color: colors[Math.floor(rand(0, colors.length))],
+        rotate: rand(0, Math.PI * 2),
+        vr: rand(-0.2, 0.2),
+      });
+    }
+
+    let start = performance.now();
+    let raf = 0;
+
+    const draw = (now: number) => {
+      const t = now - start;
+      // resize handling
+      if (canvas.width !== window.innerWidth || canvas.height !== window.innerHeight) {
+        W = canvas.width = window.innerWidth;
+        H = canvas.height = window.innerHeight;
+      }
+
+      ctx.clearRect(0, 0, W, H);
+
+      for (let p of particles) {
+        p.vy += 0.12; // gravity
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rotate += p.vr;
+
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rotate);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+        ctx.restore();
+      }
+
+      if (t < duration) {
+        raf = requestAnimationFrame(draw);
+      } else {
+        // fade out
+        let fadeStart = performance.now();
+        const fade = (now2: number) => {
+          const ft = (now2 - fadeStart) / 600;
+          ctx.clearRect(0, 0, W, H);
+          ctx.globalAlpha = Math.max(1 - ft, 0);
+          for (let p of particles) {
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.rotate(p.rotate);
+            ctx.fillStyle = p.color;
+            ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.6);
+            ctx.restore();
+          }
+          ctx.globalAlpha = 1;
+          if (ft < 1) requestAnimationFrame(fade);
+        };
+        requestAnimationFrame(fade);
+      }
+    };
+
+    raf = requestAnimationFrame(draw);
+
+    // stop after duration + fade
+    setTimeout(() => {
+      cancelAnimationFrame(raf);
+      try {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      } catch (e) {}
+    }, duration + 800);
+  };
+
+  React.useEffect(() => {
+    if (!confettiActive) return;
+    const canvas = confettiCanvasRef.current || document.querySelector('#leaderboard-confetti') as HTMLCanvasElement | null;
+    if (canvas) startConfetti(canvas, 3000, 140);
+    const timer = setTimeout(() => setConfettiActive(false), 3800);
+    return () => clearTimeout(timer);
+  }, [confettiActive]);
 
   const columns = [
     {
@@ -261,151 +387,125 @@ export default function LeaderboardPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-sky-100 to-white py-8">
+      {/* Confetti canvas overlay */}
+      <canvas id="leaderboard-confetti" ref={confettiCanvasRef} className="pointer-events-none fixed inset-0 z-[9999]" />
       <div className="max-w-7xl mx-auto px-6">
         {/* Header */}
-        <div className="text-center mb-8">
+        {/* <div className="text-center">
           <div className="inline-block mb-4">
-            <div className="w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center shadow-2xl animate-pulse">
+            <div className="w-20 h-20 bg-gradient-to-br from-sky-400 to-sky-600 rounded-full flex items-center justify-center shadow-2xl animate-pulse">
               <TrophyOutlined className="text-4xl text-white" />
             </div>
           </div>
-          <Title level={1} className="!mb-2 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-            Bảng Xếp Hạng
-          </Title>
-          <Text type="secondary" className="text-lg">
-            Cạnh tranh và vươn lên vị trí cao nhất
-          </Text>
-        </div>
-
-        {/* Stats Overview */}
-        <Row gutter={[16, 16]} className="mb-6">
-          <Col xs={24} sm={12} lg={6}>
-            <Card className="text-center shadow-lg rounded-xl border-0 bg-gradient-to-br from-blue-500 to-purple-600">
-              <Statistic
-                title={<Text className="text-white/80">Số người tham gia</Text>}
-                value={stats.totalUsers}
-                valueStyle={{ color: "#fff", fontSize: "2rem" }}
-                prefix={<UserOutlined />}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <Card className="text-center shadow-lg rounded-xl border-0 bg-gradient-to-br from-green-500 to-teal-600">
-              <Statistic
-                title={<Text className="text-white/80">Điểm trung bình</Text>}
-                value={stats.avgScore}
-                valueStyle={{ color: "#fff", fontSize: "2rem" }}
-                prefix={<RiseOutlined />}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <Card className="text-center shadow-lg rounded-xl border-0 bg-gradient-to-br from-yellow-500 to-orange-600">
-              <Statistic
-                title={<Text className="text-white/80">Điểm cao nhất</Text>}
-                value={stats.topScore}
-                valueStyle={{ color: "#fff", fontSize: "2rem" }}
-                prefix={<StarOutlined />}
-              />
-            </Card>
-          </Col>
-          <Col xs={24} sm={12} lg={6}>
-            <Card className="text-center shadow-lg rounded-xl border-0 bg-gradient-to-br from-pink-500 to-red-600">
-              <Statistic
-                title={<Text className="text-white/80">Hạng của bạn</Text>}
-                value={stats.yourRank}
-                valueStyle={{ color: "#fff", fontSize: "2rem" }}
-                prefix={<TrophyOutlined />}
-              />
-            </Card>
-          </Col>
-        </Row>
+        </div> */}
 
         {/* Top 3 Podium */}
-        <Card className="mb-6 shadow-xl rounded-2xl border-0 overflow-hidden">
-          <div className="bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 p-6 -m-6 mb-6">
+        <div className="mb-6 shadow-xl rounded-2xl border-0 overflow-hidden">
+          <div className="bg-sky-500 py-2 mb-6">
             <Title level={3} className="text-white text-center !mb-0">
               <CrownOutlined className="mr-2" />
               Top 3 Người Dẫn Đầu
             </Title>
           </div>
           
-          <div className="flex justify-center items-end gap-4 py-8">
-            {/* 2nd Place */}
-            {topUsers[1] && (
-              <div className="flex flex-col items-center flex-1 max-w-[200px]">
-                <Badge count={2} className="mb-2">
-                  <Avatar
-                    size={80}
-                    className="bg-gradient-to-br from-gray-300 to-gray-500 border-4 border-white shadow-xl"
-                  >
-                    <span className="text-2xl">{getInitials(topUsers[1].name)}</span>
-                  </Avatar>
-                </Badge>
-                <Text strong className="text-lg mt-2">{topUsers[1].name}</Text>
-                <div className="w-full bg-gradient-to-br from-gray-300 to-gray-500 rounded-t-xl mt-4 p-4 text-center shadow-xl" style={{ height: 140 }}>
-                  <TrophyOutlined className="text-4xl text-white mb-2" />
-                  <Text strong className="text-white text-xl block">{topUsers[1].score}</Text>
-                  <Text className="text-white/80 text-sm">điểm</Text>
-                </div>
-              </div>
-            )}
+          <div className="flex justify-center items-end gap-6 py-8">
+            {/* 2nd Place (left) */}
+            {topUsers?.[1] ? (
+              (() => {
+                const u = topUsers[1];
+                return (
+                  <div className="flex flex-col items-center flex-1 max-w-[220px]">
+                    <div className="relative mb-2">
+                      <Avatar
+                        size={84}
+                        src={u.avatar}
+                        className="border-4 border-white shadow-xl bg-gray-200"
+                      >
+                        {getInitials(u.name)}
+                      </Avatar>
+                      <div className="absolute -top-2 -right-0 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs shadow">2</div>
+                    </div>
+                    <Text strong className="text-sm mt-1">{u.name}</Text>
+                    <div className="w-full rounded-t-2xl mt-4 p-6 text-center shadow-lg" style={{ height: 150, background: 'linear-gradient(180deg,#9aa5b3,#6f7783)' }}>
+                      <TrophyOutlined className="text-3xl text-white mb-2" />
+                      <Text strong className="text-white text-xl block">{u.score}</Text>
+                      <Text className="text-white/80 text-sm">điểm</Text>
+                    </div>
+                  </div>
+                );
+              })()
+            ) : null}
 
-            {/* 1st Place */}
-            {topUsers[0] && (
-              <div className="flex flex-col items-center flex-1 max-w-[200px]">
-                <Badge count={<CrownOutlined className="text-yellow-500" />} className="mb-2">
-                  <Avatar
-                    size={100}
-                    className="bg-gradient-to-br from-yellow-400 to-yellow-600 border-4 border-white shadow-2xl"
-                  >
-                    <span className="text-3xl">{getInitials(topUsers[0].name)}</span>
-                  </Avatar>
-                </Badge>
-                <Text strong className="text-xl mt-2">{topUsers[0].name}</Text>
-                <div className="w-full bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-t-xl mt-4 p-6 text-center shadow-2xl" style={{ height: 180 }}>
-                  <CrownOutlined className="text-5xl text-white mb-2" />
-                  <Text strong className="text-white text-2xl block">{topUsers[0].score}</Text>
-                  <Text className="text-white/90 text-sm">điểm</Text>
-                </div>
-              </div>
-            )}
+            {/* 1st Place (center) */}
+            {topUsers?.[0] ? (
+              (() => {
+                const u = topUsers[0];
+                return (
+                  <div className="flex flex-col items-center flex-1 max-w-[240px]">
+                    <div className="relative mb-2">
+                      <Avatar
+                        size={110}
+                        src={u.avatar}
+                        className="border-6 border-white shadow-2xl bg-sky-100"
+                      >
+                        {getInitials(u.name)}
+                      </Avatar>
+                      <div className="absolute -top-3 -right-2 w-7 h-7 bg-yellow-400 text-white rounded-full flex items-center justify-center text-base shadow"><CrownOutlined /></div>
+                    </div>
+                    <Text strong className="text-base mt-1">{u.name}</Text>
+                    <div className="w-full rounded-t-3xl mt-4 p-8 text-center shadow-2xl" style={{ height: 190, background: 'linear-gradient(180deg,#f5b100,#d69b00)' }}>
+                      <CrownOutlined className="text-4xl text-white mb-2" />
+                      <Text strong className="text-white text-2xl block">{u.score}</Text>
+                      <Text className="text-white/90 text-sm">điểm</Text>
+                    </div>
+                  </div>
+                );
+              })()
+            ) : null}
 
-            {/* 3rd Place */}
-            {topUsers[2] && (
-              <div className="flex flex-col items-center flex-1 max-w-[200px]">
-                <Badge count={3} className="mb-2">
-                  <Avatar
-                    size={80}
-                    className="bg-gradient-to-br from-orange-400 to-orange-600 border-4 border-white shadow-xl"
-                  >
-                    <span className="text-2xl">{getInitials(topUsers[2].name)}</span>
-                  </Avatar>
-                </Badge>
-                <Text strong className="text-lg mt-2">{topUsers[2].name}</Text>
-                <div className="w-full bg-gradient-to-br from-orange-400 to-orange-600 rounded-t-xl mt-4 p-4 text-center shadow-xl" style={{ height: 120 }}>
-                  <TrophyOutlined className="text-4xl text-white mb-2" />
-                  <Text strong className="text-white text-xl block">{topUsers[2].score}</Text>
-                  <Text className="text-white/80 text-sm">điểm</Text>
-                </div>
-              </div>
-            )}
+            {/* 3rd Place (right) */}
+            {topUsers?.[2] ? (
+              (() => {
+                const u = topUsers[2];
+                return (
+                  <div className="flex flex-col items-center flex-1 max-w-[220px]">
+                    <div className="relative mb-2">
+                      <Avatar
+                        size={84}
+                        src={u.avatar}
+                        className="border-4 border-white shadow-xl bg-gray-200"
+                      >
+                        {getInitials(u.name)}
+                      </Avatar>
+                      <div className="absolute -top-2 -right-0 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs shadow">3</div>
+                    </div>
+                    <Text strong className="text-sm mt-1">{u.name}</Text>
+                    <div className="w-full rounded-t-2xl mt-4 p-6 text-center shadow-lg" style={{ height: 140, background: 'linear-gradient(180deg,#ff8a00,#ff5e00)' }}>
+                      <TrophyOutlined className="text-3xl text-white mb-2" />
+                      <Text strong className="text-white text-xl block">{u.score}</Text>
+                      <Text className="text-white/80 text-sm">điểm</Text>
+                    </div>
+                  </div>
+                );
+              })()
+            ) : null}
           </div>
-        </Card>
+        </div>
 
         {/* Your Rank Card */}
         {currentUser && (
-          <Card className="mb-6 shadow-lg rounded-xl border-2 border-blue-300 bg-gradient-to-r from-blue-50 to-purple-50">
+          <Card className="mb-6 shadow-lg rounded-xl border-2 border-sky-300 bg-gradient-to-r from-sky-50 to-white">
             <Row align="middle" gutter={16}>
-              <Col>
-                <Avatar
-                  size={64}
-                  className="bg-gradient-to-br from-purple-500 to-blue-500"
-                >
-                  {getInitials(currentUserRank.name)}
-                </Avatar>
-              </Col>
+                  <Col>
+                    <Avatar
+                      size={64}
+                      src={currentUser?.avatar}
+                      className="bg-gradient-to-br from-purple-500 to-blue-500"
+                    >
+                      {getInitials(currentUserRank.name)}
+                    </Avatar>
+                  </Col>
               <Col flex={1}>
                 <div>
                   <Text type="secondary" className="text-sm">Hạng của bạn</Text>
@@ -419,8 +519,8 @@ export default function LeaderboardPage() {
                 <Statistic
                   title="Điểm"
                   value={currentUserRank.score}
-                  prefix={<StarOutlined className="text-yellow-500" />}
-                  valueStyle={{ color: "#1890ff" }}
+                  prefix={<StarOutlined className="text-sky-500" />}
+                  valueStyle={{ color: "#0ea5e9" }}
                 />
               </Col>
               <Col>
@@ -433,7 +533,7 @@ export default function LeaderboardPage() {
               <Col>
                 <div className="text-center">
                   <Text type="secondary" className="text-sm block">Độ chính xác</Text>
-                  <Text strong className="text-2xl text-green-600">{currentUserRank.accuracy}%</Text>
+                  <Text strong className="text-2xl text-sky-600">{currentUserRank.accuracy}%</Text>
                 </div>
               </Col>
             </Row>
@@ -479,9 +579,14 @@ export default function LeaderboardPage() {
               }
               key="overall"
             >
+              {loadingUsers && !topUsers ? (
+                <div className="py-12 flex items-center justify-center">
+                  <div className="text-sky-500">Đang tải bảng xếp hạng...</div>
+                </div>
+              ) : (
               <Table
                 columns={columns}
-                dataSource={topUsers}
+                dataSource={topUsers || []}
                 rowKey="id"
                 pagination={{
                   pageSize: 20,
@@ -489,9 +594,10 @@ export default function LeaderboardPage() {
                   showTotal: (total) => `Tổng ${total} người`,
                 }}
                 rowClassName={(record) =>
-                  record.id === currentUser?.id ? "bg-blue-50" : ""
+                  record.id === currentUserId ? "bg-blue-50" : ""
                 }
               />
+              )}
             </TabPane>
             
             <TabPane
@@ -505,7 +611,7 @@ export default function LeaderboardPage() {
             >
               <Table
                 columns={columns}
-                dataSource={[...topUsers].sort((a, b) => b.streak - a.streak)}
+                dataSource={[...(topUsers || [])].sort((a, b) => b.streak - a.streak)}
                 rowKey="id"
                 pagination={{
                   pageSize: 20,
