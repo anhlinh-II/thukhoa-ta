@@ -6,7 +6,7 @@ export async function askAi(prompt: string): Promise<{ answer: any }> {
   const root = apiUrl.replace(/\/api\/v1\/?$/, '');
 
   try {
-    const resp = await apiClient.post(`${root}/api/ai/ask`, { prompt }, { headers: { 'Content-Type': 'application/json' }, skipGlobalLoader: true });
+    const resp = await apiClient.post(`${root}/api/ai/ask`, { prompt }, { headers: { 'Content-Type': 'application/json' } });
     return resp.data as { answer: any };
   } catch (e: any) {
     // Re-throw a normalized error

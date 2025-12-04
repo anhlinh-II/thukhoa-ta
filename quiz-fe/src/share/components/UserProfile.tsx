@@ -6,12 +6,13 @@ import { useAccount, useLogout } from '../hooks/useAuth';
 
 interface UserProfileProps {
   onLogout?: () => void;
+  showDetails?: boolean; // when false, only render avatar (no name/email)
 }
 
 /**
  * Component to display user profile and account menu
  */
-export const UserProfile: React.FC<UserProfileProps> = ({ onLogout }) => {
+export const UserProfile: React.FC<UserProfileProps> = ({ onLogout, showDetails = true }) => {
   const { data: user, isLoading } = useAccount();
   const { mutate: logout, isPending: isLoggingOut } = useLogout();
 
@@ -71,28 +72,30 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onLogout }) => {
       <Space size="small" style={{ cursor: 'pointer' }}>
         <div style={{ position: 'relative' }}>
           <Avatar
-          size="large"
-          icon={<UserOutlined />}
-          src={user.avatar}
-          alt={user.name || user.email}
-          style={{
-            backgroundColor: '#1890ff',
-            fontSize: '16px',
-            fontWeight: 'bold',
-          }}
-        >
-          {getInitials(user.name, user.email)}
+            size="large"
+            icon={<UserOutlined />}
+            src={user.avatar}
+            alt={user.name || user.email}
+            style={{
+              backgroundColor: '#1890ff',
+              fontSize: '16px',
+              fontWeight: 'bold',
+            }}
+          >
+            {getInitials(user.name, user.email)}
           </Avatar>
           {/* small upload button could be added here in future */}
         </div>
-        <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column' }}>
-          <span style={{ fontWeight: 500, fontSize: '14px' }}>
-            {user.name || user.username || user.email}
-          </span>
-          <span style={{ fontSize: '12px', color: '#666' }}>
-            {user.email}
-          </span>
-        </div>
+        {showDetails && (
+          <div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column' }}>
+            <span style={{ fontWeight: 500, fontSize: '14px' }}>
+              {user.name || user.username || user.email}
+            </span>
+            <span style={{ fontSize: '12px', color: '#666' }}>
+              {user.email}
+            </span>
+          </div>
+        )}
       </Space>
     </Dropdown>
   );

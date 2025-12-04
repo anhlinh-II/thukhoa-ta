@@ -30,12 +30,17 @@ public class ControllerLoggingAspect {
      private static final String CYAN = "\u001B[36m";
      private static final String BOLD = "\u001B[1m";
 
-     @Around("execution(* com.example.quiz.controller..*(..))")
+     @Around("execution(* com.example.quiz.controller..*(..)) && !execution(* com.example.quiz.controller.BattleWebSocketController.*(..))")
      public Object logControllerMethods(ProceedingJoinPoint joinPoint) throws Throwable {
 
           // Get request details
           ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
           HttpServletRequest request = attributes != null ? attributes.getRequest() : null;
+          
+          // Skip logging for WebSocket messages (no HTTP request context)
+          if (request == null) {
+               return joinPoint.proceed();
+          }
 
           String className = joinPoint.getTarget().getClass().getSimpleName();
           String methodName = joinPoint.getSignature().getName();

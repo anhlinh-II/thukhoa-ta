@@ -9,6 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@stomp/stompjs": "^7.0.0",
+    "sockjs-client": "^1.5.1",
     "@lottiefiles/dotlottie-react": "^0.17.7",
     "@reduxjs/toolkit": "^2.9.0",
     "@tanstack/react-query": "^5.87.1",
@@ -26,12 +28,16 @@
     "react-chartjs-2": "^5.3.1",
     "react-dom": "18.2.0",
     "react-quill": "^2.0.0",
-    "react-redux": "^9.2.0"
+    "react-redux": "^9.2.0",
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2"
   },
   "optionalDependencies": {
     "react-resizable": "^3.0.4"
   },
   "devDependencies": {
+    "@types/sockjs-client": "^1.0.3",
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",

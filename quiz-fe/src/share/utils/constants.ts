@@ -35,6 +35,7 @@ export const STORAGE_KEYS = {
 } as const;
 
 export const NO_HEADER_LIST = [
+  "/battle",
   "/admin",
   "/quiz-taking",
   "/quiz-taking/",
@@ -50,3 +51,8 @@ export const LOCALIZED_ERRORS: Record<number, string> = {
   1005: 'Không tìm thấy dữ liệu.', // ENTITY_NOT_EXISTED
   1011: 'Token truy cập không hợp lệ.', // INVALID_ACCESS_TOKEN
 };
+
+export const COLOR_CODE = {
+  SKY_600: '#0284c7',
+  SKY_500: '#0ea5e9'
+}

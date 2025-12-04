@@ -32,16 +32,18 @@ export default function RootLayout({
   return (
     <html lang="en" className="mdl-js">
       <head>
+{/* 
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Quicksand:wght@300..700&display=swap" rel="stylesheet"></link> */}
+
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}> 
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <ReduxProvider>
           <QueryProvider>
-              <AntdProvider>
+            <AntdProvider>
+              <HeaderClient />
               <div className="min-h-screen flex flex-col">
-                <HeaderClient />
                 <main className="flex-1">
                   {children}
                 </main>
@@ -49,7 +51,7 @@ export default function RootLayout({
               </div>
               <GlobalLoader />
               <NavigationLoader />
-              </AntdProvider>
+            </AntdProvider>
           </QueryProvider>
         </ReduxProvider>
       </body>

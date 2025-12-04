@@ -30,7 +30,9 @@ public class SecurityConfig {
             "/api/v1/user-vocabulary/**",
             "/api/v1/quiz-comments/**",
             "/api/v1/files/**",
-            "/api/v1/quiz-mock-tests/*/preview"
+            "/api/v1/quiz-mock-tests/*/preview",
+            "/api/v1/flashcard-items/**",
+            "/api/v1/flashcard-categories/**"
     };
 
     private final CustomOAuth2UserService customOAuth2UserService;

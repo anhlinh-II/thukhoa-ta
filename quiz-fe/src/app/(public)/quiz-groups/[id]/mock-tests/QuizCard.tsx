@@ -2,7 +2,7 @@
 
 import React from "react";
 import { Card, Typography, Tag, Divider, Button } from "antd";
-import { FileTextOutlined, ClockCircleOutlined, TrophyOutlined, PlayCircleOutlined, CheckCircleOutlined, StarOutlined } from "@ant-design/icons";
+import { FileTextOutlined, ClockCircleOutlined, TrophyOutlined, PlayCircleOutlined, CheckCircleOutlined, StarOutlined, ThunderboltOutlined } from "@ant-design/icons";
 
 const { Title, Text } = Typography;
 
@@ -10,9 +10,10 @@ interface Props {
   mockTest: any;
   index: number;
   onStart: (mockTest: any) => void;
+  onBattle?: (mockTest: any) => void;
 }
 
-export default function QuizCard({ mockTest, index, onStart }: Props) {
+export default function QuizCard({ mockTest, index, onStart, onBattle }: Props) {
   const fakeAttempts = Math.floor(Math.random() * 50) + 10;
   const fakeAvgScore = (Math.random() * 3 + 7).toFixed(1);
 
@@ -110,17 +111,33 @@ export default function QuizCard({ mockTest, index, onStart }: Props) {
           </div>
         </div>
 
-        {/* Action Button */}
-        <Button
-          type="primary"
-          size="middle"
-          block
-          icon={<PlayCircleOutlined />}
-          onClick={() => onStart(mockTest)}
-          className="!bg-white !text-sky-600 hover:!bg-sky-50 !border-0 !h-10 !font-semibold !rounded-lg shadow-md hover:shadow-lg transition-all"
-        >
-          Xem chi tiết
-        </Button>
+        {/* Action Buttons */}
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            type="primary"
+            size="middle"
+            block
+            icon={<PlayCircleOutlined />}
+            onClick={() => onStart(mockTest)}
+            className="!bg-white !text-sky-600 hover:!bg-sky-50 !border-0 !h-10 !font-semibold !rounded-lg shadow-md hover:shadow-lg transition-all"
+          >
+            Chi tiết
+          </Button>
+          {onBattle && (
+            <Button
+              size="middle"
+              block
+              icon={<ThunderboltOutlined />}
+              onClick={(e) => {
+                e.stopPropagation();
+                onBattle(mockTest);
+              }}
+              className="!bg-yellow-400 !text-yellow-900 hover:!bg-yellow-300 !border-0 !h-10 !font-semibold !rounded-lg shadow-md hover:shadow-lg transition-all"
+            >
+              Battle
+            </Button>
+          )}
+        </div>
       </div>
     </Card>
   );

@@ -34,10 +34,19 @@ public class AdvancedFilterService {
             // Build the base query
             StringBuilder queryBuilder = new StringBuilder("SELECT ");
 
-            // Handle column selection
-            String selectClause = Arrays.stream(viewClass.getDeclaredFields())
+            // Handle column selection - include both entity fields and BaseEntity fields
+            List<String> allFields = new ArrayList<>();
+            // Add declared fields from the entity
+            Arrays.stream(viewClass.getDeclaredFields())
                     .map(field -> "e." + convertToSnakeCase(field.getName()))
-                    .collect(Collectors.joining(", "));
+                    .forEach(allFields::add);
+            // Add BaseEntity fields (created_at, created_by, updated_at, updated_by)
+            allFields.add("e.created_at");
+            allFields.add("e.created_by");
+            allFields.add("e.updated_at");
+            allFields.add("e.updated_by");
+            
+            String selectClause = String.join(", ", allFields);
             queryBuilder.append(selectClause);
 
             // Get table name from entity
@@ -105,10 +114,18 @@ public class AdvancedFilterService {
                 }
             }
 
-            // Convert to Map format
-            String[] columnNames = Arrays.stream(viewClass.getDeclaredFields())
+            // Convert to Map format - include both entity fields and BaseEntity fields
+            List<String> allColumnNames = new ArrayList<>();
+            Arrays.stream(viewClass.getDeclaredFields())
                     .map(Field::getName)
-                    .toArray(String[]::new);
+                    .forEach(allColumnNames::add);
+            // Add BaseEntity field names
+            allColumnNames.add("createdAt");
+            allColumnNames.add("createdBy");
+            allColumnNames.add("updatedAt");
+            allColumnNames.add("updatedBy");
+            
+            String[] columnNames = allColumnNames.toArray(new String[0]);
             List<Map<String, Object>> data = convertToMapList(resultList, columnNames);
 
             // Get total count if requested

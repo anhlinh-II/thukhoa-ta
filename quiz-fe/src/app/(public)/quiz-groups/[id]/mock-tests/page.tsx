@@ -60,21 +60,40 @@ export default function MockTestsListPage() {
     router.push(`/quiz-taking/config/${mockTest.id}?groupId=${groupId}`);
   };
 
+  const handleBattle = (mockTest: any) => {
+    // Navigate to battle lobby
+    router.push(`/quiz-groups/${groupId}/mock-tests/${mockTest.id}/battle`);
+  };
+
+  const breadcrumbItems = [
+    {
+      title: <span onClick={() => router.push('/')}>Trang chủ</span>,
+    },
+    {
+      title: (
+        <span
+          onClick={() =>
+            programIdNum
+              ? router.push(`/programs/${programIdNum}/quiz-groups`)
+              : router.push('/programs')
+          }
+        >
+          {programName || 'Chương trình'}
+        </span>
+      ),
+    },
+    {
+      title: <span>{groupName || `Nhóm ${groupId}`}</span>,
+    },
+  ];
+
   // confirm start moved to config page
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 py-2">
       <div className="max-w-7xl mx-auto px-6">
         <div className="mb-2">
-          <Breadcrumb className="mb-4 cursor-pointer">
-            <Breadcrumb.Item onClick={() => router.push('/')}>Trang chủ</Breadcrumb.Item>
-            <Breadcrumb.Item
-              onClick={() => programIdNum ? router.push(`/programs/${programIdNum}/quiz-groups`) : router.push('/programs')}
-            >
-              {programName}
-            </Breadcrumb.Item>
-            <Breadcrumb.Item>{groupName || `Nhóm ${groupId}`}</Breadcrumb.Item>
-          </Breadcrumb>
+          <Breadcrumb items={breadcrumbItems} className="mb-4 cursor-pointer" />
         </div>
 
         {isLoading ? (
@@ -85,7 +104,13 @@ export default function MockTestsListPage() {
         ) : mockTests && mockTests.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {mockTests.map((mockTest: any, index: number) => (
-              <QuizCard key={mockTest.id} mockTest={mockTest} index={index} onStart={handleStartQuiz} />
+              <QuizCard 
+                key={mockTest.id} 
+                mockTest={mockTest} 
+                index={index} 
+                onStart={handleStartQuiz}
+                onBattle={handleBattle}
+              />
             ))}
           </div>
         ) : (

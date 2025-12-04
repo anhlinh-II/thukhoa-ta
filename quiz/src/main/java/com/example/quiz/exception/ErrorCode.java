@@ -74,8 +74,9 @@ public enum ErrorCode {
     
     QUIZ_TOPIC_NOT_FOUND(2005, "Quiz topic not found", HttpStatus.NOT_FOUND),
     
-    QUIZ_MOCK_TEST_NOT_FOUND(2006, "Quiz mock test not found", HttpStatus.NOT_FOUND);
+    QUIZ_MOCK_TEST_NOT_FOUND(2006, "Quiz mock test not found", HttpStatus.NOT_FOUND),
 
+    INVALID_REQUEST(3001, "Invalid request data", HttpStatus.BAD_REQUEST);
     private int code;
     private String message;
     private HttpStatusCode httpStatusCode;
