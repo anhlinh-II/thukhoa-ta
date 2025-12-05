@@ -33,6 +33,19 @@ import {
   FlashcardItemRequest,
 } from "@/share/services/my_flashcard/models";
 
+const highlightWord = (text: string, word: string) => {
+  if (!text || !word) return text;
+
+  const regex = new RegExp(`(${word})`, 'gi');
+  const parts = text.split(regex);
+
+  return parts.map((part, index) =>
+    part.toLowerCase() === word.toLowerCase()
+      ? <span key={index} className="underline font-semibold">{part}</span>
+      : part
+  );
+};
+
 export default function CategoryDetailPage() {
   const { isAuthenticated } = useIsAuthenticated();
   const router = useRouter();
@@ -100,7 +113,7 @@ export default function CategoryDetailPage() {
 
       if (editingItem) {
         await flashcardItemService.update(editingItem.id, req);
-        message.success("Đã cập nhật thẻ"); 
+        message.success("Đã cập nhật thẻ");
       } else {
         await flashcardItemService.create(req);
         message.success("Đã tạo thẻ mới");
@@ -152,17 +165,17 @@ export default function CategoryDetailPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50 p-4 md:p-8">
       <div className="max-w-4xl mx-auto">
-        <div 
+        <div
           className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 mb-6"
           style={{ borderTop: `4px solid ${category?.color || "#3b82f6"}` }}
         >
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <div className="flex flex-col justify-center items-center sm:flex-row sm:items-center gap-4">
             <Link href="/vocabulary/my-flashcards" className="shrink-0">
               <Button type="default" icon={<ArrowLeftOutlined />}>
                 Quay lại
               </Button>
             </Link>
-            
+
             <div className="flex-1 min-w-0 text-center sm:text-left">
               <h1
                 className="text-2xl sm:text-3xl font-bold truncate"
@@ -247,18 +260,20 @@ export default function CategoryDetailPage() {
                 >
                   <div className="flex justify-between items-center mb-2">
                     <div className="">
-                    <div className="text-xs text-gray-400 mb-1">Mặt trước</div>
-                    <div className="font-medium text-lg">{item.frontContent}</div>
-                  </div>
-                  <div className="">
-                    <div className="text-xs text-gray-400 mb-1">Mặt sau</div>
-                    <div className="font-medium text-lg">{item.backContent}</div>
-                  </div>
+                      <div className="text-xs text-gray-400 mb-1">Mặt trước</div>
+                      <div className="font-medium text-lg">{item.frontContent}</div>
+                    </div>
+                    <div className="">
+                      <div className="text-xs text-gray-400 mb-1">Mặt sau</div>
+                      <div className="font-medium text-lg">{item.backContent}</div>
+                    </div>
                   </div>
                   {item.example && (
                     <div className="mb-3">
                       <div className="text-xs text-gray-400 mb-1">Ví dụ</div>
-                      <div className="text-gray-600 italic">{item.example}</div>
+                      <div className="text-gray-600 italic">
+                        {highlightWord(item.example, item.frontContent)}
+                      </div>
                     </div>
                   )}
                   <div className="mt-3 pt-2 border-t text-xs text-gray-400 flex justify-between">
@@ -267,8 +282,8 @@ export default function CategoryDetailPage() {
                       Đúng:{" "}
                       {item.reviewCount
                         ? Math.round(
-                            ((item.correctCount || 0) / item.reviewCount) * 100
-                          )
+                          ((item.correctCount || 0) / item.reviewCount) * 100
+                        )
                         : 0}
                       %
                     </span>
