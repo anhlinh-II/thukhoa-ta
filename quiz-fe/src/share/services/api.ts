@@ -17,18 +17,23 @@ const apiClient: AxiosInstance = axios.create({
 // Request interceptor
 apiClient.interceptors.request.use(
   (config: AxiosRequestConfig | any) => {
-    // Add auth token if available
-    const token = localStorage.getItem('access_token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    // Show global loader by default unless explicitly skipped
-    const skip = config && (config.skipGlobalLoader === true || config.headers?.['X-Skip-Global-Loader'] === 'true');
-    if (!skip) {
+    // If running in browser, add auth token and show loader
+    if (typeof window !== 'undefined') {
       try {
-        loadingService.show();
-        // mark that we showed loader for this request
-        (config as any).__globalLoaderShown = true;
+        const token = localStorage.getItem('access_token');
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+
+        // Show global loader by default unless explicitly skipped
+        const skip = config && (config.skipGlobalLoader === true || config.headers?.['X-Skip-Global-Loader'] === 'true');
+        if (!skip) {
+          try {
+            loadingService.show();
+            // mark that we showed loader for this request
+            (config as any).__globalLoaderShown = true;
+          } catch (e) {}
+        }
       } catch (e) {}
     }
     return config;
@@ -42,16 +47,24 @@ apiClient.interceptors.request.use(
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => {
     try {
-      if ((response.config as any)?.__globalLoaderShown) {
-        loadingService.hide();
+      if (typeof window !== 'undefined') {
+        if ((response.config as any)?.__globalLoaderShown) {
+          try {
+            loadingService.hide();
+          } catch (e) {}
+        }
       }
     } catch (e) {}
     return response;
   },
   (error) => {
     try {
-      if (error.config && (error.config as any).__globalLoaderShown) {
-        loadingService.hide();
+      if (typeof window !== 'undefined') {
+        if (error.config && (error.config as any).__globalLoaderShown) {
+          try {
+            loadingService.hide();
+          } catch (e) {}
+        }
       }
     } catch (e) {}
     // Centralized error handling for localization
@@ -59,10 +72,14 @@ apiClient.interceptors.response.use(
       handleProblems(error);
     } catch (e) {}
     // Handle common errors
-    if (error.response?.status === 401) {
+    if (typeof window !== 'undefined' && error.response?.status === 401) {
       // Handle unauthorized - redirect to login
-      localStorage.removeItem('access_token');
-      window.location.href = '/login';
+      try {
+        localStorage.removeItem('access_token');
+      } catch (e) {}
+      try {
+        window.location.href = '/login';
+      } catch (e) {}
     }
     return Promise.reject(error);
   }

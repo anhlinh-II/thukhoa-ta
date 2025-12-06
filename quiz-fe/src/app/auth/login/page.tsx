@@ -134,7 +134,9 @@ export default function LoginPage() {
                 const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
                 const backendOrigin = apiBase.replace(/\/api\/v1\/?$/, '');
                 const authStartUrl = `${backendOrigin}/oauth2/authorization/google`;
-                window.location.assign(authStartUrl);
+                if (typeof window !== 'undefined') {
+                  window.location.assign(authStartUrl);
+                }
               } catch (err: any) {
                 antdMessage.error(err?.message || 'Lỗi khi khởi tạo đăng nhập Google');
               }

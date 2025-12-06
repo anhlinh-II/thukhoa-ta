@@ -1,176 +1,194 @@
 "use client";
+
 import React, { useEffect, useState, useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Input, Button, message, Typography, Spin } from "antd";
+import { useRouter } from "next/navigation";
+import { Input, Button, message, Spin } from "antd";
 import { useLogin } from "@/share/hooks/useAuth";
 import { authService } from "@/share/services/authService";
 import FloatingBubbles from "@/share/components/ui/FloatingBubbles";
 
 export default function VerifyOtpPage() {
-     const router = useRouter();
-     const searchParams = useSearchParams();
-     const emailParam = searchParams?.get('email') || '';
-     const [email] = useState<string>(emailParam);
-     const [otp, setOtp] = useState<string>('');
-     const [seconds, setSeconds] = useState<number>(300); // 5 minutes
-     const [loading, setLoading] = useState<boolean>(false);
-     const timerRef = useRef<number | null>(null);
-     const loginMutation = useLogin();
+  const router = useRouter();
+  const [email, setEmail] = useState<string>("");
+  const [otp, setOtp] = useState<string>("");
+  const [seconds, setSeconds] = useState<number>(300);
+  const [loading, setLoading] = useState<boolean>(false);
+  const timerRef = useRef<number | null>(null);
+  const loginMutation = useLogin();
 
-     useEffect(() => {
-          // start countdown
-          if (timerRef.current) window.clearInterval(timerRef.current);
-          timerRef.current = window.setInterval(() => {
-               setSeconds(s => {
-                    if (s <= 1) {
-                         if (timerRef.current) {
-                              window.clearInterval(timerRef.current);
-                              timerRef.current = null;
-                         }
-                         return 0;
-                    }
-                    return s - 1;
-               });
-          }, 1000);
+  /**
+   * Đọc query param từ client-side (fix prerender error)
+   */
+  useEffect(() => {
+    // Read query param on client only to avoid CSR bailout / prerender errors
+    if (typeof window === "undefined") return;
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const param = params.get("email");
+      if (param) setEmail(param);
+    } catch (e) {
+      // ignore
+    }
+  }, []);
 
-          return () => {
-               if (timerRef.current) {
-                    window.clearInterval(timerRef.current);
-               }
-          };
-     }, []);
+  /**
+   * Timer countdown
+   */
+  useEffect(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
 
-     const formatTime = (s: number) => {
-          const mm = Math.floor(s / 60).toString().padStart(2, '0');
-          const ss = (s % 60).toString().padStart(2, '0');
-          return `${mm}:${ss}`;
-     };
+    timerRef.current = window.setInterval(() => {
+      setSeconds((s) => {
+        if (s <= 1) {
+          clearInterval(timerRef.current!);
+          timerRef.current = null;
+          return 0;
+        }
+        return s - 1;
+      });
+    }, 1000);
 
-     const handleResend = async () => {
-          if (!email) {
-               message.error('Không có email để gửi lại OTP');
-               return;
-          }
-          try {
-               setLoading(true);
-               const resp = await authService.regenerateOtp(email);
-               if (resp && resp.code === 1000) {
-                    message.success('Đã gửi lại mã OTP. Vui lòng kiểm tra email.');
-                    // reset timer
-                    setSeconds(300);
-                    if (timerRef.current) {
-                         window.clearInterval(timerRef.current);
-                         timerRef.current = null;
-                    }
-                    timerRef.current = window.setInterval(() => {
-                         setSeconds(s => Math.max(0, s - 1));
-                    }, 1000);
-               } else {
-                    message.error(resp.message || 'Gửi lại OTP thất bại');
-               }
-          } catch (err: any) {
-               console.error('Resend OTP error', err);
-               message.error('Có lỗi khi gửi lại OTP');
-          } finally {
-               setLoading(false);
-          }
-     };
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, []);
 
-     const handleVerify = async () => {
-          if (!email) {
-               message.error('Không có email để xác thực');
-               return;
-          }
-          if (!otp || otp.trim().length === 0) {
-               message.error('Vui lòng nhập mã OTP');
-               return;
-          }
+  const formatTime = (s: number) => {
+    const mm = Math.floor(s / 60).toString().padStart(2, "0");
+    const ss = (s % 60).toString().padStart(2, "0");
+    return `${mm}:${ss}`;
+  };
 
-          try {
-               setLoading(true);
-               const resp = await authService.verifyOtp(email, otp.trim());
-               if (resp && resp.code === 1000) {
-                    message.success('Xác thực thành công! Đang đăng nhập...');
-                    // try to get pending credentials from sessionStorage to perform background login
-                    let pending: { email?: string; password?: string } | null = null;
-                    try {
-                         const raw = sessionStorage.getItem('pending_register');
-                         if (raw) pending = JSON.parse(raw);
-                    } catch (e) {
-                         // ignore
-                    }
+  const handleResend = async () => {
+    if (!email) return message.error("Không có email để gửi lại OTP");
 
-                    if (pending && pending.password) {
-                         // attempt login using email and password
-                         loginMutation.mutate({ username: pending.email || email, password: pending.password }, {
-                              onSuccess: () => {
-                                   try {
-                                        sessionStorage.removeItem('pending_register');
-                                   } catch (e) { }
-                                   router.push('/');
-                              },
-                              onError: (err: any) => {
-                                   console.error('Auto-login failed after verify', err);
-                                   // fallback: go to login page
-                                   router.push('/auth/login');
-                              }
-                         });
-                    } else {
-                         // no pending credentials, redirect to login
-                         router.push('/auth/login');
-                    }
-               } else {
-                    message.error(resp.message || 'Xác thực OTP thất bại');
-               }
-          } catch (err: any) {
-               console.error('Verify OTP error', err);
-               message.error('Có lỗi khi xác thực OTP');
-          } finally {
-               setLoading(false);
-          }
-     };
+    try {
+      setLoading(true);
+      const resp = await authService.regenerateOtp(email);
 
-     return (
-          <div className="min-h-screen flex">
-               <div className="flex-1 flex items-center justify-center p-8 bg-white relative z-10">
-                    <div className="w-full max-w-md">
-                         <div className="text-center mb-6">
-                              <div className="inline-flex items-center justify-center w-12 h-12 bg-gray-900 rounded-lg mb-4">
-                                   <span className="text-white font-bold text-xl">Q</span>
-                              </div>
-                              <h2 className="text-2xl font-bold text-gray-900">Xác thực OTP</h2>
-                              <p className="text-gray-600">Vui lòng nhập mã OTP đã được gửi tới email <strong>{email}</strong></p>
-                         </div>
+      if (resp?.code === 1000) {
+        message.success("Đã gửi lại OTP");
 
-                         <Spin spinning={loading}>
-                              <div className="space-y-4">
-                                   <Input value={otp} onChange={(e) => setOtp(e.target.value)} size="large" placeholder="Nhập mã OTP" />
+        setSeconds(300);
+        if (timerRef.current) clearInterval(timerRef.current);
 
-                                   <div className="flex items-center justify-between">
-                                        <div className="text-sm text-gray-600">Thời gian còn lại: <strong>{formatTime(seconds)}</strong></div>
-                                        <div>
-                                             <Button type="link" disabled={seconds > 0} onClick={handleResend}>Gửi lại OTP</Button>
-                                        </div>
-                                   </div>
+        timerRef.current = window.setInterval(() => {
+          setSeconds((s) => Math.max(0, s - 1));
+        }, 1000);
+      } else {
+        message.error(resp?.message || "Gửi lại OTP thất bại");
+      }
+    } catch (err) {
+      console.error(err);
+      message.error("Có lỗi khi gửi lại OTP");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-                                   <div className="flex space-x-3">
-                                        <Button block onClick={() => router.push('/auth/register')}>Quay lại đăng ký</Button>
-                                        <Button type="primary" block onClick={handleVerify}>Xác nhận</Button>
-                                   </div>
-                              </div>
-                         </Spin>
-                    </div>
-               </div>
+  const handleVerify = async () => {
+    if (!email) return message.error("Không có email để xác thực");
+    if (!otp.trim()) return message.error("Vui lòng nhập OTP");
 
-               <div className="flex-1 bg-gradient-to-br from-purple-100 via-blue-50 to-indigo-100 relative overflow-hidden hidden lg:block">
-                    <FloatingBubbles className="absolute inset-0" />
-                    <div className="absolute inset-0 flex items-center justify-center p-12">
-                         <div className="text-center max-w-md">
-                              <h1 className="text-4xl font-bold text-gray-800 mb-4">Thủ Khoa <span className="text-orange-500">TA</span></h1>
-                              <p className="text-lg text-gray-600 font-light">Xác thực tài khoản để tiếp tục</p>
-                         </div>
-                    </div>
-               </div>
+    try {
+      setLoading(true);
+
+      const resp = await authService.verifyOtp(email, otp.trim());
+
+      if (resp?.code === 1000) {
+        message.success("Xác thực thành công!");
+
+        let pending: { email?: string; password?: string } | null = null;
+
+        try {
+          const raw = sessionStorage.getItem("pending_register");
+          if (raw) pending = JSON.parse(raw);
+        } catch {}
+
+        if (pending?.password) {
+          loginMutation.mutate(
+            {
+              username: pending.email || email,
+              password: pending.password,
+            },
+            {
+              onSuccess: () => {
+                sessionStorage.removeItem("pending_register");
+                router.push("/");
+              },
+              onError: () => router.push("/auth/login"),
+            }
+          );
+        } else {
+          router.push("/auth/login");
+        }
+      } else {
+        message.error(resp?.message || "OTP không hợp lệ");
+      }
+    } catch (err) {
+      console.error(err);
+      message.error("Có lỗi khi xác thực OTP");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex">
+      <div className="flex-1 flex items-center justify-center p-8 bg-white relative z-10">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-6">
+            <div className="inline-flex items-center justify-center w-12 h-12 bg-gray-900 rounded-lg mb-4">
+              <span className="text-white font-bold text-xl">Q</span>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900">Xác thực OTP</h2>
+            <p className="text-gray-600">
+              Vui lòng nhập OTP đã gửi tới <strong>{email}</strong>
+            </p>
           </div>
-     );
+
+          <Spin spinning={loading}>
+            <div className="space-y-4">
+              <Input
+                value={otp}
+                onChange={(e) => setOtp(e.target.value)}
+                size="large"
+                placeholder="Nhập mã OTP"
+              />
+
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-gray-600">
+                  Thời gian còn lại: <strong>{formatTime(seconds)}</strong>
+                </div>
+                <Button type="link" disabled={seconds > 0} onClick={handleResend}>
+                  Gửi lại OTP
+                </Button>
+              </div>
+
+              <div className="flex space-x-3">
+                <Button block onClick={() => router.push("/auth/register")}>
+                  Quay lại đăng ký
+                </Button>
+                <Button type="primary" block onClick={handleVerify}>
+                  Xác nhận
+                </Button>
+              </div>
+            </div>
+          </Spin>
+        </div>
+      </div>
+
+      <div className="flex-1 bg-gradient-to-br from-purple-100 via-blue-50 to-indigo-100 relative overflow-hidden hidden lg:block">
+        <FloatingBubbles className="absolute inset-0" />
+        <div className="absolute inset-0 flex items-center justify-center p-12">
+          <div className="text-center max-w-md">
+            <h1 className="text-4xl font-bold text-gray-800 mb-4">
+              Thủ Khoa <span className="text-orange-500">TA</span>
+            </h1>
+            <p className="text-lg text-gray-600">Xác thực tài khoản để tiếp tục</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }

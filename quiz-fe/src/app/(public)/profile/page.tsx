@@ -1,5 +1,8 @@
 "use client";
 
+// Force dynamic rendering to avoid SSR issues with Chart.js and browser APIs
+export const dynamic = 'force-dynamic';
+
 import React, { useState, useEffect } from "react";
 import {
   Card,
@@ -414,7 +417,9 @@ export default function ProfilePage() {
       } catch (e) {
         // fallback to reload
         console.error('Failed to update cache after choosing avatar', e);
-        window.location.reload();
+        if (typeof window !== 'undefined') {
+          window.location.reload();
+        }
       }
 
       message.success('Cập nhật ảnh đại diện thành công');
@@ -551,7 +556,9 @@ export default function ProfilePage() {
                               });
                             } catch (err) {
                               console.error('Failed to update account cache', err);
-                              window.location.reload();
+                              if (typeof window !== 'undefined') {
+                                window.location.reload();
+                              }
                             }
                           } catch (err) {
                             console.error(err);

@@ -27,7 +27,7 @@ export default function NavigationLoader() {
           if (!href || href.startsWith('mailto:') || href.startsWith('tel:')) return;
           if (targetAttr === '_blank' || download) return;
           // internal navigation heuristic: starts with / or same origin
-          const isInternal = href.startsWith('/') || href.startsWith(window.location.origin);
+          const isInternal = href.startsWith('/') || (typeof window !== 'undefined' && href.startsWith(window.location.origin));
           if (isInternal) {
             // don't show loader if link has data-skip-loader attribute
             if (target.hasAttribute('data-skip-loader')) return;
