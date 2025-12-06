@@ -13,10 +13,18 @@ import {
 
 const { Title, Text } = Typography;
 
-export default function QuizResultsPage({ params }: { params: { id: string } }) {
+type PageProps = {
+  params: Promise<{ id: string }>;
+};
+
+export default function QuizResultsPage({ params }: PageProps) {
   const router = useRouter();
-  const quizId = params?.id;
+  const [quizId, setQuizId] = useState<string | null>(null);
   const [result, setResult] = useState<any | null>(null);
+
+  useEffect(() => {
+    params.then(p => setQuizId(p.id));
+  }, [params]);
 
   useEffect(() => {
     if (!quizId) return;
