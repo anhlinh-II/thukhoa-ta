@@ -131,7 +131,7 @@ export default function LoginPage() {
                 console.log('Requesting OAuth2 provider info from backend');
                 await authService.getOAuth2Urls();
 
-                const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
+                const apiBase = process.env.NEXT_PUBLIC_API_URL!;
                 const backendOrigin = apiBase.replace(/\/api\/v1\/?$/, '');
                 const authStartUrl = `${backendOrigin}/oauth2/authorization/google`;
                 if (typeof window !== 'undefined') {

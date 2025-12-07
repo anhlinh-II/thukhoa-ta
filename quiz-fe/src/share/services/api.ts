@@ -3,7 +3,7 @@ import loadingService from './loadingService';
 import { handleProblems } from '../utils/functions';
 
 // Base configuration for API
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080/api/v1';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL!;
 
 // Create axios instance
 const apiClient: AxiosInstance = axios.create({
