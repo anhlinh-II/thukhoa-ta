@@ -14,6 +14,8 @@ import com.example.quiz.model.entity.user.UserView;
 import com.example.quiz.service.interfaces.UserService;
 import com.example.quiz.utils.SecurityUtils;
 import com.example.quiz.validators.requirePermission.ResourceController;
+
+import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -36,6 +38,18 @@ public class UserController extends BaseController<User, Long, UserRequest, User
 
         @org.springframework.beans.factory.annotation.Value("${spring.security.oauth2.client.registration.google.redirect-uri:http://localhost:8080/login/oauth2/code/google}")
         private String googleRedirectUri;
+
+        @org.springframework.beans.factory.annotation.Value("${spring.security.oauth2.client.registration.google.authorized-redirect-uri:http://localhost:3000/oauth2/redirect}")
+        private String authorizedRedirectUri;
+
+    @PostConstruct
+    public void logOAuth2Configuration() {
+        log.info("=================================================");
+        log.info("OAuth2 Configuration:");
+        log.info("GOOGLE_REDIRECT_URI: {}", googleRedirectUri);
+        log.info("OAUTH2_AUTHORIZED_REDIRECT_URI: {}", authorizedRedirectUri);
+        log.info("=================================================");
+    }
 
     public UserController(
             UserService service,
