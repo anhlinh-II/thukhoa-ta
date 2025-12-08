@@ -3,9 +3,14 @@ package com.example.quiz.configuration.security;
 import com.example.quiz.service.impl.CustomOAuth2UserService;
 import com.example.quiz.service.impl.OAuth2AuthenticationFailureHandler;
 import com.example.quiz.service.impl.OAuth2AuthenticationSuccessHandler;
+
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,6 +26,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true, securedEnabled = true) // Temporarily disabled for testing
 @RequiredArgsConstructor
+@Slf4j
 public class SecurityConfig {
 
     public static final String[] WHITE_LIST = {
@@ -39,6 +45,21 @@ public class SecurityConfig {
     private final OAuth2AuthenticationSuccessHandler oAuth2AuthenticationSuccessHandler;
     private final OAuth2AuthenticationFailureHandler oAuth2AuthenticationFailureHandler;
     private final JwtDecoder jwtDecoder;
+
+    @Value("${spring.security.oauth2.client.registration.google.redirect-uri:http://localhost:8080/login/oauth2/code/google}")
+    private String googleRedirectUri;
+
+    @Value("${app.oauth2.authorizedRedirectUri:http://localhost:3000/oauth2/redirect}")
+    private String authorizedRedirectUri;
+
+    @PostConstruct
+    public void logOAuth2Configuration() {
+        log.info("=================================================");
+        log.info("OAuth2 Configuration:");
+        log.info("GOOGLE_REDIRECT_URI: {}", googleRedirectUri);
+        log.info("OAUTH2_AUTHORIZED_REDIRECT_URI: {}", authorizedRedirectUri);
+        log.info("=================================================");
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
