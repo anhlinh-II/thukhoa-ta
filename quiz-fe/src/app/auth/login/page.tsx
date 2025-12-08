@@ -122,24 +122,8 @@ export default function LoginPage() {
             size="large"
             className="border-gray-300 rounded-lg h-12 font-medium hover:bg-gray-50"
             disabled={isPending}
-            onClick={async () => {
-              try {
-                // Still call backend for discovery/logging, but perform top-level
-                // navigation to the backend's /oauth2/authorization/google endpoint
-                // so Spring Security can create and store the AuthorizationRequest
-                // in the user's session (avoids authorization_request_not_found).
-                console.log('Requesting OAuth2 provider info from backend');
-                await authService.getOAuth2Urls();
-
-                const apiBase = process.env.NEXT_PUBLIC_API_URL!;
-                const backendOrigin = apiBase.replace(/\/api\/v1\/?$/, '');
-                const authStartUrl = `${backendOrigin}/oauth2/authorization/google`;
-                if (typeof window !== 'undefined') {
-                  window.location.assign(authStartUrl);
-                }
-              } catch (err: any) {
-                antdMessage.error(err?.message || 'Lỗi khi khởi tạo đăng nhập Google');
-              }
+            onClick={() => {
+              window.location.href = '/oauth2/authorization/google';
             }}
           >
             Đăng nhập với Google

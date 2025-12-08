@@ -139,22 +139,6 @@ public class UserController extends BaseController<User, Long, UserRequest, User
         return service.regenerateOtp(email);
     }
 
-    @GetMapping("/oauth2/authorization/google")
-    public ApiResponse<String> getGoogleOAuth2AuthorizationUrl() {
-        String authorizationUrl = "https://accounts.google.com/o/oauth2/auth?" +
-                "client_id=" + googleClientId + "&" +
-                "redirect_uri=" + googleRedirectUri + "&" +
-                "scope=profile email&" +
-                "response_type=code&" +
-                "access_type=offline";
-
-        return ApiResponse.<String>builder()
-                .code(1000)
-                .message("Google OAuth2 authorization URL generated successfully")
-                .result(authorizationUrl)
-                .build();
-    }
-
     @GetMapping("/check-email")
     public ApiResponse<Map<String, Object>> checkEmailExists(@RequestParam String email) {
         User user = service.getUserByEmail(email);
