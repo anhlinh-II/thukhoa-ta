@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Card, Button, message, Spin, notification } from 'antd';
+import { Card, Button, Spin } from 'antd';
 import { userVocabularyService } from '@/share/services/user_vocabulary/user-vocabulary.service';
 import Link from 'next/link';
+import messageService from '@/share/services/messageService';
 
 type Option = {
   id: string;
@@ -53,7 +54,7 @@ export default function ReviewQuestion({ userId }: { userId: number }) {
       }
     } catch (err) {
       console.error(err);
-      message.error('Không lấy được câu hỏi ôn tập');
+      messageService.error('Không lấy được câu hỏi ôn tập');
     } finally {
       setLoading(false);
     }
@@ -100,7 +101,7 @@ export default function ReviewQuestion({ userId }: { userId: number }) {
     try {
       const correct = optIndex === q.correctIndex;
       // show inline visual feedback first
-      if (correct) message.success('Đúng'); else message.error('Sai');
+      if (correct) messageService.success('Đúng'); else messageService.error('Sai');
 
       // compute elapsed and quality based on timing rules
       const elapsed = Date.now() - startTimeMs; // ms
@@ -120,7 +121,7 @@ export default function ReviewQuestion({ userId }: { userId: number }) {
         if (resp && resp.nextReviewAt) {
           try {
             const next = new Date(resp.nextReviewAt).toLocaleString();
-            notification.info({ message: `Lần ôn tiếp: ${next}` });
+            messageService.notifyInfo(`Lần ôn tiếp: ${next}`);
             console.log('Next review at', next);
           } catch (e) {
             // ignore formatting errors

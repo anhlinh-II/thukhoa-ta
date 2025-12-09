@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Card, Typography, Button, Radio, Progress, Tag, Avatar, message, Spin } from "antd";
+import { Card, Typography, Button, Radio, Progress, Tag, Avatar, Spin } from "antd";
+import messageService from '@/share/services/messageService';
 import { TrophyOutlined, UserOutlined, WarningOutlined, LoadingOutlined, ClockCircleOutlined, CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { useBattleWebSocket } from "@/share/hooks/useBattleWebSocket";
 import { useAccount } from "@/share/hooks/useAuth";
-import { useTabVisibility } from "@/share/hooks/useTabVisibility";
+import { useAntiCheat } from "@/share/hooks/useAntiCheat";
 import { battleService } from "@/share/services/battle.service";
 
 const { Title, Text } = Typography;
@@ -62,9 +63,22 @@ export default function BattleQuizPage() {
   const [answeredResults, setAnsweredResults] = useState<Record<number, boolean>>({});
   const [localScoreDelta, setLocalScoreDelta] = useState(0);
   const [timeLeft, setTimeLeft] = useState(60);
-  const [tabSwitchCount, setTabSwitchCount] = useState(0);
   const [userCompleted, setUserCompleted] = useState(false);
+  const [showingResult, setShowingResult] = useState(false);
+  const [lastAnswerCorrect, setLastAnswerCorrect] = useState<boolean | null>(null);
   const startTimeRef = useRef<number>(Date.now());
+
+  // Anti-cheat: report violations to server
+  const handleAntiCheatViolation = useCallback((type: string, count: number) => {
+    reportTabSwitch();
+  }, [reportTabSwitch]);
+
+  // Enable anti-cheat protection
+  const { tabSwitchCount } = useAntiCheat({
+    enabled: !userCompleted,
+    onViolation: handleAntiCheatViolation,
+    maxWarnings: 5,
+  });
 
   // Fetch quiz questions from API
   useEffect(() => {
@@ -72,7 +86,7 @@ export default function BattleQuizPage() {
       try {
         const battle = await battleService.getBattle(battleId);
         if (!battle || !battle.quizId) {
-          message.error('Không tìm thấy thông tin battle');
+          messageService.error('Không tìm thấy thông tin battle');
           return;
         }
 
@@ -92,7 +106,7 @@ export default function BattleQuizPage() {
         setItems(built);
       } catch (error) {
         console.error('Failed to load quiz', error);
-        message.error('Không thể tải câu hỏi');
+        messageService.error('Không thể tải câu hỏi');
       } finally {
         setLoading(false);
       }
@@ -104,19 +118,6 @@ export default function BattleQuizPage() {
   }, [battleId]);
 
   const currentItem = items[currentItemIndex];
-
-  // Tab visibility tracking
-  const isVisible = useTabVisibility();
-  useEffect(() => {
-    if (!isVisible && answeredQuestions.size > 0) {
-      setTabSwitchCount(prev => prev + 1);
-      reportTabSwitch();
-      
-      if (tabSwitchCount >= 3) {
-        message.warning('Cảnh báo: Bạn đã chuyển tab quá nhiều lần!');
-      }
-    }
-  }, [isVisible]);
 
   // Timer applies for current question (single or group's current question); reset when current item changes
   useEffect(() => {
@@ -149,7 +150,7 @@ export default function BattleQuizPage() {
       const q = currentItem.question;
       const selected = selectedAnswers[q.id] ?? null;
       if (selected === null) {
-        message.error('Vui lòng chọn câu trả lời!');
+        // messageService.error('Vui lòng chọn câu trả lời!');
         return;
       }
 
@@ -163,7 +164,7 @@ export default function BattleQuizPage() {
       } else {
         completeBattle();
         setUserCompleted(true);
-        message.success('Bạn đã hoàn thành! Đang chờ đối thủ...');
+        messageService.success('Bạn đã hoàn thành! Đang chờ đối thủ...');
       }
     } else if (currentItem.type === 'group') {
       const group = currentItem.group;
@@ -171,7 +172,7 @@ export default function BattleQuizPage() {
       if (!question) return;
       const selected = selectedAnswers[question.id] ?? null;
       if (selected === null) {
-        message.error('Vui lòng chọn câu trả lời!');
+        // messageService.error('Vui lòng chọn câu trả lời!');
         return;
       }
 
@@ -191,7 +192,7 @@ export default function BattleQuizPage() {
         } else {
           completeBattle();
           setUserCompleted(true);
-          message.success('Bạn đã hoàn thành! Đang chờ đối thủ...');
+          messageService.success('Bạn đã hoàn thành! Đang chờ đối thủ...');
         }
       }
     }
@@ -201,7 +202,7 @@ export default function BattleQuizPage() {
   const submitQuestion = (question: any) => {
     const selected = selectedAnswers[question.id] ?? null;
     if (selected === null) {
-      message.error('Vui lòng chọn câu trả lời!');
+      // messageService.error('Vui lòng chọn câu trả lời!');
       return;
     }
     const timeTaken = Date.now() - startTimeRef.current;
@@ -211,12 +212,16 @@ export default function BattleQuizPage() {
 
   // handle selecting an option: evaluate immediately, update local score, submit to server and advance
   const handleSelectOption = (question: any, optionId: number, optionIsCorrect: boolean) => {
+    if (showingResult) return;
+    
     // record selection
     setSelectedAnswers(prev => ({ ...prev, [question.id]: optionId }));
 
     // mark answered and result
     setAnsweredQuestions(prev => new Set(prev).add(question.id));
     setAnsweredResults(prev => ({ ...prev, [question.id]: optionIsCorrect }));
+    setLastAnswerCorrect(optionIsCorrect);
+    setShowingResult(true);
 
     // optimistic score update for current user
     if (optionIsCorrect) {
@@ -229,24 +234,13 @@ export default function BattleQuizPage() {
     const timeTaken = Date.now() - startTimeRef.current;
     submitAnswer({ questionId: question.id, answer: String(optionId), timestamp: Date.now(), timeTaken });
 
-    // navigation: advance depending on current item
-    if (currentItem?.type === 'single') {
-      if (currentItemIndex < items.length - 1) {
-        setCurrentItemIndex(prev => prev + 1);
-        setTimeLeft(60);
-        startTimeRef.current = Date.now();
-      } else {
-        completeBattle();
-        setUserCompleted(true);
-        message.success('Bạn đã hoàn thành! Đang chờ đối thủ...');
-      }
-    } else if (currentItem?.type === 'group') {
-      const group = currentItem.group;
-      if (groupQuestionIndex < group.questions.length - 1) {
-        setGroupQuestionIndex(idx => idx + 1);
-        setTimeLeft(60);
-        startTimeRef.current = Date.now();
-      } else {
+    // Delay before navigation to show result
+    setTimeout(() => {
+      setShowingResult(false);
+      setLastAnswerCorrect(null);
+      
+      // navigation: advance depending on current item
+      if (currentItem?.type === 'single') {
         if (currentItemIndex < items.length - 1) {
           setCurrentItemIndex(prev => prev + 1);
           setTimeLeft(60);
@@ -254,10 +248,27 @@ export default function BattleQuizPage() {
         } else {
           completeBattle();
           setUserCompleted(true);
-          message.success('Bạn đã hoàn thành! Đang chờ đối thủ...');
+          messageService.success('Bạn đã hoàn thành! Đang chờ đối thủ...');
+        }
+      } else if (currentItem?.type === 'group') {
+        const group = currentItem.group;
+        if (groupQuestionIndex < group.questions.length - 1) {
+          setGroupQuestionIndex(idx => idx + 1);
+          setTimeLeft(60);
+          startTimeRef.current = Date.now();
+        } else {
+          if (currentItemIndex < items.length - 1) {
+            setCurrentItemIndex(prev => prev + 1);
+            setTimeLeft(60);
+            startTimeRef.current = Date.now();
+          } else {
+            completeBattle();
+            setUserCompleted(true);
+            messageService.success('Bạn đã hoàn thành! Đang chờ đối thủ...');
+          }
         }
       }
-    }
+    }, 1500);
   };
 
   // Check if all participants completed -> redirect to results
@@ -265,7 +276,7 @@ export default function BattleQuizPage() {
     if (userCompleted && battleState?.participants) {
       const allCompleted = battleState.participants.every(p => p.isCompleted);
       if (allCompleted) {
-        message.success('Tất cả người chơi đã hoàn thành!');
+        messageService.success('Tất cả người chơi đã hoàn thành!');
         router.push(`/battle/${battleId}/results`);
       }
     }
@@ -360,8 +371,16 @@ export default function BattleQuizPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-50 py-6">
-      <div className="max-w-7xl mx-auto px-6">
+    <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-indigo-50 py-6 select-none">
+      {/* Anti-cheat warning banner */}
+      {tabSwitchCount > 0 && (
+        <div className="fixed top-0 left-0 right-0 bg-red-500 text-white text-center py-2 z-40">
+          <WarningOutlined className="mr-2" />
+          Cảnh báo: Đã phát hiện {tabSwitchCount} hành vi đáng ngờ. Vui lòng tập trung làm bài!
+        </div>
+      )}
+      
+      <div className={`max-w-7xl mx-auto px-6 ${tabSwitchCount > 0 ? 'pt-10' : ''}`}>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Question Section */}
           <div className="lg:col-span-2">
@@ -540,6 +559,52 @@ export default function BattleQuizPage() {
           </div>
         </div>
       </div>
+
+      {/* Result overlay */}
+      {showingResult && lastAnswerCorrect !== null && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="text-center animate-bounce-in">
+            {lastAnswerCorrect ? (
+              <div className="flex flex-col items-center">
+                <div className="w-32 h-32 bg-green-500 rounded-full flex items-center justify-center mb-4 shadow-2xl">
+                  <CheckCircleOutlined className="text-6xl text-white" />
+                </div>
+                <Title level={1} className="!text-green-400 !mb-2">Chính xác!</Title>
+                <Text className="text-white/80 text-xl">+{localScoreDelta > 0 ? (items[currentItemIndex]?.question?.score || items[currentItemIndex]?.group?.questions?.[groupQuestionIndex]?.score || 1) : 0} điểm</Text>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center">
+                <div className="w-32 h-32 bg-red-500 rounded-full flex items-center justify-center mb-4 shadow-2xl">
+                  <CloseCircleOutlined className="text-6xl text-white" />
+                </div>
+                <Title level={1} className="!text-red-400 !mb-2">Sai rồi!</Title>
+                <Text className="text-white/80 text-xl">Đáp án không chính xác</Text>
+              </div>
+            )}
+          </div>
+          <style jsx global>{`
+            @keyframes bounceIn {
+              0% {
+                transform: scale(0.3);
+                opacity: 0;
+              }
+              50% {
+                transform: scale(1.05);
+              }
+              70% {
+                transform: scale(0.9);
+              }
+              100% {
+                transform: scale(1);
+                opacity: 1;
+              }
+            }
+            .animate-bounce-in {
+              animation: bounceIn 0.5s ease-out forwards;
+            }
+          `}</style>
+        </div>
+      )}
     </div>
   );
 }

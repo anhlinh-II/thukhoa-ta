@@ -8,6 +8,7 @@ import com.example.quiz.repository.user_question_answer.UserQuestionAnswerReposi
 import com.example.quiz.repository.user_quiz_mock_his.UserQuizMockHisRepository;
 import com.example.quiz.repository.user_ques_wrong.UserQuesWrongRepository;
 import com.example.quiz.service.user_learning_item.Sm2Service;
+import com.example.quiz.service.interfaces.UserService;
 import com.example.quiz.enums.LearningType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -23,15 +24,18 @@ public class QuizSubmissionPersistenceService {
     private final UserQuesWrongRepository wrongRepository;
     private final UserQuestionAnswerRepository answerRepository;
     private final Sm2Service sm2Service;
+    private final UserService userService;
 
     public QuizSubmissionPersistenceService(UserQuizMockHisRepository hisRepository,
                                             UserQuesWrongRepository wrongRepository,
                                             UserQuestionAnswerRepository answerRepository,
-                                            Sm2Service sm2Service) {
+                                            Sm2Service sm2Service,
+                                            UserService userService) {
         this.hisRepository = hisRepository;
         this.wrongRepository = wrongRepository;
         this.answerRepository = answerRepository;
         this.sm2Service = sm2Service;
+        this.userService = userService;
     }
 
     /**
@@ -115,6 +119,9 @@ public class QuizSubmissionPersistenceService {
                 }
             }
         }
+
+        userService.updateStreak(userId);
+        userService.updateRankingPoints(userId, correct, total);
 
         return saved.getId();
     }

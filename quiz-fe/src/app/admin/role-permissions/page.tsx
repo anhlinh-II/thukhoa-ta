@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Space, Form, Input, Popconfirm, message, Tabs, Select, Checkbox, Modal } from 'antd';
+import { Table, Button, Space, Form, Input, Popconfirm, Tabs, Select, Checkbox, Modal } from 'antd';
 import UsersWithRoleModal from '@/app/admin/role-permissions/UsersWithRoleModal';
 import { rolePermissionService } from '@/share/services/role_permission/role-permission.service';
 import { userService } from '@/share/services/user_service/user.service';
 import AssignUsersTable from '@/app/admin/role-permissions/AssignUsersTable';
 import { PagingViewRequest } from '@/share/services/BaseService';
+import messageService from '@/share/services/messageService';
 
 export default function RolePermissionsAdminPage() {
   const [roles, setRoles] = useState<any[]>([]);
@@ -68,11 +69,11 @@ export default function RolePermissionsAdminPage() {
   }
 
   async function submitAssignment() {
-    if (!selectedRoleId) { message.error('Please select a role'); return; }
+    if (!selectedRoleId) { messageService.error('Please select a role'); return; }
     setAssigning(true);
     try {
       await rolePermissionService.assignPermissionsToRole(selectedRoleId, selectedPermissionIds);
-      message.success('Permissions assigned');
+      messageService.success('Permissions assigned');
       // refresh roles to get updated assigned permissions and update selected permissions
       const updatedRoles = await fetchRoles();
       const updatedRole = (updatedRoles || []).find((x: any) => x.id === selectedRoleId);
@@ -81,7 +82,7 @@ export default function RolePermissionsAdminPage() {
       } else {
         setSelectedPermissionIds([]);
       }
-    } catch (e: any) { console.error(e); message.error(e?.message || 'Error assigning permissions'); }
+    } catch (e: any) { console.error(e); messageService.error(e?.message || 'Error assigning permissions'); }
     setAssigning(false);
   }
 
@@ -96,14 +97,14 @@ export default function RolePermissionsAdminPage() {
       const vals = await form.validateFields();
       if (editingRole) {
         await rolePermissionService.updateRole(editingRole.id, vals.authority, vals.description);
-        message.success('Role updated');
+        messageService.success('Role updated');
       } else {
         await rolePermissionService.createRole(vals.authority, vals.description);
-        message.success('Role created');
+        messageService.success('Role created');
       }
       setRoleModalOpen(false);
       fetchRoles();
-    } catch (e: any) { console.error(e); message.error(e?.message || 'Error'); }
+    } catch (e: any) { console.error(e); messageService.error(e?.message || 'Error'); }
   }
 
   async function submitPerm() {
@@ -111,22 +112,22 @@ export default function RolePermissionsAdminPage() {
       const vals = await permForm.validateFields();
       if (editingPerm) {
         await rolePermissionService.updatePermission(editingPerm.id, vals.name, vals.description, vals.resource, vals.action);
-        message.success('Permission updated');
+        messageService.success('Permission updated');
       } else {
         await rolePermissionService.createPermission(vals.name, vals.description, vals.resource, vals.action);
-        message.success('Permission created');
+        messageService.success('Permission created');
       }
       setPermModalOpen(false);
       fetchPerms();
-    } catch (e: any) { console.error(e); message.error(e?.message || 'Error'); }
+    } catch (e: any) { console.error(e); messageService.error(e?.message || 'Error'); }
   }
 
   async function deleteRole(id: number) {
-    try { await rolePermissionService.deleteRole(id); message.success('Deleted'); fetchRoles(); } catch (e:any) { message.error(e?.message || 'Error'); }
+    try { await rolePermissionService.deleteRole(id); messageService.success('Deleted'); fetchRoles(); } catch (e:any) { messageService.error(e?.message || 'Error'); }
   }
 
   async function deletePerm(id: number) {
-    try { await rolePermissionService.deletePermission(id); message.success('Deleted'); fetchPerms(); } catch (e:any) { message.error(e?.message || 'Error'); }
+    try { await rolePermissionService.deletePermission(id); messageService.success('Deleted'); fetchPerms(); } catch (e:any) { messageService.error(e?.message || 'Error'); }
   }
 
   const roleCols = [
@@ -209,15 +210,15 @@ export default function RolePermissionsAdminPage() {
   }
 
   async function submitAssignUsers() {
-    if (!selectedRoleForAssign) { message.error('Select a role'); return; }
+    if (!selectedRoleForAssign) { messageService.error('Select a role'); return; }
     try {
       await rolePermissionService.assignUsersToRole(selectedRoleForAssign.id, selectedUserAssignIds);
-      message.success('Users assigned to role');
+      messageService.success('Users assigned to role');
       setAssignUsersModalOpen(false);
       // refresh roles and users modal
       await fetchRoles();
       if (selectedRoleForAssign && selectedRoleForAssign.authority) fetchUsersForRole(selectedRoleForAssign.authority);
-    } catch (e:any) { console.error(e); message.error(e?.message || 'Error'); }
+    } catch (e:any) { console.error(e); messageService.error(e?.message || 'Error'); }
   }
 
   const permCols = [

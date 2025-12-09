@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Button, Card, Spin, message, Progress } from 'antd';
+import { Button, Card, Spin, Progress } from 'antd';
+import messageService from '@/share/services/messageService';
 import { SoundOutlined, ArrowLeftOutlined, CheckOutlined, CloseOutlined } from '@ant-design/icons';
 import { userVocabularyService } from '@/share/services/user_vocabulary/user-vocabulary.service';
 import { useIsAuthenticated } from '@/share/hooks/useAuth';
@@ -61,7 +62,7 @@ export default function FlashcardsPage() {
       setTotal(res.total || 0);
     } catch (e) {
       console.error(e);
-      message.error('Không thể tải danh sách từ vựng');
+      messageService.error('Không thể tải danh sách từ vựng');
     } finally {
       setLoading(false);
     }
@@ -90,7 +91,7 @@ export default function FlashcardsPage() {
       const audio = new Audio(audioUrl);
       audio.play().catch(err => {
         console.error('Failed to play audio', err);
-        message.error('Không thể phát âm thanh');
+        messageService.error('Không thể phát âm thanh');
       });
     }
   };

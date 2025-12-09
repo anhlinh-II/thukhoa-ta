@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Button, Card, Typography, Radio, Spin, Tag, Avatar, message } from "antd";
+import { Button, Card, Typography, Radio, Spin, Tag, Avatar } from "antd";
+import messageService from '@/share/services/messageService';
 import { UserOutlined, TeamOutlined, TrophyOutlined, LoadingOutlined } from "@ant-design/icons";
 import { battleService } from "@/share/services/battle.service";
 import { BattleMode } from "@/share/services/battle.types";
@@ -40,18 +41,18 @@ export default function BattleLobbyPage() {
 
   const handleCreateBattle = async () => {
     if (!user) {
-      message.error('Vui lòng đăng nhập để tạo battle');
+      messageService.error('Vui lòng đăng nhập để tạo battle');
       return;
     }
 
     try {
       setCreating(true);
       const battle = await battleService.createBattle({ quizId, battleMode: mode, leaderId: user.id });
-      message.success('Tạo battle thành công!');
+      messageService.success('Tạo battle thành công!');
       router.push(`/battle/${battle.id}/lobby`);
     } catch (error: any) {
       console.log('error', error.message);
-      message.error(error?.message || 'Không thể tạo battle');
+      messageService.error(error?.message || 'Không thể tạo battle');
     } finally {
       setCreating(false);
     }

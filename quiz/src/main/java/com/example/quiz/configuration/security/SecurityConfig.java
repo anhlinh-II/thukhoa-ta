@@ -22,9 +22,9 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true, securedEnabled = true) // Temporarily disabled for testing
+@EnableMethodSecurity(prePostEnabled = true, securedEnabled = true)
 @RequiredArgsConstructor
 @Slf4j
 public class SecurityConfig {

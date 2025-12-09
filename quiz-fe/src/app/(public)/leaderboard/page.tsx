@@ -28,7 +28,7 @@ import {
   ThunderboltOutlined,
 } from "@ant-design/icons";
 import { useAccount } from "@/share/hooks/useAuth";
-import { userService } from '@/share/services/user_service/user.service';
+import { userService, LeaderboardUser as ApiLeaderboardUser, LeaderboardResponse } from '@/share/services/user_service/user.service';
 
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -42,7 +42,7 @@ interface LeaderboardUser {
   tests: number;
   accuracy: number;
   streak: number;
-  change?: number; // Rank change from last week
+  change?: number;
 }
 
 export default function LeaderboardPage() {
@@ -80,48 +80,29 @@ export default function LeaderboardPage() {
     const loadUsers = async () => {
       setLoadingUsers(true);
       try {
-        // Attempt to fetch paged user views from backend
-        const res = await userService.getViewsPagedWithFilter({ skip: 0, take: 100, columns: "*" });
-        // Map backend view to LeaderboardUser with sensible defaults for missing fields
-        const mapped: LeaderboardUser[] = (res.data || []).map((u: any, idx: number) => ({
-          rank: idx + 1,
-          id: String(u.id || `u-${idx}`),
-          name: u.fullName || u.username || u.firstName || `Người dùng ${idx + 1}`,
-          avatar: u.avatarUrl || u.avatar || undefined,
-          score: u.score ?? Math.max(1000, (res.summary && res.summary.topScore) || 2000 - idx * 10),
-          tests: u.tests ?? Math.max(1, 50 - idx),
-          accuracy: u.accuracy ?? Math.max(50, 95 - idx),
-          streak: u.streak ?? Math.max(0, 30 - idx),
-          change: (Math.floor(Math.random() * 21) - 10),
+        const res = await userService.getLeaderboard(0, 100);
+        
+        const mapped: LeaderboardUser[] = (res.users || []).map((u: ApiLeaderboardUser) => ({
+          rank: u.rank,
+          id: String(u.id),
+          name: u.fullName || u.username || `Người dùng ${u.id}`,
+          avatar: u.avatarUrl || undefined,
+          score: u.rankingPoints || 0,
+          tests: u.totalQuizzesCompleted || 0,
+          accuracy: u.averageAccuracy ? Math.round(u.averageAccuracy * 10) : 0,
+          streak: u.currentStreak || 0,
+          change: 0,
         }));
 
         setTopUsers(mapped);
-        // Launch confetti once when leaderboard loads with data
-        if (!confettiLaunchedRef.current) {
+        
+        if (!confettiLaunchedRef.current && mapped.length > 0) {
           confettiLaunchedRef.current = true;
-          // small delay so UI settles
           setTimeout(() => setConfettiActive(true), 250);
         }
       } catch (err) {
-        console.error('Failed to load users, falling back to mock', err);
-        // Fallback mock
-        const fallback: LeaderboardUser[] = [
-          { rank: 1, id: '1', name: 'Nguyễn Văn A', avatar: undefined, score: 2850, tests: 45, accuracy: 95, streak: 30, change: 2 },
-          { rank: 2, id: '2', name: 'Trần Thị B', avatar: undefined, score: 2720, tests: 42, accuracy: 92, streak: 28, change: -1 },
-          { rank: 3, id: '3', name: 'Lê Văn C', avatar: undefined, score: 2650, tests: 40, accuracy: 90, streak: 25, change: 1 },
-          ...Array.from({ length: 47 }, (_, i) => ({
-            rank: i + 4,
-            id: `${i + 4}`,
-            name: `Học viên ${i + 4}`,
-            avatar: undefined,
-            score: 2500 - i * 50,
-            tests: 38 - i,
-            accuracy: Math.max(50, 88 - i),
-            streak: Math.max(0, 20 - i),
-            change: Math.floor(Math.random() * 21) - 10,
-          })),
-        ];
-        setTopUsers(fallback);
+        console.error('Failed to load leaderboard from API', err);
+        setTopUsers([]);
       } finally {
         setLoadingUsers(false);
       }
@@ -424,10 +405,10 @@ export default function LeaderboardPage() {
                       >
                         {getInitials(u.name)}
                       </Avatar>
-                      <div className="absolute -top-2 -right-0 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs shadow">2</div>
+                      <div className="absolute -top-2 -right-0 w-6 h-6 bg-gradient-to-br from-slate-400 to-slate-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg font-bold">2</div>
                     </div>
                     <Text strong className="text-sm mt-1">{u.name}</Text>
-                    <div className="w-full rounded-t-2xl mt-4 p-6 text-center shadow-lg" style={{ height: 150, background: 'linear-gradient(180deg,#9aa5b3,#6f7783)' }}>
+                    <div className="w-full rounded-t-2xl mt-4 p-6 text-center shadow-lg" style={{ height: 150, background: 'linear-gradient(180deg, #94a3b8, #64748b)' }}>
                       <TrophyOutlined className="text-3xl text-white mb-2" />
                       <Text strong className="text-white text-xl block">{u.score}</Text>
                       <Text className="text-white/80 text-sm">điểm</Text>
@@ -451,10 +432,10 @@ export default function LeaderboardPage() {
                       >
                         {getInitials(u.name)}
                       </Avatar>
-                      <div className="absolute -top-3 -right-2 w-7 h-7 bg-yellow-400 text-white rounded-full flex items-center justify-center text-base shadow"><CrownOutlined /></div>
+                      <div className="absolute -top-3 -right-2 w-7 h-7 bg-gradient-to-br from-yellow-300 to-amber-500 text-white rounded-full flex items-center justify-center text-base shadow-lg"><CrownOutlined /></div>
                     </div>
                     <Text strong className="text-base mt-1">{u.name}</Text>
-                    <div className="w-full rounded-t-3xl mt-4 p-8 text-center shadow-2xl" style={{ height: 190, background: 'linear-gradient(180deg,#f5b100,#d69b00)' }}>
+                    <div className="w-full rounded-t-3xl mt-4 p-8 text-center shadow-2xl" style={{ height: 190, background: 'linear-gradient(180deg, #fbbf24, #f59e0b)' }}>
                       <CrownOutlined className="text-4xl text-white mb-2" />
                       <Text strong className="text-white text-2xl block">{u.score}</Text>
                       <Text className="text-white/90 text-sm">điểm</Text>
@@ -478,10 +459,10 @@ export default function LeaderboardPage() {
                       >
                         {getInitials(u.name)}
                       </Avatar>
-                      <div className="absolute -top-2 -right-0 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs shadow">3</div>
+                      <div className="absolute -top-2 -right-0 w-6 h-6 bg-gradient-to-br from-orange-400 to-orange-600 text-white rounded-full flex items-center justify-center text-xs shadow-lg font-bold">3</div>
                     </div>
                     <Text strong className="text-sm mt-1">{u.name}</Text>
-                    <div className="w-full rounded-t-2xl mt-4 p-6 text-center shadow-lg" style={{ height: 140, background: 'linear-gradient(180deg,#ff8a00,#ff5e00)' }}>
+                    <div className="w-full rounded-t-2xl mt-4 p-6 text-center shadow-lg" style={{ height: 140, background: 'linear-gradient(180deg, #fb923c, #ea580c)' }}>
                       <TrophyOutlined className="text-3xl text-white mb-2" />
                       <Text strong className="text-white text-xl block">{u.score}</Text>
                       <Text className="text-white/80 text-sm">điểm</Text>
@@ -496,17 +477,17 @@ export default function LeaderboardPage() {
         {/* Your Rank Card */}
         {currentUser && (
           <Card className="mb-6 shadow-lg rounded-xl border-2 border-sky-300 bg-gradient-to-r from-sky-50 to-white">
-            <Row align="middle" gutter={16}>
-                  <Col>
-                    <Avatar
-                      size={64}
-                      src={currentUser?.avatar}
-                      className="bg-gradient-to-br from-purple-500 to-blue-500"
-                    >
-                      {getInitials(currentUserRank.name)}
-                    </Avatar>
-                  </Col>
-              <Col flex={1}>
+            <Row align="middle" gutter={24} className="flex-wrap">
+              <Col>
+                <Avatar
+                  size={64}
+                  src={currentUser?.avatar}
+                  className="bg-gradient-to-br from-purple-500 to-blue-500"
+                >
+                  {getInitials(currentUserRank.name)}
+                </Avatar>
+              </Col>
+              <Col flex="auto" className="min-w-[200px]">
                 <div>
                   <Text type="secondary" className="text-sm">Hạng của bạn</Text>
                   <div className="flex items-center gap-3">
@@ -515,23 +496,19 @@ export default function LeaderboardPage() {
                   </div>
                 </div>
               </Col>
-              <Col>
+              <Col className="flex items-center gap-8">
                 <Statistic
                   title="Điểm"
                   value={currentUserRank.score}
                   prefix={<StarOutlined className="text-sky-500" />}
                   valueStyle={{ color: "#0ea5e9" }}
                 />
-              </Col>
-              <Col>
                 <Statistic
                   title="Bài test"
                   value={currentUserRank.tests}
                   suffix="bài"
                 />
-              </Col>
-              <Col>
-                <div className="text-center">
+                <div className="text-center min-w-[80px]">
                   <Text type="secondary" className="text-sm block">Độ chính xác</Text>
                   <Text strong className="text-2xl text-sky-600">{currentUserRank.accuracy}%</Text>
                 </div>

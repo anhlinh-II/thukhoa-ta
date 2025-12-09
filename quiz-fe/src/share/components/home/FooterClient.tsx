@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NO_HEADER_LIST } from "@/share/utils/constants";
-import { message } from "antd";
+import messageService from "@/share/services/messageService";
 
 const FooterClient: React.FC = () => {
   const pathname = usePathname() ?? "/";
@@ -18,13 +18,13 @@ const FooterClient: React.FC = () => {
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !email.includes("@")) {
-      message.error("Vui lòng nhập email hợp lệ");
+      messageService.error("Vui lòng nhập email hợp lệ");
       return;
     }
     // Placeholder: no backend wired. Show confirmation and clear field.
     setSubscribed(true);
     setEmail("");
-    message.success("Cảm ơn! Bạn đã đăng ký.");
+    messageService.success("Cảm ơn! Bạn đã đăng ký.");
     setTimeout(() => setSubscribed(false), 4000);
   };
 

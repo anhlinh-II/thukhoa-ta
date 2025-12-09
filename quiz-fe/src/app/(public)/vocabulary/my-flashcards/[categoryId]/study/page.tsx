@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import { Card, Button, Spin, message, Progress } from "antd";
+import { Card, Button, Spin, Progress } from "antd";
+import messageService from '@/share/services/messageService';
 import {
   ArrowLeftOutlined,
   CheckOutlined,
@@ -51,7 +52,7 @@ export default function StudyPage() {
       failedCardsRef.current = new Set();
     } catch (e) {
       console.error(e);
-      message.error("Không thể tải dữ liệu");
+      messageService.error("Không thể tải dữ liệu");
     } finally {
       setLoading(false);
     }

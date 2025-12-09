@@ -10,12 +10,15 @@ import com.example.quiz.model.dto.request.LoginRequest;
 import com.example.quiz.model.dto.request.ResetPasswordRequest;
 import com.example.quiz.model.entity.user.UserRequest;
 import com.example.quiz.model.dto.response.ApiResponse;
+import com.example.quiz.model.dto.response.LeaderboardResponseDto;
+import com.example.quiz.model.dto.response.LeaderboardUserDto;
 import com.example.quiz.model.dto.response.LoginResponse;
 import com.example.quiz.model.entity.user.UserResponse;
 import com.example.quiz.model.entity.user.User;
 import com.example.quiz.model.entity.user.UserView;
 import com.example.quiz.repository.user.UserRepository;
 import com.example.quiz.repository.user.UserViewRepository;
+import com.example.quiz.repository.user_quiz_mock_his.UserQuizMockHisRepository;
 import com.example.quiz.service.interfaces.UserService;
 import com.example.quiz.utils.EmailUtil;
 import com.example.quiz.utils.OtpUtil;
@@ -35,8 +38,15 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 @Service
 @Slf4j
@@ -49,8 +59,9 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRequest, Us
     AuthenticationManagerBuilder authenticationManagerBuilder;
     SecurityUtils securityUtils;
     EmailUtil emailUtil;
+    UserQuizMockHisRepository userQuizMockHisRepository;
 
-    public UserServiceImpl(AdvancedFilterService advancedFilterService, UserRepository repository, UserViewRepository viewRepository, UserRepository userRepository, UserMapper userMapper, @Lazy PasswordEncoder passwordEncoder, AuthenticationManagerBuilder authenticationManagerBuilder, SecurityUtils securityUtils, EmailUtil emailUtil) {
+    public UserServiceImpl(AdvancedFilterService advancedFilterService, UserRepository repository, UserViewRepository viewRepository, UserRepository userRepository, UserMapper userMapper, @Lazy PasswordEncoder passwordEncoder, AuthenticationManagerBuilder authenticationManagerBuilder, SecurityUtils securityUtils, EmailUtil emailUtil, UserQuizMockHisRepository userQuizMockHisRepository) {
         super(advancedFilterService, repository, userMapper, viewRepository);
         this.userRepository = userRepository;
         this.userMapper = userMapper;
@@ -58,6 +69,7 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRequest, Us
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.securityUtils = securityUtils;
         this.emailUtil = emailUtil;
+        this.userQuizMockHisRepository = userQuizMockHisRepository;
     }
 
     @Override
@@ -176,6 +188,17 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRequest, Us
             userLogin.setLocation(currentUserDB.getLocation());
             userLogin.setBio(currentUserDB.getBio());
             userLogin.setAvatarUrl(currentUserDB.getAvatarUrl());
+            userLogin.setCurrentStreak(currentUserDB.getCurrentStreak() != null ? currentUserDB.getCurrentStreak() : 0);
+            userLogin.setLongestStreak(currentUserDB.getLongestStreak() != null ? currentUserDB.getLongestStreak() : 0);
+            userLogin.setRankingPoints(currentUserDB.getRankingPoints() != null ? currentUserDB.getRankingPoints() : 0L);
+            userLogin.setTotalQuizzesCompleted(currentUserDB.getTotalQuizzesCompleted() != null ? currentUserDB.getTotalQuizzesCompleted() : 0);
+
+            Integer totalStudyTime = userQuizMockHisRepository.getTotalStudyTimeByUserId(currentUserDB.getId());
+            Double averageScore = userQuizMockHisRepository.getAverageScoreByUserId(currentUserDB.getId());
+            
+            userLogin.setTotalStudyTimeMinutes(totalStudyTime != null ? totalStudyTime : 0);
+            userLogin.setAverageScore(averageScore != null ? Math.round(averageScore * 100.0) / 100.0 : 0.0);
+            userLogin.setAuthorities(currentUserDB.getAuthorities());
 
             userGetAccount.setUser(userLogin);
         }
@@ -393,5 +416,126 @@ public class UserServiceImpl extends BaseServiceImpl<User, Long, UserRequest, Us
     public UserResponse create(UserRequest request) {
         request.setPassword(passwordEncoder.encode(request.getPassword()));
         return super.create(request);
+    }
+
+    @Override
+    public void updateStreak(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_EXISTED));
+        
+        LocalDate today = LocalDate.now();
+        LocalDate lastActivity = user.getLastActivityDate() != null 
+                ? user.getLastActivityDate().atZone(ZoneId.systemDefault()).toLocalDate() 
+                : null;
+        
+        if (lastActivity == null) {
+            user.setCurrentStreak(1);
+            user.setLongestStreak(1);
+        } else if (lastActivity.equals(today)) {
+            return;
+        } else if (lastActivity.plusDays(1).equals(today)) {
+            int newStreak = (user.getCurrentStreak() != null ? user.getCurrentStreak() : 0) + 1;
+            user.setCurrentStreak(newStreak);
+            if (newStreak > (user.getLongestStreak() != null ? user.getLongestStreak() : 0)) {
+                user.setLongestStreak(newStreak);
+            }
+        } else {
+            user.setCurrentStreak(1);
+        }
+        
+        user.setLastActivityDate(Instant.now());
+        userRepository.save(user);
+    }
+
+    @Override
+    public void updateRankingPoints(Long userId, int correctCount, int totalQuestions) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.ENTITY_NOT_EXISTED));
+        
+        if (totalQuestions == 0) return;
+        
+        double accuracy = (double) correctCount / totalQuestions;
+        
+        int basePoints = (int) (accuracy * 100);
+        
+        int currentStreak = user.getCurrentStreak() != null ? user.getCurrentStreak() : 0;
+        double streakMultiplier = 1.0 + Math.min(currentStreak * 0.02, 0.5);
+        
+        int earnedPoints = (int) Math.round(basePoints * streakMultiplier);
+        
+        long currentRankingPoints = user.getRankingPoints() != null ? user.getRankingPoints() : 0L;
+        user.setRankingPoints(currentRankingPoints + earnedPoints);
+        
+        int totalQuizzes = user.getTotalQuizzesCompleted() != null ? user.getTotalQuizzesCompleted() : 0;
+        user.setTotalQuizzesCompleted(totalQuizzes + 1);
+        
+        userRepository.save(user);
+        
+        log.info("User {} earned {} ranking points (accuracy: {}%, streak: {}, multiplier: {}x)", 
+                userId, earnedPoints, Math.round(accuracy * 100), currentStreak, streakMultiplier);
+    }
+
+    @Override
+    public LeaderboardResponseDto getLeaderboard(int page, int size) {
+        Page<User> leaderboardPage = userRepository.findLeaderboard(PageRequest.of(page, size));
+        
+        List<LeaderboardUserDto> users = new ArrayList<>();
+        int rank = page * size + 1;
+        
+        for (User user : leaderboardPage.getContent()) {
+            Double avgAccuracy = userQuizMockHisRepository.getAverageScoreByUserId(user.getId());
+            
+            LeaderboardUserDto dto = LeaderboardUserDto.builder()
+                    .rank(rank++)
+                    .id(user.getId())
+                    .username(user.getUsername())
+                    .fullName(user.getFullName() != null ? user.getFullName() : 
+                              (user.getFirstName() != null ? user.getFirstName() + " " + (user.getLastName() != null ? user.getLastName() : "") : user.getUsername()))
+                    .avatarUrl(user.getAvatarUrl())
+                    .rankingPoints(user.getRankingPoints() != null ? user.getRankingPoints() : 0L)
+                    .totalQuizzesCompleted(user.getTotalQuizzesCompleted() != null ? user.getTotalQuizzesCompleted() : 0)
+                    .currentStreak(user.getCurrentStreak() != null ? user.getCurrentStreak() : 0)
+                    .averageAccuracy(avgAccuracy != null ? Math.round(avgAccuracy * 10.0) / 10.0 : 0.0)
+                    .build();
+            
+            users.add(dto);
+        }
+        
+        String currentLogin = SecurityUtils.getCurrentUserLogin().orElse(null);
+        LeaderboardUserDto currentUserDto = null;
+        Integer currentUserRank = null;
+        
+        if (currentLogin != null) {
+            try {
+                User currentUser = handleGetUserByUsernameOrEmailOrPhone(currentLogin);
+                Long higherCount = userRepository.countUsersWithHigherRankingPoints(
+                        currentUser.getRankingPoints() != null ? currentUser.getRankingPoints() : 0L);
+                currentUserRank = higherCount.intValue() + 1;
+                
+                Double avgAccuracy = userQuizMockHisRepository.getAverageScoreByUserId(currentUser.getId());
+                
+                currentUserDto = LeaderboardUserDto.builder()
+                        .rank(currentUserRank)
+                        .id(currentUser.getId())
+                        .username(currentUser.getUsername())
+                        .fullName(currentUser.getFullName() != null ? currentUser.getFullName() :
+                                  (currentUser.getFirstName() != null ? currentUser.getFirstName() + " " + (currentUser.getLastName() != null ? currentUser.getLastName() : "") : currentUser.getUsername()))
+                        .avatarUrl(currentUser.getAvatarUrl())
+                        .rankingPoints(currentUser.getRankingPoints() != null ? currentUser.getRankingPoints() : 0L)
+                        .totalQuizzesCompleted(currentUser.getTotalQuizzesCompleted() != null ? currentUser.getTotalQuizzesCompleted() : 0)
+                        .currentStreak(currentUser.getCurrentStreak() != null ? currentUser.getCurrentStreak() : 0)
+                        .averageAccuracy(avgAccuracy != null ? Math.round(avgAccuracy * 10.0) / 10.0 : 0.0)
+                        .build();
+            } catch (Exception e) {
+                log.warn("Could not get current user for leaderboard: {}", e.getMessage());
+            }
+        }
+        
+        return LeaderboardResponseDto.builder()
+                .users(users)
+                .totalUsers(leaderboardPage.getTotalElements())
+                .currentUserRank(currentUserRank)
+                .currentUser(currentUserDto)
+                .build();
     }
 }

@@ -24,5 +24,9 @@ export interface ProgramRequest {
 export interface ProgramResponse extends Program { }
 
 export interface ProgramView extends Program {
-
+     childrenCount?: number;
+     quizGroupCount?: number;
+     isLeaf?: boolean;
+     depth?: number;
+     path?: string;
 }

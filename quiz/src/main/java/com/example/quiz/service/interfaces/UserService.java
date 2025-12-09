@@ -11,6 +11,8 @@ import com.example.quiz.model.dto.response.ApiResponse;
 import com.example.quiz.model.entity.user.User;
 import com.example.quiz.model.entity.user.UserView;
 
+import com.example.quiz.model.dto.response.LeaderboardResponseDto;
+
 public interface UserService extends BaseService<User, Long, UserRequest, UserResponse, UserView> {
 
     User handleGetUserByUsernameOrEmailOrPhone(String loginInput);
@@ -40,5 +42,11 @@ public interface UserService extends BaseService<User, Long, UserRequest, UserRe
     ApiResponse<String> forgotPassword(ForgotPasswordRequest request);
     
     ApiResponse<Void> resetPassword(ResetPasswordRequest request);
+
+    void updateStreak(Long userId);
+
+    void updateRankingPoints(Long userId, int correctCount, int totalQuestions);
+
+    LeaderboardResponseDto getLeaderboard(int page, int size);
 
 }

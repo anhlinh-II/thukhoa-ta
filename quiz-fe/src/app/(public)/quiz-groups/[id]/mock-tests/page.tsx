@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Typography, Spin, Breadcrumb, message, Card } from "antd";
+import { Typography, Spin, Breadcrumb, Card } from "antd";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { quizGroupService } from "@/share/services/quiz_group/quiz-group.service";
 import { LoadingOutlined, FileTextOutlined, ClockCircleOutlined, PlayCircleOutlined } from "@ant-design/icons";

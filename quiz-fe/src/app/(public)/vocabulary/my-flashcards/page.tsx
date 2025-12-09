@@ -8,11 +8,11 @@ import {
   Modal,
   Form,
   Input,
-  message,
   Empty,
   Popconfirm,
   ColorPicker,
 } from "antd";
+import messageService from '@/share/services/messageService';
 import {
   PlusOutlined,
   EditOutlined,
@@ -67,7 +67,7 @@ export default function MyFlashcardsPage() {
       setCategories(data || []);
     } catch (e) {
       console.error(e);
-      message.error("Không thể tải danh mục");
+      messageService.error("Không thể tải danh mục");
     } finally {
       setLoading(false);
     }
@@ -107,17 +107,17 @@ export default function MyFlashcardsPage() {
 
       if (editingCategory) {
         await flashcardCategoryService.update(editingCategory.id, req);
-        message.success("Đã cập nhật danh mục");
+        messageService.success("Đã cập nhật danh mục");
       } else {
         await flashcardCategoryService.create(req);
-        message.success("Đã tạo danh mục");
+        messageService.success("Đã tạo danh mục");
       }
 
       setModalOpen(false);
       fetchCategories();
     } catch (e: any) {
       console.error(e);
-      message.error(e?.message || "Có lỗi xảy ra");
+      messageService.error(e?.message || "Có lỗi xảy ra");
     } finally {
       setSubmitting(false);
     }
@@ -126,11 +126,11 @@ export default function MyFlashcardsPage() {
   const handleDelete = async (id: number) => {
     try {
       await flashcardCategoryService.delete(id);
-      message.success("Đã xóa danh mục");
+      messageService.success("Đã xóa danh mục");
       fetchCategories();
     } catch (e) {
       console.error(e);
-      message.error("Không thể xóa danh mục");
+      messageService.error("Không thể xóa danh mục");
     }
   };
 

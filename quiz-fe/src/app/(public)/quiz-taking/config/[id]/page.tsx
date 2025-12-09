@@ -3,7 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { quizMockTestService } from '@/share/services/quiz_mock_test/quiz-mocktest.service';
-import { Card, Typography, Divider, InputNumber, Button, message, Breadcrumb, Tag, Space, Progress, Row, Col } from 'antd';
+import { Card, Typography, Divider, InputNumber, Button, Breadcrumb, Tag, Space, Progress, Row, Col } from 'antd';
+import messageService from '@/share/services/messageService';
 import { FileTextOutlined, ClockCircleOutlined, PlayCircleOutlined } from '@ant-design/icons';
 import CommentList from '@/share/components/comments/CommentList';
 
@@ -35,7 +36,7 @@ export default function QuizConfigPage({ params }: any) {
 
   const handleStart = () => {
     if (!mockTest) return;
-    if (duration <= 0) { message.error('Vui lòng nhập thời gian hợp lệ'); return; }
+    if (duration <= 0) { messageService.error('Vui lòng nhập thời gian hợp lệ'); return; }
     router.push(`/quiz-taking/${id}?type=MOCK_TEST&duration=${duration}`);
   };
 

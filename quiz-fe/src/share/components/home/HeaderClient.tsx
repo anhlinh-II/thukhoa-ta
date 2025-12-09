@@ -4,7 +4,7 @@ import { Button, Spin } from 'antd';
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter, usePathname } from 'next/navigation';
-import { useIsAuthenticated } from '@/share/hooks/useAuth';
+import { useIsAuthenticated, useAccount } from '@/share/hooks/useAuth';
 import { programService } from '@/share/services/program/programService';
 import { UserProfile } from '../UserProfile';
 import { NO_HEADER_LIST } from '@/share/utils/constants';
@@ -146,8 +146,13 @@ export default function HeaderClient() {
   const [showProgramMenu, setShowProgramMenu] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { isAuthenticated, isLoading } = useIsAuthenticated();
+  const { data: currentUser } = useAccount();
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
+
+  const isAdmin = currentUser?.authorities?.some(
+    (auth: { authority?: string }) => auth?.authority === 'SUPER_ADMIN' || auth?.authority === 'ADMIN'
+  ) ?? false;
 
   useEffect(() => {
     setMounted(true);
@@ -335,7 +340,7 @@ export default function HeaderClient() {
                   <svg className="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
-                  <span className="text-sky-600">Battle</span>
+                  <span className="text-sky-600">Thách đấu</span>
                 </Link>
               </span>
 
@@ -349,6 +354,16 @@ export default function HeaderClient() {
               </span>
 
               <span className="hover:bg-sky-100 rounded-lg transition-all duration-400">
+                <Link href="/review" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sky-600 font-semibold text-sm hover:bg-sky-200 transition-all duration-200 whitespace-nowrap">
+                  <svg className="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="text-sky-600">Ôn tập</span>
+                </Link>
+              </span>
+
+              {isAdmin && (
+              <span className="hover:bg-sky-100 rounded-lg transition-all duration-400">
                 <Link href="/admin" className="flex items-center gap-2 px-3 py-2 rounded-lg text-sky-600 font-semibold text-sm hover:bg-sky-200 transition-all duration-200 whitespace-nowrap">
                   <svg className="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -357,6 +372,7 @@ export default function HeaderClient() {
                   <span className="text-sky-600">Quản trị</span>
                 </Link>
               </span>
+              )}
 
             </div>
           </div>
@@ -448,6 +464,13 @@ export default function HeaderClient() {
               </svg>
               Bảng xếp hạng
             </Link>
+            <Link href="/review" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sky-600 font-medium hover:bg-sky-50 transition-all duration-200 active:scale-[0.98]">
+              <svg className="w-5 h-5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Ôn tập
+            </Link>
+            {isAdmin && (
             <Link href="/admin" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sky-600 font-medium hover:bg-sky-50 transition-all duration-200 active:scale-[0.98]">
               <svg className="w-5 h-5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
@@ -455,6 +478,7 @@ export default function HeaderClient() {
               </svg>
               Quản trị
             </Link>
+            )}
             <div className="pt-4 mt-2 border-t">
               <div className="flex items-center gap-2 text-sm font-semibold text-sky-600 mb-3 px-4">
                 <svg className="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">

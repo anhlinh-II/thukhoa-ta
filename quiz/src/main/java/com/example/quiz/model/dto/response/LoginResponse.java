@@ -27,6 +27,12 @@ public class LoginResponse {
           private boolean isActive;
           private Set<Role> authorities;
           private String avatarUrl;
+          private Integer currentStreak;
+          private Integer longestStreak;
+          private Long rankingPoints;
+          private Integer totalQuizzesCompleted;
+          private Double averageScore;
+          private Integer totalStudyTimeMinutes;
 
           public UserLogin(Long id, String email, String username, String location, String bio, int postNum2,
                     int likeNum2, boolean isActive, Set<Role> authorities, String firstName, String lastName, String avatarUrl) {
@@ -47,6 +53,18 @@ public class LoginResponse {
                this.bio = bio;
                this.isActive = active;
                this.avatarUrl = avatarUrl;
+          }
+
+          public UserLogin(Long id, String email, String username, String location, String bio, boolean active, String avatarUrl, Integer currentStreak, Integer longestStreak) {
+               this.id = id;
+               this.email = email;
+               this.username = username;
+               this.location = location;
+               this.bio = bio;
+               this.isActive = active;
+               this.avatarUrl = avatarUrl;
+               this.currentStreak = currentStreak;
+               this.longestStreak = longestStreak;
           }
      }
 

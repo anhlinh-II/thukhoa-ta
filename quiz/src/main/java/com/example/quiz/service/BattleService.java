@@ -32,6 +32,7 @@ public class BattleService {
     private final QuizBattleRepository battleRepository;
     private final BattleParticipantRepository participantRepository;
     private final com.example.quiz.repository.user.UserRepository userRepository;
+    private final com.example.quiz.repository.question_option.QuestionOptionRepository questionOptionRepository;
     private final SimpMessagingTemplate messagingTemplate;
     private final com.example.quiz.service.quiz_mock_test.QuizMockTestService quizMockTestService;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -235,7 +236,7 @@ public class BattleService {
             throw new AppException(ErrorCode.ENTITY_NOT_EXISTED);
         } else {
             if (matches.size() > 1) {
-                System.out.println("Warning: multiple participants found for battleId=" + request.getBattleId() + ", userId=" + request.getUserId() + ", using the first");
+                log.warn("Warning: multiple participants found for battleId={}, userId={}, using the first", request.getBattleId(), request.getUserId());
             }
             participant = matches.get(0);
         }
@@ -243,13 +244,37 @@ public class BattleService {
         // Parse existing answers
         List<Map<String, Object>> answers = parseAnswers(participant.getAnswers());
         
-        // Add new answer
-        Map<String, Object> newAnswer = Map.of(
-                "questionId", request.getQuestionId(),
-                "answer", request.getAnswer(),
-                "timestamp", request.getTimestamp(),
-                "timeTaken", request.getTimeTaken()
-        );
+        // Check if answer is correct and calculate score
+        boolean isCorrect = false;
+        int scoreToAdd = 0;
+        try {
+            Long optionId = Long.parseLong(request.getAnswer());
+            var optionOpt = questionOptionRepository.findById(optionId);
+            if (optionOpt.isPresent()) {
+                var option = optionOpt.get();
+                isCorrect = Boolean.TRUE.equals(option.getIsCorrect());
+                if (isCorrect) {
+                    scoreToAdd = 10;
+                    long timeTaken = request.getTimeTaken() != null ? request.getTimeTaken() : 60000;
+                    if (timeTaken < 5000) scoreToAdd += 5;
+                    else if (timeTaken < 10000) scoreToAdd += 3;
+                    else if (timeTaken < 20000) scoreToAdd += 1;
+                    
+                    participant.setScore(participant.getScore() + scoreToAdd);
+                }
+            }
+        } catch (NumberFormatException e) {
+            log.warn("Could not parse answer as option ID: {}", request.getAnswer());
+        }
+        
+        // Add new answer with result
+        Map<String, Object> newAnswer = new java.util.HashMap<>();
+        newAnswer.put("questionId", request.getQuestionId());
+        newAnswer.put("answer", request.getAnswer());
+        newAnswer.put("timestamp", request.getTimestamp());
+        newAnswer.put("timeTaken", request.getTimeTaken());
+        newAnswer.put("isCorrect", isCorrect);
+        newAnswer.put("scoreAdded", scoreToAdd);
         answers.add(newAnswer);
         
         // Save updated answers
@@ -263,6 +288,9 @@ public class BattleService {
         detectCheating(participant, answers);
         
         participantRepository.save(participant);
+        
+        log.info("Answer submitted: battleId={}, userId={}, questionId={}, isCorrect={}, scoreAdded={}, totalScore={}", 
+            request.getBattleId(), request.getUserId(), request.getQuestionId(), isCorrect, scoreToAdd, participant.getScore());
         
         // Broadcast leaderboard update
         broadcastLeaderboard(request.getBattleId());

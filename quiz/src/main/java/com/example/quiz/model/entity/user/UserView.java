@@ -54,5 +54,21 @@ public class UserView {
 
     @Column(name = "gender")
     private Gender gender;
+
+    @Column(name = "current_streak")
+    private Integer currentStreak;
+    
+    @Column(name = "longest_streak")
+    private Integer longestStreak;
+    
+    @Column(name = "last_activity_date")
+    private Instant lastActivityDate;
+
+    @Column(name = "ranking_points")
+    private Long rankingPoints;
+    
+    @Column(name = "total_quizzes_completed")
+    private Integer totalQuizzesCompleted;
 }
+
 

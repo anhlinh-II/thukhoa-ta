@@ -68,4 +68,10 @@ public interface UserRepository extends BaseRepository<User, Long> {
             nativeQuery = true
     )
     List<Object[]> countUsersPerMonth();
+
+    @Query("SELECT u FROM User u WHERE u.isDelete = false ORDER BY u.rankingPoints DESC")
+    Page<User> findLeaderboard(Pageable pageable);
+
+    @Query("SELECT COUNT(u) FROM User u WHERE u.isDelete = false AND u.rankingPoints > :points")
+    Long countUsersWithHigherRankingPoints(@Param("points") Long points);
 }

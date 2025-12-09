@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from 'react';
-import { Card, Button, Spin, message } from 'antd';
+import { Card, Button, Spin } from 'antd';
+import messageService from '@/share/services/messageService';
 import {
   DndContext,
   closestCenter,
@@ -46,7 +47,7 @@ export default function SpellingPage() {
       setTimeout(() => prepareCard(0, res.data || []), 10);
     } catch (e) {
       console.error(e);
-      message.error('Không thể tải danh sách từ vựng');
+      messageService.error('Không thể tải danh sách từ vựng');
     } finally {
       setLoading(false);
     }

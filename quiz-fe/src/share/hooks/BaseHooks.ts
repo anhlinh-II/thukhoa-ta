@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient, UseQueryOptions, UseMutationOptions } from '@tanstack/react-query';
-import { message } from 'antd';
+import messageService from '@/share/services/messageService';
 import { BaseService, BaseEntity, BaseRequest, BaseResponse, BaseView, PagingRequest, PagingResponse } from '../services/BaseService';
 
 export interface BaseHooksConfig {
@@ -102,11 +102,11 @@ export class BaseHooks<
       onSuccess: (data, variables) => {
         // Invalidate and refetch queries
         this.queryClient.invalidateQueries({ queryKey: this.getQueryKeys().all });
-        message.success(`${this.config.resourceName} created successfully!`);
+        messageService.success(`${this.config.resourceName} created successfully!`);
         options?.onSuccess?.(data, variables, undefined);
       },
       onError: (error, variables, context) => {
-        message.error(`Failed to create ${this.config.resourceName}: ${error.message}`);
+        messageService.error(`Failed to create ${this.config.resourceName}: ${error.message}`);
         options?.onError?.(error, variables, context);
       },
       ...options,
@@ -121,11 +121,11 @@ export class BaseHooks<
         // Invalidate specific item and lists
         this.queryClient.invalidateQueries({ queryKey: this.getQueryKeys().detail(variables.id) });
         this.queryClient.invalidateQueries({ queryKey: this.getQueryKeys().all });
-        message.success(`${this.config.resourceName} updated successfully!`);
+        messageService.success(`${this.config.resourceName} updated successfully!`);
         options?.onSuccess?.(data, variables, undefined);
       },
       onError: (error, variables, context) => {
-        message.error(`Failed to update ${this.config.resourceName}: ${error.message}`);
+        messageService.error(`Failed to update ${this.config.resourceName}: ${error.message}`);
         options?.onError?.(error, variables, context);
       },
       ...options,
@@ -152,7 +152,7 @@ export class BaseHooks<
         return { previousData };
       },
       onSuccess: (data, variables, context) => {
-        message.success(`${this.config.resourceName} deleted successfully!`);
+        messageService.success(`${this.config.resourceName} deleted successfully!`);
         options?.onSuccess?.(data, variables, context);
       },
       onError: (error, variables, context) => {
@@ -162,7 +162,7 @@ export class BaseHooks<
             this.queryClient.setQueryData(queryKey, data);
           });
         }
-        message.error(`Failed to delete ${this.config.resourceName}: ${error.message}`);
+        messageService.error(`Failed to delete ${this.config.resourceName}: ${error.message}`);
         options?.onError?.(error, variables, context);
       },
       onSettled: (data, error, variables, context) => {

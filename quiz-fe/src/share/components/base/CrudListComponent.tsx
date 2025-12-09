@@ -1,12 +1,13 @@
 "use client";
 import React, { useRef, useState, useEffect } from 'react';
 import { Resizable } from 'react-resizable';
-import { Table, Button, Space, Modal, Form, Input, Card, Popconfirm, message } from 'antd';
+import { Table, Button, Space, Modal, Form, Input, Card, Popconfirm } from 'antd';
 import { EditOutlined, DeleteOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons';
 import type { ColumnsType, TableProps } from 'antd/es/table';
 import { BaseHooks, BaseHooksConfig } from '../../hooks/BaseHooks';
 import { BaseService, BaseEntity, BaseRequest, BaseResponse, BaseView, PagingRequest, PagingViewRequest } from '../../services/BaseService';
 import { FilterItemDto } from '@/share/utils/types';
+import messageService from '@/share/services/messageService';
 
 export interface BaseComponentConfig extends BaseHooksConfig {
   createTitle?: string;
@@ -201,7 +202,7 @@ export function CrudListComponent<
       })
       .catch((err) => {
         console.error('Refetch error', err);
-        message.error('Failed to load data');
+        messageService.error('Failed to load data');
       })
       .finally(() => setIsLoading(false));
   };
@@ -363,7 +364,7 @@ export function CrudListComponent<
             try { refetch(); } catch (err) { console.error('Refetch after update failed', err); }
           } catch (err) {
             console.error('Custom onUpdate failed', err);
-            message.error('Update failed');
+            messageService.error('Update failed');
           } finally {
             setIsSubmitting(false);
           }
@@ -381,7 +382,7 @@ export function CrudListComponent<
             try { refetch(); } catch (err) { console.error('Refetch after create failed', err); }
           } catch (err) {
             console.error('Custom onCreate failed', err);
-            message.error('Create failed');
+            messageService.error('Create failed');
           } finally {
             setIsSubmitting(false);
           }

@@ -8,11 +8,11 @@ import {
   Modal,
   Form,
   Input,
-  message,
   Empty,
   Popconfirm,
   List,
 } from "antd";
+import messageService from '@/share/services/messageService';
 import {
   PlusOutlined,
   EditOutlined,
@@ -77,7 +77,7 @@ export default function CategoryDetailPage() {
       setItems(itemsData || []);
     } catch (e) {
       console.error(e);
-      message.error("Không thể tải dữ liệu");
+      messageService.error("Không thể tải dữ liệu");
     } finally {
       setLoading(false);
     }
@@ -113,17 +113,17 @@ export default function CategoryDetailPage() {
 
       if (editingItem) {
         await flashcardItemService.update(editingItem.id, req);
-        message.success("Đã cập nhật thẻ");
+        messageService.success("Đã cập nhật thẻ");
       } else {
         await flashcardItemService.create(req);
-        message.success("Đã tạo thẻ mới");
+        messageService.success("Đã tạo thẻ mới");
       }
 
       setModalOpen(false);
       fetchData();
     } catch (e: any) {
       console.error(e);
-      message.error(e?.message || "Có lỗi xảy ra");
+      messageService.error(e?.message || "Có lỗi xảy ra");
     } finally {
       setSubmitting(false);
     }
@@ -132,11 +132,11 @@ export default function CategoryDetailPage() {
   const handleDelete = async (id: number) => {
     try {
       await flashcardItemService.delete(id);
-      message.success("Đã xóa thẻ");
+      messageService.success("Đã xóa thẻ");
       fetchData();
     } catch (e) {
       console.error(e);
-      message.error("Không thể xóa thẻ");
+      messageService.error("Không thể xóa thẻ");
     }
   };
 

@@ -2,10 +2,11 @@
 
 import React, { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Input, Button, message, Spin } from "antd";
+import { Input, Button, Spin } from "antd";
 import { useLogin } from "@/share/hooks/useAuth";
 import { authService } from "@/share/services/authService";
 import FloatingBubbles from "@/share/components/ui/FloatingBubbles";
+import messageService from "@/share/services/messageService";
 
 export default function VerifyOtpPage() {
   const router = useRouter();
@@ -60,14 +61,14 @@ export default function VerifyOtpPage() {
   };
 
   const handleResend = async () => {
-    if (!email) return message.error("Không có email để gửi lại OTP");
+    if (!email) return messageService.error("Không có email để gửi lại OTP");
 
     try {
       setLoading(true);
       const resp = await authService.regenerateOtp(email);
 
       if (resp?.code === 1000) {
-        message.success("Đã gửi lại OTP");
+        messageService.success("Đã gửi lại OTP");
 
         setSeconds(300);
         if (timerRef.current) clearInterval(timerRef.current);
@@ -76,19 +77,19 @@ export default function VerifyOtpPage() {
           setSeconds((s) => Math.max(0, s - 1));
         }, 1000);
       } else {
-        message.error(resp?.message || "Gửi lại OTP thất bại");
+        messageService.error(resp?.message || "Gửi lại OTP thất bại");
       }
     } catch (err) {
       console.error(err);
-      message.error("Có lỗi khi gửi lại OTP");
+      messageService.error("Có lỗi khi gửi lại OTP");
     } finally {
       setLoading(false);
     }
   };
 
   const handleVerify = async () => {
-    if (!email) return message.error("Không có email để xác thực");
-    if (!otp.trim()) return message.error("Vui lòng nhập OTP");
+    if (!email) return messageService.error("Không có email để xác thực");
+    if (!otp.trim()) return messageService.error("Vui lòng nhập OTP");
 
     try {
       setLoading(true);
@@ -96,7 +97,7 @@ export default function VerifyOtpPage() {
       const resp = await authService.verifyOtp(email, otp.trim());
 
       if (resp?.code === 1000) {
-        message.success("Xác thực thành công!");
+        messageService.success("Xác thực thành công!");
 
         let pending: { email?: string; password?: string } | null = null;
 
@@ -123,11 +124,11 @@ export default function VerifyOtpPage() {
           router.push("/auth/login");
         }
       } else {
-        message.error(resp?.message || "OTP không hợp lệ");
+        messageService.error(resp?.message || "OTP không hợp lệ");
       }
     } catch (err) {
       console.error(err);
-      message.error("Có lỗi khi xác thực OTP");
+      messageService.error("Có lỗi khi xác thực OTP");
     } finally {
       setLoading(false);
     }

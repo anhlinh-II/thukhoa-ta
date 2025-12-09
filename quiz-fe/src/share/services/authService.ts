@@ -44,6 +44,12 @@ export interface UserGetAccount {
   username: string;
   name?: string;
   avatar?: string;
+  currentStreak?: number;
+  longestStreak?: number;
+  rankingPoints?: number;
+  totalQuizzesCompleted?: number;
+  averageScore?: number;
+  totalStudyTimeMinutes?: number;
 }
 
 export interface UserResponse {

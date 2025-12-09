@@ -7,6 +7,7 @@ import com.example.quiz.model.dto.request.LoginRequest;
 import com.example.quiz.model.dto.request.ResetPasswordRequest;
 import com.example.quiz.model.entity.user.UserRequest;
 import com.example.quiz.model.dto.response.ApiResponse;
+import com.example.quiz.model.dto.response.LeaderboardResponseDto;
 import com.example.quiz.model.dto.response.LoginResponse;
 import com.example.quiz.model.entity.user.UserResponse;
 import com.example.quiz.model.entity.user.User;
@@ -206,5 +207,16 @@ public class UserController extends BaseController<User, Long, UserRequest, User
     @PostMapping("/reset-password")
     public ApiResponse<Void> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         return service.resetPassword(request);
+    }
+
+    @GetMapping("/leaderboard")
+    public ApiResponse<LeaderboardResponseDto> getLeaderboard(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size) {
+        return ApiResponse.<LeaderboardResponseDto>builder()
+                .code(1000)
+                .message("Leaderboard fetched successfully")
+                .result(service.getLeaderboard(page, size))
+                .build();
     }
 }

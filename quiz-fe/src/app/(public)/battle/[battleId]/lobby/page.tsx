@@ -2,7 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Card, Typography, Avatar, Button, Tag, Spin, message } from "antd";
+import { Card, Typography, Avatar, Button, Tag, Spin } from "antd";
+import messageService from '@/share/services/messageService';
 import { UserOutlined, CheckCircleOutlined, ClockCircleOutlined, LoadingOutlined, FullscreenOutlined, BgColorsOutlined } from "@ant-design/icons";
 import { useBattleWebSocket } from "@/share/hooks/useBattleWebSocket";
 import { useAccount } from "@/share/hooks/useAuth";
@@ -123,20 +124,50 @@ export default function BattleWaitingRoomPage() {
   }, [battleState, user, battleId]);
 
   const [countdown, setCountdown] = useState<number | null>(null);
+  const [countdownText, setCountdownText] = useState<string | null>(null);
+  const [isCountingDown, setIsCountingDown] = useState(false);
 
   useEffect(() => {
-    if (battleState?.status === BattleStatus.IN_PROGRESS) {
+    if (battleState?.status === BattleStatus.IN_PROGRESS && !isCountingDown) {
       router.push(`/battle/${battleId}/quiz`);
     }
     if (battleState?.status === BattleStatus.CANCELLED) {
-      message.warning('Battle đã bị hủy bởi người tạo');
+      messageService.warning('Battle đã bị hủy bởi người tạo');
       router.push('/');
     }
-  }, [battleState?.status, battleId, router]);
+  }, [battleState?.status, battleId, router, isCountingDown]);
+
+  useEffect(() => {
+    const participants = battleState?.participants || initialParticipants;
+    const everyoneReady = participants.length >= 2 && participants.every(p => p.isReady);
+    
+    if (everyoneReady && !isCountingDown) {
+      setIsCountingDown(true);
+      setCountdown(3);
+      setCountdownText("3");
+      
+      const countdownSequence = [
+        { delay: 1000, value: 2, text: "2" },
+        { delay: 2000, value: 1, text: "1" },
+        { delay: 3000, value: 0, text: "GO!" },
+        { delay: 4000, value: null, text: null },
+      ];
+      
+      countdownSequence.forEach(({ delay, value, text }) => {
+        setTimeout(() => {
+          setCountdown(value);
+          setCountdownText(text);
+          if (value === null) {
+            router.push(`/battle/${battleId}/quiz`);
+          }
+        }, delay);
+      });
+    }
+  }, [battleState?.participants, initialParticipants, isCountingDown, battleId, router]);
 
   const handleReady = () => {
     setReady(true);
-    message.success('Bạn đã sẵn sàng!');
+    messageService.success('Bạn đã sẵn sàng!');
   };
 
   // Use WebSocket state if available, otherwise fall back to initial fetch
@@ -225,6 +256,51 @@ export default function BattleWaitingRoomPage() {
               <ClockCircleOutlined className="text-4xl text-yellow-500 mb-2" />
               <Title level={2} className="!mb-0 !text-yellow-600">{countdown}</Title>
               <Text>Bắt đầu sau...</Text>
+            </div>
+          )}
+
+          {/* Full-screen countdown overlay */}
+          {isCountingDown && countdownText && (
+            <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+              <div className="text-center">
+                <div 
+                  key={countdownText}
+                  className="animate-countdown-pop"
+                >
+                  {countdownText === "GO!" ? (
+                    <div className="flex flex-col items-center">
+                      <span className="text-9xl font-black text-white drop-shadow-2xl">GO!</span>
+                      <span className="text-2xl text-white/80 mt-4">🚀 Chiến thôi!</span>
+                    </div>
+                  ) : (
+                    <span className="text-[200px] font-black text-white drop-shadow-2xl leading-none">
+                      {countdownText}
+                    </span>
+                  )}
+                </div>
+                <div className="mt-8">
+                  <Text className="text-white/70 text-xl">Chuẩn bị sẵn sàng...</Text>
+                </div>
+              </div>
+              <style jsx global>{`
+                @keyframes countdownPop {
+                  0% {
+                    transform: scale(0.3);
+                    opacity: 0;
+                  }
+                  50% {
+                    transform: scale(1.1);
+                    opacity: 1;
+                  }
+                  100% {
+                    transform: scale(1);
+                    opacity: 1;
+                  }
+                }
+                .animate-countdown-pop {
+                  animation: countdownPop 0.5s ease-out forwards;
+                }
+              `}</style>
             </div>
           )}
 

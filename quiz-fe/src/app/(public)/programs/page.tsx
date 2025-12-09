@@ -1,9 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { Tree, Card, Typography, Spin, message, Breadcrumb } from "antd";
+import { Tree, Card, Typography, Spin, Breadcrumb } from "antd";
 import { useRouter } from "next/navigation";
 import type { DataNode } from "antd/es/tree";
 import { programService } from "@/share/services/program/programService";
+import messageService from '@/share/services/messageService';
 
 const { Title } = Typography;
 
@@ -31,7 +32,7 @@ export default function ProgramsPage() {
       setTreeData(treeNodes);
     } catch (err: any) {
       console.error("Fetch programs tree error", err);
-      message.error("Failed to load programs");
+      messageService.error("Failed to load programs");
     } finally {
       setLoading(false);
     }

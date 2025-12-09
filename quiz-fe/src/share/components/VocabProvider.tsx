@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Popover, Button, Spin, notification } from "antd";
+import { Popover, Button, Spin } from "antd";
 import { SaveOutlined, CloseOutlined } from "@ant-design/icons";
 import { lookupWord } from "../services/vocabService";
 import { handleProblems } from '@/share/utils/functions';
 import { userVocabularyService } from "../services/user_vocabulary/user-vocabulary.service";
+import messageService from '@/share/services/messageService';
 
 type LookupResult = {
      word: string;
@@ -13,7 +14,12 @@ type LookupResult = {
      meanings?: Array<any>;
 };
 
-export default function VocabProvider({ children }: { children: React.ReactNode }) {
+interface VocabProviderProps {
+     children: React.ReactNode;
+     disabled?: boolean;
+}
+
+export default function VocabProvider({ children, disabled = false }: VocabProviderProps) {
      const containerRef = useRef<HTMLDivElement | null>(null);
      const [selectedWord, setSelectedWord] = useState<string | null>(null);
      const [anchor, setAnchor] = useState<{ x: number; y: number } | null>(null);
@@ -24,6 +30,8 @@ export default function VocabProvider({ children }: { children: React.ReactNode 
      const selectedWrapperRef = useRef<HTMLElement | null>(null);
 
      useEffect(() => {
+          if (disabled) return;
+          
           const el = containerRef.current ?? document;
 
           const handleDblClick = (e: MouseEvent) => {
@@ -80,7 +88,7 @@ export default function VocabProvider({ children }: { children: React.ReactNode 
 
           el.addEventListener("dblclick", handleDblClick as any);
           return () => el.removeEventListener("dblclick", handleDblClick as any);
-     }, []);
+     }, [disabled]);
 
      const fetchLookup = async (word: string) => {
           setLoading(true);
@@ -89,7 +97,7 @@ export default function VocabProvider({ children }: { children: React.ReactNode 
                setLookup(res);
           } catch (err) {
                console.error(err);
-               notification.error({ message: "Không tìm thấy từ hoặc lỗi kết nối" });
+               messageService.notifyError("Không tìm thấy từ hoặc lỗi kết nối");
           } finally {
                setLoading(false);
           }
@@ -101,11 +109,11 @@ export default function VocabProvider({ children }: { children: React.ReactNode 
           try {
                await userVocabularyService.saveVocab({ word: selectedWord, data: lookup });
                console.debug('VocabProvider: save succeeded');
-               notification.success({ message: 'Đã lưu từ vựng', duration: 4 });
+               messageService.notifySuccess('Đã lưu từ vựng');
           } catch (err) {
                console.error('VocabProvider: save failed', err);
                // Use centralized handler so backend codes are localized
-               try { handleProblems(err); } catch (e) { notification.error({ message: 'Lưu thất bại' }); }
+               try { handleProblems(err); } catch (e) { messageService.notifyError('Lưu thất bại'); }
           } finally {
                setSaving(false);
                setShowPopover(false);

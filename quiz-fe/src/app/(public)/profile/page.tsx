@@ -14,7 +14,6 @@ import {
   Input,
   Select,
   DatePicker,
-  message,
   Row,
   Col,
   Statistic,
@@ -29,6 +28,7 @@ import {
   Tooltip,
   Spin
 } from "antd";
+import messageService from '@/share/services/messageService';
 import {
   UserOutlined,
   EditOutlined,
@@ -131,13 +131,21 @@ export default function ProfilePage() {
   };
 
   // Mock data - replace with real data from API
+  const totalStudyMinutes = user?.totalStudyTimeMinutes ?? 0;
+  const studyTimeHours = Math.floor(totalStudyMinutes / 60);
+  const studyTimeDisplay = totalStudyMinutes >= 60 
+    ? `${studyTimeHours}h${totalStudyMinutes % 60 > 0 ? (totalStudyMinutes % 60) + 'm' : ''}`
+    : `${totalStudyMinutes}m`;
+
   const stats = {
-    testsCompleted: 24,
-    totalScore: 1850,
-    averageScore: 77,
-    studyTime: 48, // hours
-    streak: 7, // days
-    rank: 128,
+    testsCompleted: user?.totalQuizzesCompleted ?? 0,
+    totalScore: user?.rankingPoints ?? 0,
+    averageScore: user?.averageScore ?? 0,
+    studyTime: studyTimeDisplay,
+    studyTimeMinutes: totalStudyMinutes,
+    streak: user?.currentStreak ?? 0,
+    longestStreak: user?.longestStreak ?? 0,
+    rankingPoints: user?.rankingPoints ?? 0,
   };
 
   const recentTests = [
@@ -358,10 +366,10 @@ export default function ProfilePage() {
     try {
       // TODO: Call API to update profile
       console.log("Update profile:", values);
-      message.success("Cập nhật thông tin thành công!");
+      messageService.success("Cập nhật thông tin thành công!");
       setIsEditing(false);
     } catch (error) {
-      message.error("Cập nhật thất bại!");
+      messageService.error("Cập nhật thất bại!");
     }
   };
 
@@ -400,7 +408,7 @@ export default function ProfilePage() {
           if (!finalPath) throw new Error('Upload did not return a path');
         } catch (uploadErr) {
           console.error('Failed to upload default avatar to storage', uploadErr);
-          message.error('Tải avatar lên bộ nhớ thất bại');
+          messageService.error('Tải avatar lên bộ nhớ thất bại');
           setUploadingAvatar(false);
           return;
         }
@@ -422,11 +430,11 @@ export default function ProfilePage() {
         }
       }
 
-      message.success('Cập nhật ảnh đại diện thành công');
+      messageService.success('Cập nhật ảnh đại diện thành công');
       setShowAvatarPicker(false);
     } catch (err) {
       console.error(err);
-      message.error('Cập nhật ảnh thất bại');
+      messageService.error('Cập nhật ảnh thất bại');
     } finally {
       setUploadingAvatar(false);
     }
@@ -547,7 +555,7 @@ export default function ProfilePage() {
                             if (!path) throw new Error('No path returned');
                             // update user via base PUT endpoint
                             await apiClient.put(`/users/edit/${user.id}`, { avatarUrl: path });
-                            message.success('Cập nhật ảnh đại diện thành công');
+                            messageService.success('Cập nhật ảnh đại diện thành công');
                             // update react-query account cache so UI updates without reload
                             try {
                               queryClient.setQueryData(['auth', 'account'], (old: any) => {
@@ -562,7 +570,7 @@ export default function ProfilePage() {
                             }
                           } catch (err) {
                             console.error(err);
-                            message.error('Cập nhật ảnh thất bại');
+                            messageService.error('Cập nhật ảnh thất bại');
                           } finally {
                             setUploadingAvatar(false);
                             // reset input
@@ -604,7 +612,7 @@ export default function ProfilePage() {
                       </Text> */}
                       <div className="mt-2 flex gap-2 flex-wrap">
                         <Tag color="blue" icon={<TrophyOutlined />}>
-                          Hạng {stats.rank}
+                          {stats.rankingPoints.toLocaleString()} điểm
                         </Tag>
                         <Tag color="gold" icon={<FireOutlined />}>
                           {stats.streak} ngày streak
@@ -650,7 +658,7 @@ export default function ProfilePage() {
                             <ClockCircleOutlined className="text-lg" />
                           </div>
                           <div>
-                            <div className="text-xl font-semibold text-sky-700">{stats.studyTime}h</div>
+                            <div className="text-xl font-semibold text-sky-700">{stats.studyTime}</div>
                             <Text type="secondary" className="text-xs">Thời gian học</Text>
                           </div>
                         </div>
@@ -1064,6 +1072,11 @@ export default function ProfilePage() {
                       <FireOutlined className="text-4xl text-orange-500 mb-2" />
                       <Title level={4} className="!mb-1">Chuỗi học tập</Title>
                       <Text type="secondary">Học liên tục {stats.streak} ngày</Text>
+                      <div className="mt-2">
+                        <Tag color="gold" icon={<TrophyOutlined />}>
+                          Kỷ lục: {stats.longestStreak} ngày
+                        </Tag>
+                      </div>
                     </div>
                     <Progress
                       percent={(stats.streak / 30) * 100}

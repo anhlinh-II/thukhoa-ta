@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState } from 'react';
-import { Modal, Button, Input, Spin, message } from 'antd';
+import { Modal, Button, Input, Spin } from 'antd';
 import { askAi } from '@/share/services/ai.service';
 import { RobotOutlined } from '@ant-design/icons';
+import messageService from '@/share/services/messageService';
 
 const { TextArea } = Input;
 
@@ -21,7 +22,7 @@ export default function AIHelper({ selectedText }: { selectedText?: string }) {
 
   const handleAsk = async () => {
     if (!prompt || prompt.trim().length === 0) {
-      message.error('Vui lòng nhập câu hỏi hoặc chọn đoạn văn trong câu hỏi.');
+      messageService.error('Vui lòng nhập câu hỏi hoặc chọn đoạn văn trong câu hỏi.');
       return;
     }
     setLoading(true);
@@ -30,7 +31,7 @@ export default function AIHelper({ selectedText }: { selectedText?: string }) {
       const a = res?.answer;
       setAnswer(typeof a === 'string' ? a : JSON.stringify(a));
     } catch (e: any) {
-      message.error(e?.message || 'Gọi AI thất bại');
+      messageService.error(e?.message || 'Gọi AI thất bại');
     } finally {
       setLoading(false);
     }

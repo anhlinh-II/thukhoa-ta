@@ -1,5 +1,5 @@
 "use client";
-import { Button, Form, Input, Typography, message, Spin, Space, Checkbox, Divider, Select, DatePicker, Row, Col } from "antd";
+import { Button, Form, Input, Typography, Spin, Space, Checkbox, Divider, Select, DatePicker, Row, Col } from "antd";
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -7,6 +7,7 @@ import dayjs from "dayjs";
 import FloatingBubbles from "@/share/components/ui/FloatingBubbles";
 import { RegisterRequest, authService } from "@/share/services/authService";
 import { userService } from "@/share/services/user_service/user.service";
+import messageService from "@/share/services/messageService";
 
 export default function RegisterPage() {
   const [form] = Form.useForm();
@@ -21,7 +22,7 @@ export default function RegisterPage() {
   const onFinish = async (values: any) => {
     console.log('Register onFinish called', values);
     try {
-      message.info({ content: 'Submitting registration...', duration: 1 });
+      messageService.info('Submitting registration...');
     } catch (e) {}
     // ensure we have access to all form fields (step 1 + step 2)
     const allValues = form.getFieldsValue(true);
@@ -29,7 +30,7 @@ export default function RegisterPage() {
 
     // basic validation: email must exist before proceeding
     if (!emailVal) {
-      message.error('Vui lòng nhập email!');
+      messageService.error('Vui lòng nhập email!');
       return;
     }
 
@@ -37,12 +38,12 @@ export default function RegisterPage() {
     const password = (values.password ?? allValues.password) as string | undefined;
     const confirmPassword = (values.confirmPassword ?? allValues.confirmPassword) as string | undefined;
     if (password !== confirmPassword) {
-      message.error("Mật khẩu không khớp!");
+      messageService.error("Mật khẩu không khớp!");
       return;
     }
 
     if (!agreeTerms) {
-      message.error("Vui lòng đồng ý với điều khoản sử dụng!");
+      messageService.error("Vui lòng đồng ý với điều khoản sử dụng!");
       return;
     }
 
@@ -63,7 +64,7 @@ export default function RegisterPage() {
       const response = await authService.register(registerData);
 
       if (response.code === 1000) {
-        message.success("Đăng ký thành công! Vui lòng kiểm tra email để xác thực.");
+        messageService.success("Đăng ký thành công! Vui lòng kiểm tra email để xác thực.");
         // Store pending credentials briefly in sessionStorage so OTP page can auto-login after verify
         try {
           sessionStorage.setItem('pending_register', JSON.stringify({ email: registerData.email, password: registerData.password }));
@@ -75,11 +76,11 @@ export default function RegisterPage() {
           router.push(`/auth/verify-otp?email=${encodeURIComponent(registerData.email || '')}`);
         }, 800);
       } else {
-        message.error(response.message || "Đăng ký thất bại!");
+        messageService.error(response.message || "Đăng ký thất bại!");
       }
     } catch (error: any) {
       console.error("Register error:", error);
-      message.error(error?.response?.data?.message || "Có lỗi xảy ra!");
+      messageService.error(error?.response?.data?.message || "Có lỗi xảy ra!");
     } finally {
       setLoading(false);
     }
@@ -156,14 +157,14 @@ export default function RegisterPage() {
       const values = await form.validateFields(['username', 'email', 'password', 'confirmPassword']);
       // check password match
       if (values.password !== values.confirmPassword) {
-        message.error('Mật khẩu không khớp!');
+        messageService.error('Mật khẩu không khớp!');
         return;
       }
 
       const username = values.username || (values.email || '').split('@')[0];
       const available = await checkUsernameAvailable(username);
       if (!available) {
-        message.error('Tên đăng nhập đã tồn tại, vui lòng chọn tên khác');
+        messageService.error('Tên đăng nhập đã tồn tại, vui lòng chọn tên khác');
         return;
       }
 

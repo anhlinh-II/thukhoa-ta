@@ -8,7 +8,6 @@ import {
   Space,
   Table,
   Modal,
-  message,
   Upload,
   Form,
   Input,
@@ -21,6 +20,7 @@ import {
   Row,
   Col,
 } from "antd";
+import messageService from '@/share/services/messageService';
 import {
   DeleteOutlined,
   DownloadOutlined,
@@ -111,13 +111,13 @@ export default function QuizImportPage() {
       if (data.success && data.elements) {
         setElements(data.elements);
         setStep("markup");
-        message.success(`Word file parsed successfully (${data.count} elements)`);
+        messageService.success(`Word file parsed successfully (${data.count} elements)`);
       } else {
-        message.error(data.message || "Failed to parse Word file");
+        messageService.error(data.message || "Failed to parse Word file");
         console.error("Parse failed:", data);
       }
     } catch (error) {
-      message.error("Failed to upload Word file: " + (error instanceof Error ? error.message : "Unknown error"));
+      messageService.error("Failed to upload Word file: " + (error instanceof Error ? error.message : "Unknown error"));
       console.error("Upload error:", error);
     } finally {
       setLoading(false);
@@ -127,7 +127,7 @@ export default function QuizImportPage() {
   // Step 2: Mark elements
   const markSelectedText = (elementType: ElementType) => {
     if (!selectedText.trim()) {
-      message.warning("Please select text first");
+      messageService.warning("Please select text first");
       return;
     }
 
@@ -140,12 +140,12 @@ export default function QuizImportPage() {
 
     setElements(updated);
     setSelectedText("");
-    message.success(`Marked as ${elementType}`);
+    messageService.success(`Marked as ${elementType}`);
   };
 
   const deleteElement = (id: string) => {
     setElements(elements.filter((el) => el.id !== id));
-    message.success("Element deleted");
+    messageService.success("Element deleted");
   };
 
   const moveElement = (id: string, direction: "up" | "down") => {
@@ -177,12 +177,12 @@ export default function QuizImportPage() {
       if (data.success) {
         setPreviewData(data.preview);
         setStep("preview");
-        message.success("Converted to Excel");
+        messageService.success("Converted to Excel");
       } else {
-        message.error(data.message || "Conversion failed");
+        messageService.error(data.message || "Conversion failed");
       }
     } catch (error) {
-      message.error("Failed to convert to Excel");
+      messageService.error("Failed to convert to Excel");
       console.error(error);
     } finally {
       setLoading(false);
@@ -230,12 +230,12 @@ export default function QuizImportPage() {
       if (data.success) {
         setImportResult(data.result);
         setStep("result");
-        message.success("Quiz imported successfully!");
+        messageService.success("Quiz imported successfully!");
       } else {
-        message.error(data.message || "Import failed");
+        messageService.error(data.message || "Import failed");
       }
     } catch (error) {
-      message.error("Failed to process import");
+      messageService.error("Failed to process import");
       console.error(error);
     } finally {
       setLoading(false);

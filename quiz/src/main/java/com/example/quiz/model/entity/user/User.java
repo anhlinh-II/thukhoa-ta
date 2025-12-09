@@ -69,6 +69,23 @@ public class User extends BaseEntity {
     @Column(name = "reset_password_token_expiry")
     private Instant resetPasswordTokenExpiry;
 
+    // Streak fields
+    @Column(name = "current_streak")
+    private Integer currentStreak = 0;
+    
+    @Column(name = "longest_streak")
+    private Integer longestStreak = 0;
+    
+    @Column(name = "last_activity_date")
+    private Instant lastActivityDate;
+
+    // Ranking fields
+    @Column(name = "ranking_points")
+    private Long rankingPoints = 0L;
+    
+    @Column(name = "total_quizzes_completed")
+    private Integer totalQuizzesCompleted = 0;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
         name = "user_roles",

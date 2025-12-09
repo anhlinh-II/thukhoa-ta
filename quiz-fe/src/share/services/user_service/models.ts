@@ -43,6 +43,13 @@ export interface User extends BaseEntity {
      resetPasswordToken?: string | null;
      resetPasswordTokenExpiry?: string | null;
 
+     currentStreak?: number;
+     longestStreak?: number;
+     lastActivityDate?: string | null;
+
+     rankingPoints?: number;
+     totalQuizzesCompleted?: number;
+
      authorities?: Role[];
 }
 
