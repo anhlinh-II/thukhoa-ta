@@ -71,7 +71,7 @@ export class BaseService<
   }
 
   protected getEndpoint(): string {
-    return `${this.baseUrl}/${this.resourceName}`;
+    return `${this.resourceName}`;
   }
 
   protected async handleRequest<T>(
