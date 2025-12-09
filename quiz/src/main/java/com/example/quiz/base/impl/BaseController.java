@@ -6,6 +6,9 @@ import com.example.quiz.model.dto.request.RequestPagingDto;
 import com.example.quiz.model.dto.response.ApiResponse;
 import com.example.quiz.model.dto.response.PagingResponseDto;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -14,10 +17,17 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 public abstract class BaseController<E, ID, R, P, V, S> {
     
     protected BaseService<E, ID, R, P, V> baseService;
     protected S service;
+
+    @Value("${spring.security.oauth2.client.registration.google.redirect-uri:http://localhost:8080/login/oauth2/code/google}")
+    private String googleRedirectUri;
+
+    @Value("${app.oauth2.authorizedRedirectUri:http://localhost:3000/oauth2/redirect}")
+    private String authorizedRedirectUri;
 
     @SuppressWarnings("unchecked")
     protected BaseController(BaseService<E, ID, R, P, V> service) {
@@ -103,6 +113,12 @@ public abstract class BaseController<E, ID, R, P, V, S> {
         if (filter != null && !filter.trim().isEmpty()) {
             request.setFilter(filter);
         }
+
+        log.info("=================================================");
+        log.info("OAuth2 Configuration:");
+        log.info("GOOGLE_REDIRECT_URI: {}", googleRedirectUri);
+        log.info("OAUTH2_AUTHORIZED_REDIRECT_URI: {}", authorizedRedirectUri);
+        log.info("=================================================");
 
         // Call unified getTree() - it handles both list all and search
         List<Map<String, Object>> tree = baseService.getTree(request);

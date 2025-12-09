@@ -54,11 +54,7 @@ public class SecurityConfig {
 
     @PostConstruct
     public void logOAuth2Configuration() {
-        log.info("=================================================");
-        log.info("OAuth2 Configuration:");
-        log.info("GOOGLE_REDIRECT_URI: {}", googleRedirectUri);
-        log.info("OAUTH2_AUTHORIZED_REDIRECT_URI: {}", authorizedRedirectUri);
-        log.info("=================================================");
+        
     }
 
     @Bean
