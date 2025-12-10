@@ -13,7 +13,6 @@ interface Props {
   size: number;
   total: number;
   fetch: (p?: number, s?: number) => void;
-  openDetail: (item: any) => void;
   tabKey: 'mocktest' | 'topic' | 'format';
   setTabKey: React.Dispatch<React.SetStateAction<'mocktest' | 'topic' | 'format'>>;
   searchText: string;
@@ -25,7 +24,7 @@ interface Props {
   fmtDate: (d?: string) => string;
 }
 
-export default function HistoryTab({ filteredList, loading, page, size, total, fetch, openDetail, tabKey, setTabKey, searchText, setSearchText, sortBy, setSortBy, daysFilter, setDaysFilter, fmtDate }: Props) {
+export default function HistoryTab({ filteredList, loading, page, size, total, fetch, tabKey, setTabKey, searchText, setSearchText, sortBy, setSortBy, daysFilter, setDaysFilter, fmtDate }: Props) {
   return (
     <>
       <div className="mb-3 flex items-center gap-2">
@@ -59,10 +58,10 @@ export default function HistoryTab({ filteredList, loading, page, size, total, f
                 <Row className="w-full" align="middle" gutter={16}>
                   <Col xs={24} sm={14}>
                     <div className="flex items-start space-x-4">
-                      <div className="w-12 h-12 rounded-md bg-pink-50 flex items-center justify-center text-pink-600 font-bold">#{item.id ?? item.quizMockTestId}</div>
+                      <div className="w-12 h-12 rounded-md bg-pink-50 flex items-center justify-center text-sky-600 font-bold">#{item.id ?? item.quizMockTestId}</div>
                       <div>
                         <div className="flex items-center gap-3">
-                          <Text strong>{item.title ?? `Quiz ${item.id ?? item.quizMockTestId}`}</Text>
+                          <Text strong>{item.examName ?? item.title ?? `Quiz ${item.id ?? item.quizMockTestId}`}</Text>
                           {statusTag}
                         </div>
                         <div className="text-sm text-gray-500">Ngày: {fmtDate(item.createdAt)} • Thời lượng: {duration} • Lần: {attempt}</div>
@@ -76,10 +75,9 @@ export default function HistoryTab({ filteredList, loading, page, size, total, f
                   </Col>
 
                   <Col xs={24} sm={4} className="text-right">
-                    <Space direction="vertical">
-                      <Button type="link" onClick={() => openDetail(item)}>Xem chi tiết</Button>
-                      <Link href={`/quiz-results/${item.quizMockTestId ?? item.id}`}><Button type="primary">Xem kết quả</Button></Link>
-                    </Space>
+                    <Link href={`/quiz-history/${item.id}?name=${encodeURIComponent(item.examName || item.title || '')}`}>
+                      <Button type="primary" className="!rounded-full">Xem chi tiết</Button>
+                    </Link>
                   </Col>
                 </Row>
               </List.Item>

@@ -2,6 +2,7 @@
 import Link from 'next/link';
 import { Button, Spin } from 'antd';
 import { useState, useEffect } from 'react';
+import { defaultLang, t } from '@/share/locales';
 import { createPortal } from 'react-dom';
 import { useRouter, usePathname } from 'next/navigation';
 import { useIsAuthenticated, useAccount } from '@/share/hooks/useAuth';
@@ -149,6 +150,7 @@ export default function HeaderClient() {
   const { data: currentUser } = useAccount();
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [lang, setLang] = useState(defaultLang);
 
   const isAdmin = currentUser?.authorities?.some(
     (auth: { authority?: string }) => auth?.authority === 'SUPER_ADMIN' || auth?.authority === 'ADMIN'
@@ -170,6 +172,25 @@ export default function HeaderClient() {
     // set initial
     onScroll();
     return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Initialize language from localStorage and listen for global changes
+  useEffect(() => {
+    try {
+      const stored = typeof window !== 'undefined' ? localStorage.getItem('lang') : null;
+      if (stored) setLang(stored);
+    } catch (e) {
+      // ignore
+    }
+
+    const handler = (e: Event) => {
+      // CustomEvent with detail containing language code
+      const ce = e as CustomEvent<string>;
+      if (ce?.detail) setLang(ce.detail);
+    };
+
+    window.addEventListener('langChange', handler as EventListener);
+    return () => window.removeEventListener('langChange', handler as EventListener);
   }, []);
 
   // Hide header on specific routes (admin, quiz-taking, etc.)
@@ -251,6 +272,7 @@ export default function HeaderClient() {
     navigateWithLoader(router, `/programs/${programId}/quiz-groups`);
   };
 
+  // Thêm chọn ngôn ngữ vào header
   const headerContent = (
     <header className={`sticky top-0 z-30 px-4 sm:px-6 py-2 transition-colors duration-200 ${scrolled ? 'bg-white backdrop-blur-md shadow-md' : 'bg-white backdrop-blur-sm'}`}>
       <nav className={`max-w-7xl mx-auto text-gray-800`}>
@@ -291,7 +313,7 @@ export default function HeaderClient() {
                   <svg className="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                   </svg>
-                  Chương trình
+                  {t(lang, 'program')}
                   <svg className={`w-3 h-3 text-sky-600 transition-transform duration-200 ${showProgramMenu ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
@@ -311,7 +333,7 @@ export default function HeaderClient() {
                       ) : (
                         <div className="px-4 py-6 flex items-center justify-center text-gray-500">
                           <Spin size="small" />
-                          <span className="ml-2">Đang tải chương trình...</span>
+                          <span className="ml-2">{t(lang, 'loadingPrograms')}</span>
                         </div>
                       )}
                     </div>
@@ -332,7 +354,7 @@ export default function HeaderClient() {
                   <svg className="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                   </svg>
-                  <span className="text-sky-600">Từ vựng</span>
+                  <span className="text-sky-600">{t(lang, 'vocabulary')}</span>
                 </Link>
               </span>
               <span className="hover:bg-sky-100 rounded-lg transition-all duration-400">
@@ -340,7 +362,7 @@ export default function HeaderClient() {
                   <svg className="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
-                  <span className="text-sky-600">Thách đấu</span>
+                  <span className="text-sky-600">{t(lang, 'battle')}</span>
                 </Link>
               </span>
 
@@ -349,7 +371,7 @@ export default function HeaderClient() {
                   <svg className="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
-                  <span className="text-sky-600">Xếp hạng</span>
+                  <span className="text-sky-600">{t(lang, 'leaderboard')}</span>
                 </Link>
               </span>
 
@@ -358,7 +380,7 @@ export default function HeaderClient() {
                   <svg className="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  <span className="text-sky-600">Ôn tập</span>
+                  <span className="text-sky-600">{t(lang, 'review')}</span>
                 </Link>
               </span>
 
@@ -369,7 +391,7 @@ export default function HeaderClient() {
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                  <span className="text-sky-600">Quản trị</span>
+                  <span className="text-sky-600">{t(lang, 'admin')}</span>
                 </Link>
               </span>
               )}
@@ -384,6 +406,7 @@ export default function HeaderClient() {
 
           {/* right: profile / auth buttons */}
           <div className="flex items-center space-x-4">
+            {/* language selector removed - using user-menu toggle instead */}
             {isAuthenticated ? (
               <>
                 <div className="hidden md:block">
@@ -398,11 +421,11 @@ export default function HeaderClient() {
                 <div className="hidden md:flex items-center gap-2">
                   <Link href="/auth/login">
                     <Button type="text" className="text-gray-800 border-gray-300 hover:bg-purple-50 hover:text-sky-600 transition-all">
-                      Đăng nhập
+                      {t(lang, 'login')}
                     </Button>
                   </Link>
                   <Link href="/auth/register">
-                    <Button type="primary" className="font-medium">Đăng ký</Button>
+                    <Button type="primary" className="font-medium">{t(lang, 'register')}</Button>
                   </Link>
                 </div>
                 <div className="block md:hidden">
@@ -450,25 +473,25 @@ export default function HeaderClient() {
               <svg className="w-5 h-5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
               </svg>
-              Từ vựng
+              {t(lang, 'vocabulary')}
             </Link>
             <Link href="/battle" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sky-600 font-medium hover:bg-sky-50 transition-all duration-200 active:scale-[0.98]">
               <svg className="w-5 h-5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
-              Battle
+              {t(lang, 'battle')}
             </Link>
             <Link href="/leaderboard" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sky-600 font-medium hover:bg-sky-50 transition-all duration-200 active:scale-[0.98]">
               <svg className="w-5 h-5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
-              Bảng xếp hạng
+              {t(lang, 'leaderboard')}
             </Link>
             <Link href="/review" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sky-600 font-medium hover:bg-sky-50 transition-all duration-200 active:scale-[0.98]">
               <svg className="w-5 h-5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              Ôn tập
+              {t(lang, 'review')}
             </Link>
             {isAdmin && (
             <Link href="/admin" onClick={() => setSidebarOpen(false)} className="flex items-center gap-3 px-4 py-3 rounded-xl text-sky-600 font-medium hover:bg-sky-50 transition-all duration-200 active:scale-[0.98]">
@@ -476,7 +499,7 @@ export default function HeaderClient() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              Quản trị
+              {t(lang, 'admin')}
             </Link>
             )}
             <div className="pt-4 mt-2 border-t">
@@ -484,7 +507,7 @@ export default function HeaderClient() {
                 <svg className="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
                 </svg>
-                Chương trình ôn luyện
+                {t(lang, 'programPractice')}
               </div>
               {programs.length > 0 ? (
                 programs.map((p) => (
@@ -495,7 +518,7 @@ export default function HeaderClient() {
                   />
                 ))
               ) : (
-                <div className="px-4 py-2 text-sm text-gray-500">Đang tải...</div>
+                <div className="px-4 py-2 text-sm text-gray-500">{t(lang, 'loading')}</div>
               )}
             </div>
           </nav>

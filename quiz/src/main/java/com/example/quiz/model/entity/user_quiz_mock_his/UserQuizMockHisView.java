@@ -35,4 +35,13 @@ public class UserQuizMockHisView {
     @Column(name = "created_at")
     private Instant createdAt;
 
+    @Column(name = "time_spent")
+    private Integer timeSpent;
+
+    @Column(name = "quiz_type")
+    private String quizType;
+
+    @Column(name = "exam_name")
+    private String examName;
+
 }

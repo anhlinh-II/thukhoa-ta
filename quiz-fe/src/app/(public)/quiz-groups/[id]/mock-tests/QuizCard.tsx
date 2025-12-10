@@ -23,14 +23,14 @@ export default function QuizCard({ mockTest, index, onStart, onBattle }: Props) 
       hoverable
       className="group relative overflow-hidden rounded-xl shadow-md border border-sky-200/30 hover:border-sky-300 transition-all duration-300 ease-out hover:shadow-xl"
       style={{
-        background: 'linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%)',
+        background: 'linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%)',
         transition: 'all 300ms ease-out'
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.background = 'linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%)';
+        e.currentTarget.style.background = 'linear-gradient(135deg, #0369a1 0%, #0284c7 100%)';
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.background = 'linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%)';
+        e.currentTarget.style.background = 'linear-gradient(135deg, #0284c7 0%, #0ea5e9 100%)';
       }}
     >
       {/* Background Pattern */}
@@ -42,7 +42,7 @@ export default function QuizCard({ mockTest, index, onStart, onBattle }: Props) 
       {/* Content */}
       <div className="relative z-10">
         {/* Header with Number Badge */}
-        <div className="flex items-start justify-between mb-3">
+        <div className="flex items-start justify-between">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-7 h-7 bg-white/20 backdrop-blur rounded-lg flex items-center justify-center">
@@ -61,7 +61,7 @@ export default function QuizCard({ mockTest, index, onStart, onBattle }: Props) 
         {/* Description */}
         {mockTest.description && (
           <Text
-            className="text-white/90 text-xs block mb-3 line-clamp-2"
+            className="!text-white/90 text-xs block line-clamp-2"
             onClick={() => onStart(mockTest)}
             style={{ cursor: 'pointer' }}
           >
@@ -74,39 +74,39 @@ export default function QuizCard({ mockTest, index, onStart, onBattle }: Props) 
         {/* Stats Grid - 4 columns */}
         <div className="grid grid-cols-2 gap-2 mb-3">
           <div className="bg-white/10 backdrop-blur flex items-center justify-center gap-4 rounded-lg p-2 text-center">
-            <FileTextOutlined className="text-lg text-white mb-0.5" />
+            <FileTextOutlined className="text-lg !text-white mb-0.5" />
             <div>
-              <div className="text-white font-bold text-sm">
+              <div className="!text-white font-bold text-sm">
               {mockTest.totalQuestions || 0}
             </div>
-            <Text className="text-white/80 text-[10px]">Câu hỏi</Text>
+            <Text className="!text-white/80 text-[10px]">Câu hỏi</Text>
             </div>
           </div>
           <div className="bg-white/10 flex items-center justify-center gap-4 backdrop-blur rounded-lg p-2 text-center">
-            <ClockCircleOutlined className="text-lg text-white mb-0.5" />
+            <ClockCircleOutlined className="text-lg !text-white mb-0.5" />
             <div>
-              <div className="text-white font-bold text-sm">
+              <div className="!text-white font-bold text-sm">
               {mockTest.durationMinutes || 60}
             </div>
-            <Text className="text-white/80 text-[10px]">Phút</Text>
+            <Text className="!text-white/80 text-[10px]">Phút</Text>
             </div>
           </div>
           <div className="bg-white/10 backdrop-blur flex items-center justify-center gap-4 rounded-lg p-2 text-center">
-            <CheckCircleOutlined className="text-lg text-white mb-0.5" />
+            <CheckCircleOutlined className="text-lg !text-white mb-0.5" />
             <div>
-              <div className="text-white font-bold text-sm">
+              <div className="!text-white font-bold text-sm">
               {fakeAttempts}
             </div>
-            <Text className="text-white/80 text-[10px]">Lượt làm</Text>
+            <Text className="!text-white/80 text-[10px]">Lượt làm</Text>
             </div>
           </div>
           <div className="bg-white/10 backdrop-blur rounded-lg flex items-center justify-center gap-4 p-2 text-center">
-            <StarOutlined className="text-lg text-white mb-0.5" />
+            <StarOutlined className="text-lg !text-white mb-0.5" />
             <div>
-              <div className="text-white font-bold text-sm">
+              <div className="!text-white font-bold text-sm">
               {fakeAvgScore}
             </div>
-            <Text className="text-white/80 text-[10px]">Điểm TB</Text>
+            <Text className="!text-white/80 text-[10px]">Điểm TB</Text>
             </div>
           </div>
         </div>

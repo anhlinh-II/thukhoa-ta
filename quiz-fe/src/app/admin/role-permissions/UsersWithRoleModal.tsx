@@ -14,9 +14,9 @@ interface IUsersWithRoleModalProps {
 export default function UsersWithRoleModal({ open, onCancel, users, loading = false, title = 'Users', width = 700 }: IUsersWithRoleModalProps) {
   const columns = [
     { title: 'ID', dataIndex: 'id', key: 'id' },
-    { title: 'Username', dataIndex: 'username', key: 'username' },
+    { title: 'Tên người dùng', dataIndex: 'username', key: 'username' },
     { title: 'Email', dataIndex: 'email', key: 'email' },
-    { title: 'Full name', dataIndex: 'fullName', key: 'fullName' },
+    { title: 'Họ và tên', dataIndex: 'fullName', key: 'fullName' },
   ];
 
   return (

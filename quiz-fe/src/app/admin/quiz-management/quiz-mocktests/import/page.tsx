@@ -111,13 +111,13 @@ export default function QuizImportPage() {
       if (data.success && data.elements) {
         setElements(data.elements);
         setStep("markup");
-        messageService.success(`Word file parsed successfully (${data.count} elements)`);
+        messageService.success(`Phân tích file Word thành công (${data.count} thành phần)`);
       } else {
-        messageService.error(data.message || "Failed to parse Word file");
+        messageService.error(data.message || "Không thể phân tích file Word");
         console.error("Parse failed:", data);
       }
     } catch (error) {
-      messageService.error("Failed to upload Word file: " + (error instanceof Error ? error.message : "Unknown error"));
+      messageService.error("Không thể tải lên file Word: " + (error instanceof Error ? error.message : "Lỗi không xác định"));
       console.error("Upload error:", error);
     } finally {
       setLoading(false);
@@ -127,7 +127,7 @@ export default function QuizImportPage() {
   // Step 2: Mark elements
   const markSelectedText = (elementType: ElementType) => {
     if (!selectedText.trim()) {
-      messageService.warning("Please select text first");
+      messageService.warning("Vui lòng chọn văn bản trước");
       return;
     }
 
@@ -140,12 +140,12 @@ export default function QuizImportPage() {
 
     setElements(updated);
     setSelectedText("");
-    messageService.success(`Marked as ${elementType}`);
+    messageService.success(`Đã đánh dấu là ${elementType}`);
   };
 
   const deleteElement = (id: string) => {
     setElements(elements.filter((el) => el.id !== id));
-    messageService.success("Element deleted");
+    messageService.success("Đã xóa thành phần");
   };
 
   const moveElement = (id: string, direction: "up" | "down") => {
@@ -177,12 +177,12 @@ export default function QuizImportPage() {
       if (data.success) {
         setPreviewData(data.preview);
         setStep("preview");
-        messageService.success("Converted to Excel");
+        messageService.success("Chuyển đổi thành công");
       } else {
-        messageService.error(data.message || "Conversion failed");
+        messageService.error(data.message || "Chuyển đổi thất bại");
       }
     } catch (error) {
-      messageService.error("Failed to convert to Excel");
+      messageService.error("Không thể chuyển đổi sang Excel");
       console.error(error);
     } finally {
       setLoading(false);
@@ -230,12 +230,12 @@ export default function QuizImportPage() {
       if (data.success) {
         setImportResult(data.result);
         setStep("result");
-        messageService.success("Quiz imported successfully!");
+        messageService.success("Nhập quiz thành công!");
       } else {
-        messageService.error(data.message || "Import failed");
+        messageService.error(data.message || "Nhập thất bại");
       }
     } catch (error) {
-      messageService.error("Failed to process import");
+      messageService.error("Không thể xử lý import");
       console.error(error);
     } finally {
       setLoading(false);
@@ -248,35 +248,38 @@ export default function QuizImportPage() {
   };
 
   return (
-    <div className="space-y-6 p-6 max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold">Import Quiz from Word</h1>
+    <div className="space-y-6 p-4 lg:p-6 max-w-6xl mx-auto">
+      <h1 className="text-2xl lg:text-3xl font-bold text-center lg:text-left">Nhập bài Quiz từ Word</h1>
 
       <Steps
         current={["upload", "markup", "preview", "metadata", "result"].indexOf(step)}
+        size="small"
+        responsive
+        className="px-2"
       >
-        <Steps.Step title="Upload" description="Upload Word file" />
-        <Steps.Step title="Markup" description="Review & mark content" />
-        <Steps.Step title="Preview" description="Review Excel data" />
-        <Steps.Step title="Metadata" description="Add quiz info" />
-        <Steps.Step title="Complete" description="Import result" />
+        <Steps.Step title="Tải lên" description="Tải file Word" />
+        <Steps.Step title="Đánh dấu" description="Xem & đánh dấu" />
+        <Steps.Step title="Xem trước" description="Kiểm tra dữ liệu" />
+        <Steps.Step title="Thông tin" description="Thêm thông tin" />
+        <Steps.Step title="Hoàn thành" description="Kết quả" />
       </Steps>
 
-      {/* Step 1: Upload */}
+      {/* Bước 1: Tải lên */}
       {step === "upload" && (
-        <Card title="Step 1: Upload Word File" bordered={false} className="shadow">
+        <Card title="Bước 1: Tải lên file Word" bordered={false} className="shadow-md">
           <div className="space-y-4">
             <Alert
-              message="Format your Word document correctly"
-              description="Use Heading 1 for groups, Heading 2 for questions, Heading 3 for answers."
+              message="Định dạng file Word đúng cách"
+              description="Sử dụng Heading 1 cho nhóm câu hỏi, Heading 2 cho câu hỏi, Heading 3 cho đáp án."
               type="info"
               showIcon
             />
 
-            <div className="flex gap-4">
-              <Button onClick={showHelpModal}>📖 View Format Guide</Button>
+            <div className="flex justify-center lg:justify-start">
+              <Button onClick={showHelpModal}>📖 Xem hướng dẫn định dạng</Button>
             </div>
 
-            <div className="border-2 border-dashed border-blue-300 rounded p-6 bg-blue-50">
+            <div className="border-2 border-dashed border-blue-300 rounded-lg p-4 lg:p-6 bg-blue-50 text-center">
               <Upload
                 accept=".docx"
                 maxCount={1}
@@ -287,50 +290,50 @@ export default function QuizImportPage() {
                   }
                 }}
               >
-                <Button>📄 Choose Word File (.docx)</Button>
+                <Button size="large">📄 Chọn file Word (.docx)</Button>
               </Upload>
 
               {selectedFile && (
                 <div className="mt-4 space-y-3">
                   <p className="text-sm text-gray-700">
-                    <strong>Selected:</strong> {selectedFile.name} ({(selectedFile.size / 1024).toFixed(2)} KB)
+                    <strong>Đã chọn:</strong> {selectedFile.name} ({(selectedFile.size / 1024).toFixed(2)} KB)
                   </p>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 justify-center">
                     <Button
                       type="primary"
                       loading={loading}
                       onClick={() => handleWordUpload(selectedFile)}
                     >
-                      ⬆️ Upload & Parse
+                      ⬆️ Tải lên & Phân tích
                     </Button>
-                    <Button onClick={() => setSelectedFile(null)}>Change File</Button>
+                    <Button onClick={() => setSelectedFile(null)}>Đổi file</Button>
                   </div>
                 </div>
               )}
             </div>
 
-            <p className="text-gray-600 text-sm">
-              Upload a Word document with quiz content formatted using Heading 1 (groups),
-              Heading 2 (questions), and Heading 3 (answers).
+            <p className="text-gray-600 text-sm text-center lg:text-left">
+              Tải lên file Word với nội dung quiz được định dạng bằng Heading 1 (nhóm câu hỏi),
+              Heading 2 (câu hỏi), và Heading 3 (đáp án).
             </p>
           </div>
         </Card>
       )}
 
-      {/* Step 2: Markup */}
+      {/* Bước 2: Đánh dấu */}
       {step === "markup" && (
-        <Card title="Step 2: Review & Mark Content" bordered={false} className="shadow">
+        <Card title="Bước 2: Xem lại & Đánh dấu nội dung" bordered={false} className="shadow-md">
           <div className="space-y-4">
             <Alert
-              message="Review the extracted elements"
-              description="You can select text below to reassign types or use the table to delete/reorder."
+              message="Xem lại các thành phần đã trích xuất"
+              description="Bạn có thể chọn văn bản bên dưới để gán lại loại hoặc sử dụng bảng để xóa/sắp xếp lại."
               type="info"
               showIcon
             />
 
-            {/* Text preview with highlighting */}
+            {/* Xem trước văn bản với highlight */}
             <div>
-              <p className="font-semibold mb-2">Extracted Content:</p>
+              <p className="font-semibold mb-2">Nội dung đã trích xuất:</p>
               <div
                 className="border rounded p-4 bg-gray-50 min-h-64 max-h-96 overflow-y-auto font-mono text-sm leading-relaxed"
                 onMouseUp={() => {
@@ -349,11 +352,11 @@ export default function QuizImportPage() {
               </div>
             </div>
 
-            {/* Selected text actions */}
+            {/* Hành động với văn bản đã chọn */}
             {selectedText && (
-              <div className="bg-blue-50 p-4 border border-blue-200 rounded">
+              <div className="bg-blue-50 p-4 border border-blue-200 rounded-lg">
                 <p className="mb-3">
-                  <strong>Selected:</strong> "{selectedText.substring(0, 60)}
+                  <strong>Đã chọn:</strong> "{selectedText.substring(0, 60)}
                   {selectedText.length > 60 ? "..." : ""}"
                 </p>
                 <Space wrap>
@@ -361,39 +364,40 @@ export default function QuizImportPage() {
                     onClick={() => markSelectedText("GROUP")}
                     style={{ background: "#3b82f6", color: "white" }}
                   >
-                    Mark GROUP
+                    Đánh dấu NHÓM
                   </Button>
                   <Button
                     onClick={() => markSelectedText("QUESTION")}
                     style={{ background: "#10b981", color: "white" }}
                   >
-                    Mark QUESTION
+                    Đánh dấu CÂU HỎI
                   </Button>
                   <Button
                     onClick={() => markSelectedText("OPTION")}
                     style={{ background: "#f59e0b", color: "white" }}
                   >
-                    Mark OPTION
+                    Đánh dấu LỰA CHỌN
                   </Button>
                   <Button
                     onClick={() => markSelectedText("ANSWER")}
                     style={{ background: "#8b5cf6", color: "white" }}
                   >
-                    Mark ANSWER
+                    Đánh dấu ĐÁP ÁN
                   </Button>
                 </Space>
               </div>
             )}
 
-            {/* Elements table */}
+            {/* Bảng các thành phần */}
             <Table
               dataSource={elements}
               size="small"
               pagination={{ pageSize: 15 }}
               rowKey="id"
+              scroll={{ x: 500 }}
               columns={[
                 {
-                  title: "Type",
+                  title: "Loại",
                   dataIndex: "type",
                   key: "type",
                   width: 100,
@@ -404,13 +408,13 @@ export default function QuizImportPage() {
                   ),
                 },
                 {
-                  title: "Content",
+                  title: "Nội dung",
                   dataIndex: "text",
                   key: "text",
                   ellipsis: true,
                 },
                 {
-                  title: "Actions",
+                  title: "Thao tác",
                   key: "actions",
                   width: 120,
                   render: (_, record) => (
@@ -439,28 +443,28 @@ export default function QuizImportPage() {
               ]}
             />
 
-            <Space>
-              <Button onClick={() => setStep("upload")}>← Back</Button>
+            <div className="flex flex-col sm:flex-row gap-2 justify-center sm:justify-start">
+              <Button onClick={() => setStep("upload")}>← Quay lại</Button>
               <Button
                 type="primary"
                 onClick={convertToExcel}
                 loading={loading}
                 disabled={elements.length === 0}
               >
-                Convert to Excel →
+                Chuyển đổi sang Excel →
               </Button>
-            </Space>
+            </div>
           </div>
         </Card>
       )}
 
-      {/* Step 3: Preview */}
+      {/* Bước 3: Xem trước */}
       {step === "preview" && previewData && (
-        <Card title="Step 3: Excel Preview" bordered={false} className="shadow">
+        <Card title="Bước 3: Xem trước dữ liệu" bordered={false} className="shadow-md">
           <div className="space-y-4">
             {previewData.errors && previewData.errors.length > 0 && (
               <Alert
-                message={`${previewData.errors.length} Validation Issue(s)`}
+                message={`${previewData.errors.length} lỗi xác thực`}
                 type="warning"
                 showIcon
                 icon={<ExclamationCircleOutlined />}
@@ -469,18 +473,19 @@ export default function QuizImportPage() {
 
             <Tabs defaultActiveKey="groups">
               <Tabs.TabPane
-                tab={`Question Groups (${previewData.questionGroups?.length || 0})`}
+                tab={`Nhóm câu hỏi (${previewData.questionGroups?.length || 0})`}
                 key="groups"
               >
                 <Table
                   dataSource={previewData.questionGroups}
                   size="small"
                   pagination={false}
+                  scroll={{ x: 400 }}
                   columns={[
-                    { title: "Group ID", dataIndex: "groupId", key: "groupId", width: 120 },
-                    { title: "Title", dataIndex: "title", key: "title", ellipsis: true },
+                    { title: "ID Nhóm", dataIndex: "groupId", key: "groupId", width: 100 },
+                    { title: "Tiêu đề", dataIndex: "title", key: "title", ellipsis: true },
                     {
-                      title: "Content",
+                      title: "Nội dung",
                       dataIndex: "contentHtml",
                       key: "content",
                       ellipsis: true,
@@ -491,54 +496,56 @@ export default function QuizImportPage() {
               </Tabs.TabPane>
 
               <Tabs.TabPane
-                tab={`Questions (${previewData.questions?.length || 0})`}
+                tab={`Câu hỏi (${previewData.questions?.length || 0})`}
                 key="questions"
               >
                 <Table
                   dataSource={previewData.questions}
                   size="small"
                   pagination={{ pageSize: 10 }}
+                  scroll={{ x: 400 }}
                   columns={[
-                    { title: "ID", dataIndex: "id", key: "id", width: 100 },
-                    { title: "Type", dataIndex: "type", key: "type", width: 100 },
+                    { title: "ID", dataIndex: "id", key: "id", width: 80 },
+                    { title: "Loại", dataIndex: "type", key: "type", width: 80 },
                     {
-                      title: "Content",
+                      title: "Nội dung",
                       dataIndex: "contentHtml",
                       key: "content",
                       ellipsis: true,
                     },
-                    { title: "Score", dataIndex: "score", key: "score", width: 80 },
+                    { title: "Điểm", dataIndex: "score", key: "score", width: 60 },
                   ]}
                 />
               </Tabs.TabPane>
 
               <Tabs.TabPane
-                tab={`Options (${previewData.questionOptions?.length || 0})`}
+                tab={`Lựa chọn (${previewData.questionOptions?.length || 0})`}
                 key="options"
               >
                 <Table
                   dataSource={previewData.questionOptions}
                   size="small"
                   pagination={{ pageSize: 15 }}
+                  scroll={{ x: 400 }}
                   columns={[
                     {
-                      title: "Question ID",
+                      title: "ID Câu hỏi",
                       dataIndex: "questionId",
                       key: "questionId",
-                      width: 100,
+                      width: 90,
                     },
-                    { title: "Key", dataIndex: "matchKey", key: "key", width: 60 },
+                    { title: "Đáp án", dataIndex: "matchKey", key: "key", width: 60 },
                     {
-                      title: "Content",
+                      title: "Nội dung",
                       dataIndex: "contentHtml",
                       key: "content",
                       ellipsis: true,
                     },
                     {
-                      title: "Correct",
+                      title: "Đúng",
                       dataIndex: "isCorrect",
                       key: "isCorrect",
-                      width: 80,
+                      width: 60,
                       render: (v: boolean) => (v ? "✓" : ""),
                     },
                   ]}
@@ -546,42 +553,42 @@ export default function QuizImportPage() {
               </Tabs.TabPane>
             </Tabs>
 
-            <Space>
-              <Button onClick={() => setStep("markup")}>← Back</Button>
+            <div className="flex flex-col sm:flex-row gap-2 justify-center sm:justify-start">
+              <Button onClick={() => setStep("markup")}>← Quay lại</Button>
               <Button type="primary" onClick={() => setStep("metadata")}>
-                Continue →
+                Tiếp tục →
               </Button>
-            </Space>
+            </div>
           </div>
         </Card>
       )}
 
-      {/* Step 4: Metadata */}
+      {/* Bước 4: Thông tin */}
       {step === "metadata" && (
-        <Card title="Step 4: Add Quiz Information" bordered={false} className="shadow">
-          <Form form={form} layout="vertical" onFinish={handleImport}>
+        <Card title="Bước 4: Thêm thông tin bài Quiz" bordered={false} className="shadow-md">
+          <Form form={form} layout="vertical" onFinish={handleImport} className="max-w-xl">
             <Form.Item
-              label="Quiz Name"
+              label="Tên bài Quiz"
               name="quizName"
-              rules={[{ required: true, message: "Please enter quiz name" }]}
+              rules={[{ required: true, message: "Vui lòng nhập tên bài quiz" }]}
             >
-              <Input placeholder="e.g., TOEIC Practice Test 1" />
+              <Input placeholder="Ví dụ: TOEIC Practice Test 1" />
             </Form.Item>
 
             <Form.Item
-              label="Duration (minutes)"
+              label="Thời gian làm bài (phút)"
               name="durationMinutes"
-              rules={[{ required: true, message: "Please enter duration" }]}
+              rules={[{ required: true, message: "Vui lòng nhập thời gian" }]}
             >
-              <InputNumber min={1} max={300} />
+              <InputNumber min={1} max={300} className="w-full" />
             </Form.Item>
 
             <Form.Item
-              label="Quiz Group"
+              label="Nhóm Quiz"
               name="quizGroupId"
-              rules={[{ required: true, message: "Please select a quiz group" }]}
+              rules={[{ required: true, message: "Vui lòng chọn nhóm quiz" }]}
             >
-              <Select placeholder="Select target group">
+              <Select placeholder="Chọn nhóm quiz">
                 {quizGroups.map((group) => (
                   <Select.Option key={group.id} value={group.id}>
                     {group.name}
@@ -590,124 +597,122 @@ export default function QuizImportPage() {
               </Select>
             </Form.Item>
 
-            <Form.Item label="Description" name="description">
-              <Input.TextArea rows={4} placeholder="Optional description" />
+            <Form.Item label="Mô tả" name="description">
+              <Input.TextArea rows={4} placeholder="Mô tả (tùy chọn)" />
             </Form.Item>
 
-            <Space>
-              <Button onClick={() => setStep("preview")}>← Back</Button>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button onClick={() => setStep("preview")}>← Quay lại</Button>
               <Button type="primary" htmlType="submit" loading={loading}>
-                Import Quiz →
+                Nhập Quiz →
               </Button>
-            </Space>
+            </div>
           </Form>
         </Card>
       )}
 
-      {/* Step 5: Result */}
+      {/* Bước 5: Kết quả */}
       {step === "result" && importResult && (
-        <Card title="Step 5: Import Complete ✓" bordered={false} className="shadow">
+        <Card title="Bước 5: Nhập hoàn tất ✓" bordered={false} className="shadow-md">
           <div className="space-y-6">
-            <Row gutter={16}>
-              <Col span={6}>
+            <Row gutter={[16, 16]}>
+              <Col xs={12} sm={6}>
                 <Statistic
-                  title="Created Groups"
+                  title="Nhóm đã tạo"
                   value={importResult.created?.questionGroups || 0}
                   prefix={<CheckCircleOutlined className="text-green-500" />}
                 />
               </Col>
-              <Col span={6}>
+              <Col xs={12} sm={6}>
                 <Statistic
-                  title="Created Questions"
+                  title="Câu hỏi đã tạo"
                   value={importResult.created?.questions || 0}
                   prefix={<CheckCircleOutlined className="text-green-500" />}
                 />
               </Col>
-              <Col span={6}>
+              <Col xs={12} sm={6}>
                 <Statistic
-                  title="Created Options"
+                  title="Lựa chọn đã tạo"
                   value={importResult.created?.questionOptions || 0}
                   prefix={<CheckCircleOutlined className="text-green-500" />}
                 />
               </Col>
-              <Col span={6}>
-                <Statistic title="Duration" value={importResult.duration || "N/A"} />
+              <Col xs={12} sm={6}>
+                <Statistic title="Thời gian" value={importResult.duration || "N/A"} />
               </Col>
             </Row>
 
             {importResult.errors && importResult.errors.length > 0 && (
-              <Alert message={`${importResult.errors.length} Error(s)`} type="warning" showIcon />
+              <Alert message={`${importResult.errors.length} lỗi`} type="warning" showIcon />
             )}
 
-            <Space>
+            <div className="flex flex-col sm:flex-row gap-2">
               <Button
                 type="primary"
                 onClick={() => router.push("/admin/quiz-management/quiz-mocktests")}
               >
-                View All Quizzes
+                Xem tất cả bài Quiz
               </Button>
-              <Button onClick={() => window.location.reload()}>Import Another</Button>
-            </Space>
+              <Button onClick={() => window.location.reload()}>Nhập bài khác</Button>
+            </div>
           </div>
         </Card>
       )}
 
-      {/* Help Modal */}
+      {/* Modal hướng dẫn */}
       <Modal
-        title="Word Format Guide"
+        title="Hướng dẫn định dạng Word"
         open={helpVisible}
         onCancel={() => setHelpVisible(false)}
-        footer={<Button onClick={() => setHelpVisible(false)}>Close</Button>}
+        footer={<Button onClick={() => setHelpVisible(false)}>Đóng</Button>}
         width={700}
-        bodyStyle={{ maxHeight: "70vh", overflowY: "auto" }}
+        styles={{ body: { maxHeight: "70vh", overflowY: "auto" } }}
       >
         <div className="space-y-4">
           <p>
-            <strong>Marking Syntax in Word:</strong>
+            <strong>Cú pháp đánh dấu trong Word:</strong>
           </p>
           <ul className="list-disc list-inside space-y-2 ml-4">
             <li>
-              <strong>GROUP:</strong> Use Heading 1 style with text:{" "}
-              <code className="bg-gray-100 px-2 py-1">[GROUP] Group Name</code>
+              <strong>NHÓM (GROUP):</strong> Sử dụng kiểu Heading 1 với văn bản:{" "}
+              <code className="bg-gray-100 px-2 py-1 rounded">[GROUP] Tên nhóm</code>
             </li>
             <li>
-              <strong>QUESTION:</strong> Use Heading 2 style with text:{" "}
-              <code className="bg-gray-100 px-2 py-1">[QUESTION] Question text</code>
+              <strong>CÂU HỎI (QUESTION):</strong> Sử dụng kiểu Heading 2 với văn bản:{" "}
+              <code className="bg-gray-100 px-2 py-1 rounded">[QUESTION] Nội dung câu hỏi</code>
             </li>
             <li>
-              <strong>OPTION:</strong> Write as:{" "}
-              <code className="bg-gray-100 px-2 py-1">A) Option text</code>,{" "}
-              <code className="bg-gray-100 px-2 py-1">B) Option text</code>, etc.
+              <strong>LỰA CHỌN (OPTION):</strong> Viết theo dạng:{" "}
+              <code className="bg-gray-100 px-2 py-1 rounded">A) Lựa chọn A</code>,{" "}
+              <code className="bg-gray-100 px-2 py-1 rounded">B) Lựa chọn B</code>, v.v.
             </li>
             <li>
-              <strong>ANSWER:</strong> Use Heading 3 style with text:{" "}
-              <code className="bg-gray-100 px-2 py-1">[ANSWER] B</code> (the correct option
-              key)
+              <strong>ĐÁP ÁN (ANSWER):</strong> Sử dụng kiểu Heading 3 với văn bản:{" "}
+              <code className="bg-gray-100 px-2 py-1 rounded">[ANSWER] B</code> (đáp án đúng)
             </li>
           </ul>
           <p className="text-gray-600 text-sm">
-            Normal text between these elements will be treated as content for the preceding
-            section.
+            Văn bản bình thường giữa các thành phần sẽ được coi là nội dung cho phần trước đó.
           </p>
 
           <div className="mt-6 pt-4 border-t">
-            <p className="font-semibold mb-3">Example Word Document Structure:</p>
-            <div className="bg-gray-50 p-4 rounded font-mono text-xs space-y-1">
-              <div>[Heading 1] [GROUP] English Listening - Part A</div>
-              <div>[Normal] General instructions about this group...</div>
+            <p className="font-semibold mb-3">Ví dụ cấu trúc tài liệu Word:</p>
+            <div className="bg-gray-50 p-4 rounded font-mono text-xs space-y-1 overflow-x-auto">
+              <div>[Heading 1] [GROUP] Nghe tiếng Anh - Phần A</div>
+              <div>[Normal] Hướng dẫn chung về nhóm này...</div>
               <div></div>
-              <div>[Heading 2] [QUESTION] Listen to the conversation. What does the woman want?</div>
-              <div>A) To book a flight</div>
-              <div>B) To change a reservation</div>
-              <div>C) To cancel a booking</div>
-              <div>D) To upgrade her seat</div>
+              <div>[Heading 2] [QUESTION] Nghe cuộc hội thoại. Người phụ nữ muốn gì?</div>
+              <div>A) Đặt vé máy bay</div>
+              <div>B) Thay đổi đặt chỗ</div>
+              <div>C) Hủy đặt chỗ</div>
+              <div>D) Nâng cấp ghế</div>
               <div>[Heading 3] [ANSWER] B</div>
               <div></div>
-              <div>[Heading 2] [QUESTION] Where are they talking?</div>
-              <div>A) At a restaurant</div>
-              <div>B) At an airport</div>
-              <div>C) At a hotel</div>
-              <div>D) At a train station</div>
+              <div>[Heading 2] [QUESTION] Họ đang nói chuyện ở đâu?</div>
+              <div>A) Tại nhà hàng</div>
+              <div>B) Tại sân bay</div>
+              <div>C) Tại khách sạn</div>
+              <div>D) Tại ga tàu</div>
               <div>[Heading 3] [ANSWER] A</div>
             </div>
           </div>

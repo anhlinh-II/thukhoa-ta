@@ -1,13 +1,35 @@
 "use client";
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Typography, Button } from 'antd';
 import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { PlayCircleOutlined } from '@ant-design/icons';
 import FloatingBubbles from '../ui/FloatingBubbles';
+import { defaultLang, t } from '@/share/locales';
 
 const { Title, Paragraph } = Typography;
 
-export default function HeroClient() {
+export default function HeroClient({ lang: propLang }: { lang?: string }) {
+  const [lang, setLang] = useState<string>(defaultLang);
+
+  useEffect(() => {
+    try {
+      const stored = typeof window !== 'undefined' ? localStorage.getItem('lang') : null;
+      if (propLang) {
+        setLang(propLang);
+      } else if (stored) {
+        setLang(stored);
+      }
+    } catch (e) {}
+
+    const handler = (e: Event) => {
+      const ce = e as CustomEvent<string>;
+      if (ce?.detail) setLang(ce.detail);
+    };
+
+    window.addEventListener('langChange', handler as EventListener);
+    return () => window.removeEventListener('langChange', handler as EventListener);
+  }, [propLang]);
+
   return (
     <section className="relative overflow-hidden">
       <FloatingBubbles className="absolute inset-0 z-0 opacity-60" />
@@ -22,19 +44,21 @@ export default function HeroClient() {
           <div className="grid lg:grid-cols-2 gap-8 items-center">
             {/* Left: Text block - vertically centered */}
             <div className="text-gray-800 flex flex-col justify-center py-6">
+              {/* language selection moved to user menu; hero will follow global lang */}
+
               <Title level={1} className="!mb-4 !text-4xl sm:!text-5xl lg:!text-6xl font-extrabold leading-tight">
-                Daily English Quiz
+                {t(lang, 'heroTitle')}
                 <br className="hidden sm:block" />
-                <span className="text-purple-600">Build Skills. Win Daily.</span>
+                <span className="text-purple-600">{t(lang, 'heroSubtitle')}</span>
               </Title>
 
               <Paragraph className="!text-gray-700 !text-lg md:!text-xl !mb-6 max-w-xl">
-                Practice bite-sized quizzes, track progress, and compete on the leaderboard. Short, consistent practice beats occasional cramming.
+                {t(lang, 'heroDesc')}
               </Paragraph>
 
               <div className="flex flex-col sm:flex-row gap-3 mt-4">
-                <Button type="primary" size="large" icon={<PlayCircleOutlined />} className="h-12 px-6 text-base font-semibold">Play Now</Button>
-                <Button size="large" className="h-12 px-6 text-base border-purple-300 text-purple-700 hover:bg-purple-50 hover:border-purple-400">Leaderboard</Button>
+                <Button type="primary" size="large" icon={<PlayCircleOutlined />} className="h-12 px-6 text-base font-semibold">{t(lang, 'playNow')}</Button>
+                <Button size="large" className="h-12 px-6 text-base border-purple-300 text-purple-700 hover:bg-purple-50 hover:border-purple-400">{t(lang, 'leaderboardBtn')}</Button>
               </div>
             </div>
 
@@ -55,4 +79,4 @@ export default function HeroClient() {
     </section>
   );
 }
- 
+

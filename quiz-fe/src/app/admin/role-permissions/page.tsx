@@ -69,11 +69,11 @@ export default function RolePermissionsAdminPage() {
   }
 
   async function submitAssignment() {
-    if (!selectedRoleId) { messageService.error('Please select a role'); return; }
+    if (!selectedRoleId) { messageService.error('Vui lòng chọn vai trò'); return; }
     setAssigning(true);
     try {
       await rolePermissionService.assignPermissionsToRole(selectedRoleId, selectedPermissionIds);
-      messageService.success('Permissions assigned');
+      messageService.success('Đã gán quyền thành công');
       // refresh roles to get updated assigned permissions and update selected permissions
       const updatedRoles = await fetchRoles();
       const updatedRole = (updatedRoles || []).find((x: any) => x.id === selectedRoleId);
@@ -82,7 +82,7 @@ export default function RolePermissionsAdminPage() {
       } else {
         setSelectedPermissionIds([]);
       }
-    } catch (e: any) { console.error(e); messageService.error(e?.message || 'Error assigning permissions'); }
+    } catch (e: any) { console.error(e); messageService.error(e?.message || 'Lỗi khi gán quyền'); }
     setAssigning(false);
   }
 
@@ -97,14 +97,14 @@ export default function RolePermissionsAdminPage() {
       const vals = await form.validateFields();
       if (editingRole) {
         await rolePermissionService.updateRole(editingRole.id, vals.authority, vals.description);
-        messageService.success('Role updated');
+        messageService.success('Đã cập nhật vai trò');
       } else {
         await rolePermissionService.createRole(vals.authority, vals.description);
-        messageService.success('Role created');
+        messageService.success('Đã tạo vai trò');
       }
       setRoleModalOpen(false);
       fetchRoles();
-    } catch (e: any) { console.error(e); messageService.error(e?.message || 'Error'); }
+    } catch (e: any) { console.error(e); messageService.error(e?.message || 'Lỗi'); }
   }
 
   async function submitPerm() {
@@ -112,35 +112,35 @@ export default function RolePermissionsAdminPage() {
       const vals = await permForm.validateFields();
       if (editingPerm) {
         await rolePermissionService.updatePermission(editingPerm.id, vals.name, vals.description, vals.resource, vals.action);
-        messageService.success('Permission updated');
+        messageService.success('Đã cập nhật quyền');
       } else {
         await rolePermissionService.createPermission(vals.name, vals.description, vals.resource, vals.action);
-        messageService.success('Permission created');
+        messageService.success('Đã tạo quyền');
       }
       setPermModalOpen(false);
       fetchPerms();
-    } catch (e: any) { console.error(e); messageService.error(e?.message || 'Error'); }
+    } catch (e: any) { console.error(e); messageService.error(e?.message || 'Lỗi'); }
   }
 
   async function deleteRole(id: number) {
-    try { await rolePermissionService.deleteRole(id); messageService.success('Deleted'); fetchRoles(); } catch (e:any) { messageService.error(e?.message || 'Error'); }
+    try { await rolePermissionService.deleteRole(id); messageService.success('Đã xóa'); fetchRoles(); } catch (e:any) { messageService.error(e?.message || 'Lỗi'); }
   }
 
   async function deletePerm(id: number) {
-    try { await rolePermissionService.deletePermission(id); messageService.success('Deleted'); fetchPerms(); } catch (e:any) { messageService.error(e?.message || 'Error'); }
+    try { await rolePermissionService.deletePermission(id); messageService.success('Đã xóa'); fetchPerms(); } catch (e:any) { messageService.error(e?.message || 'Lỗi'); }
   }
 
   const roleCols = [
     { title: 'ID', dataIndex: 'id', key: 'id' },
-    { title: 'Authority', dataIndex: 'authority', key: 'authority' },
-    { title: 'Description', dataIndex: 'description', key: 'description' },
-    { title: 'Actions', key: 'actions', render: (_: any, r: any) => (
+    { title: 'Tên vai trò', dataIndex: 'authority', key: 'authority' },
+    { title: 'Mô tả', dataIndex: 'description', key: 'description' },
+    { title: 'Hành động', key: 'actions', render: (_: any, r: any) => (
       <Space>
-          <Button size="small" onClick={() => openAssignUsers(r)}>Assign Users</Button>
-        <Button size="small" onClick={() => viewUsers(r)}>View Users</Button>
-        <Button size="small" onClick={() => openEditRole(r)}>Edit</Button>
-        <Popconfirm title="Delete role?" onConfirm={() => deleteRole(r.id)}>
-          <Button size="small" danger>Delete</Button>
+          <Button size="small" onClick={() => openAssignUsers(r)}>Gán người dùng</Button>
+        <Button size="small" onClick={() => viewUsers(r)}>Xem người dùng</Button>
+        <Button size="small" onClick={() => openEditRole(r)}>Sửa</Button>
+        <Popconfirm title="Xóa vai trò này?" onConfirm={() => deleteRole(r.id)}>
+          <Button size="small" danger>Xóa</Button>
         </Popconfirm>
       </Space>
     )}
@@ -210,28 +210,28 @@ export default function RolePermissionsAdminPage() {
   }
 
   async function submitAssignUsers() {
-    if (!selectedRoleForAssign) { messageService.error('Select a role'); return; }
+    if (!selectedRoleForAssign) { messageService.error('Vui lòng chọn vai trò'); return; }
     try {
       await rolePermissionService.assignUsersToRole(selectedRoleForAssign.id, selectedUserAssignIds);
-      messageService.success('Users assigned to role');
+      messageService.success('Đã gán người dùng cho vai trò');
       setAssignUsersModalOpen(false);
       // refresh roles and users modal
       await fetchRoles();
       if (selectedRoleForAssign && selectedRoleForAssign.authority) fetchUsersForRole(selectedRoleForAssign.authority);
-    } catch (e:any) { console.error(e); messageService.error(e?.message || 'Error'); }
+    } catch (e:any) { console.error(e); messageService.error(e?.message || 'Lỗi'); }
   }
 
   const permCols = [
     { title: 'ID', dataIndex: 'id', key: 'id' },
-    { title: 'Name', dataIndex: 'name', key: 'name' },
-    { title: 'Resource', dataIndex: 'resource', key: 'resource' },
-    { title: 'Action', dataIndex: 'action', key: 'action' },
-    { title: 'Description', dataIndex: 'description', key: 'description' },
-    { title: 'Actions', key: 'actions', render: (_: any, p: any) => (
+    { title: 'Tên', dataIndex: 'name', key: 'name' },
+    { title: 'Tài nguyên', dataIndex: 'resource', key: 'resource' },
+    { title: 'Hành động', dataIndex: 'action', key: 'action' },
+    { title: 'Mô tả', dataIndex: 'description', key: 'description' },
+    { title: 'Thao tác', key: 'actions', render: (_: any, p: any) => (
       <Space>
-        <Button size="small" onClick={() => openEditPerm(p)}>Edit</Button>
-        <Popconfirm title="Delete permission?" onConfirm={() => deletePerm(p.id)}>
-          <Button size="small" danger>Delete</Button>
+        <Button size="small" onClick={() => openEditPerm(p)}>Sửa</Button>
+        <Popconfirm title="Xóa quyền này?" onConfirm={() => deletePerm(p.id)}>
+          <Button size="small" danger>Xóa</Button>
         </Popconfirm>
       </Space>
     )}
@@ -244,16 +244,16 @@ export default function RolePermissionsAdminPage() {
       <Tabs activeKey={activeTab} onChange={(k) => setActiveTab(k)}>
         <Tabs.TabPane key="roles" tab="Vai trò (Roles)">
           <Space style={{ marginBottom: 12 }}>
-            <Button type="primary" onClick={openCreateRole}>Create Role</Button>
-            <Button onClick={fetchRoles}>Refresh</Button>
+            <Button type="primary" onClick={openCreateRole}>Tạo vai trò</Button>
+            <Button onClick={fetchRoles}>Làm mới</Button>
           </Space>
           <Table rowKey="id" dataSource={roles} columns={roleCols} loading={loadingRoles} pagination={{ pageSize: 10 }} />
         </Tabs.TabPane>
 
         <Tabs.TabPane key="permissions" tab="Quyền (Permissions)">
           <Space style={{ marginBottom: 12 }}>
-            <Button type="primary" onClick={openCreatePerm}>Create Permission</Button>
-            <Button onClick={fetchPerms}>Refresh</Button>
+            <Button type="primary" onClick={openCreatePerm}>Tạo quyền</Button>
+            <Button onClick={fetchPerms}>Làm mới</Button>
           </Space>
           <Table rowKey="id" dataSource={permissions} columns={permCols} loading={loadingPerms} pagination={{ pageSize: 10 }} />
         </Tabs.TabPane>
@@ -264,20 +264,20 @@ export default function RolePermissionsAdminPage() {
                 <div style={{ marginBottom: 12 }}>
                   <Select
                     style={{ width: '100%' }}
-                    placeholder="Select role"
+                    placeholder="Chọn vai trò"
                     value={selectedRoleId ?? undefined}
                     onChange={(v) => onRoleSelect(v ?? null)}
                     options={(roles || []).map(r => ({ label: r.authority || r.name || `#${r.id}`, value: r.id }))}
                   />
                 </div>
                 <div>
-                  <Button onClick={() => { onRoleSelect(null); setSelectedPermissionIds([]); }}>Clear</Button>
+                  <Button onClick={() => { onRoleSelect(null); setSelectedPermissionIds([]); }}>Xóa</Button>
                 </div>
               </div>
 
               <div style={{ flex: 1 }}>
                 <div style={{ marginBottom: 12 }}>
-                  <strong>Permissions</strong>
+                  <strong>Danh sách quyền</strong>
                 </div>
 
                 {/* Group permissions by resource and render in two equal columns. */}
@@ -350,8 +350,8 @@ export default function RolePermissionsAdminPage() {
 
                 <div style={{ marginTop: 12 }}>
                   <Space>
-                    <Button type="primary" onClick={submitAssignment} loading={assigning}>Save</Button>
-                    <Button onClick={() => { if (selectedRoleId) onRoleSelect(selectedRoleId); else setSelectedPermissionIds([]); }}>Reset</Button>
+                    <Button type="primary" onClick={submitAssignment} loading={assigning}>Lưu</Button>
+                    <Button onClick={() => { if (selectedRoleId) onRoleSelect(selectedRoleId); else setSelectedPermissionIds([]); }}>Đặt lại</Button>
                   </Space>
                 </div>
               </div>
@@ -359,12 +359,12 @@ export default function RolePermissionsAdminPage() {
         </Tabs.TabPane>
       </Tabs>
 
-      <Modal title={editingRole ? 'Edit Role' : 'Create Role'} open={roleModalOpen} onOk={submitRole} onCancel={() => setRoleModalOpen(false)}>
+      <Modal title={editingRole ? 'Sửa vai trò' : 'Tạo vai trò'} open={roleModalOpen} onOk={submitRole} onCancel={() => setRoleModalOpen(false)}>
         <Form form={form} layout="vertical">
-          <Form.Item name="authority" label="Authority" rules={[{ required: true }]}>
+          <Form.Item name="authority" label="Tên vai trò" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
-          <Form.Item name="description" label="Description">
+          <Form.Item name="description" label="Mô tả">
             <Input />
           </Form.Item>
         </Form>
@@ -375,12 +375,11 @@ export default function RolePermissionsAdminPage() {
         onCancel={() => setUserModalOpen(false)}
         users={usersForRole}
         loading={loadingUsers}
-        title={selectedRoleForUsers ? `Users with role ${selectedRoleForUsers.authority}` : 'Users'}
+        title={selectedRoleForUsers ? `Người dùng với vai trò ${selectedRoleForUsers.authority}` : 'Người dùng'}
       />
 
-      <Modal title={selectedRoleForAssign ? `Assign users to ${selectedRoleForAssign.authority}` : 'Assign Users'} open={assignUsersModalOpen} onCancel={() => setAssignUsersModalOpen(false)} onOk={submitAssignUsers} width={800}>
+      <Modal title={selectedRoleForAssign ? `Gán người dùng cho vai trò ${selectedRoleForAssign.authority}` : 'Gán người dùng'} open={assignUsersModalOpen} onCancel={() => setAssignUsersModalOpen(false)} onOk={submitAssignUsers} width={800}>
         <div>
-          <div style={{ marginBottom: 8 }}><strong>Select users to assign</strong></div>
           <AssignUsersTable
             users={allUsers}
             loading={loadingAllUsers}
@@ -391,18 +390,18 @@ export default function RolePermissionsAdminPage() {
         </div>
       </Modal>
 
-      <Modal title={editingPerm ? 'Edit Permission' : 'Create Permission'} open={permModalOpen} onOk={submitPerm} onCancel={() => setPermModalOpen(false)}>
+      <Modal title={editingPerm ? 'Sửa quyền' : 'Tạo quyền'} open={permModalOpen} onOk={submitPerm} onCancel={() => setPermModalOpen(false)}>
         <Form form={permForm} layout="vertical">
-          <Form.Item name="name" label="Name" rules={[{ required: true }]}>
+          <Form.Item name="name" label="Tên" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
-          <Form.Item name="resource" label="Resource" rules={[{ required: true }]}>
+          <Form.Item name="resource" label="Tài nguyên" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
-          <Form.Item name="action" label="Action" rules={[{ required: true }]}>
+          <Form.Item name="action" label="Hành động" rules={[{ required: true }]}>
             <Input />
           </Form.Item>
-          <Form.Item name="description" label="Description">
+          <Form.Item name="description" label="Mô tả">
             <Input />
           </Form.Item>
         </Form>

@@ -1,6 +1,6 @@
 "use client";
 import { useState } from 'react';
-import { Layout, Menu } from 'antd';
+import { Layout, Menu, Avatar } from 'antd';
 import { useRouter, usePathname } from 'next/navigation';
 import {
   AppstoreOutlined,
@@ -12,7 +12,9 @@ import {
   CalendarOutlined,
   LeftOutlined,
   RightOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
+import { useAccount } from '@/share/hooks/useAuth';
 import './admin.css';
 
 const { Header, Sider, Content } = Layout;
@@ -25,6 +27,7 @@ export default function AdminLayout({
   const [collapsed, setCollapsed] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const { data: user } = useAccount();
 
   // Determine active key based on pathname
   const getActiveKey = () => {
@@ -59,7 +62,7 @@ export default function AdminLayout({
     {
       key: 'role-permissions',
       icon: <TeamOutlined />,
-      label: 'Roles & Permissions',
+      label: 'Vai trò - Quyền hệ thống',
     },
     {
       key: 'programs',
@@ -137,9 +140,13 @@ export default function AdminLayout({
             <div className="flex items-center gap-3">
               <button
                 onClick={() => router.push('/')}
-                className="text-gray-800 cursor-pointer font-bold text-lg hover:text-blue-600 transition-colors"
+                className="cursor-pointer hover:opacity-80 transition-opacity"
               >
-                {collapsed ? 'Q' : 'Trang quản trị'}
+                <img 
+                  src="/img/logo.png" 
+                  alt="Logo" 
+                  className={collapsed ? "h-8 w-auto" : "h-10 w-auto"}
+                />
               </button>
             </div>
           </div>
@@ -191,15 +198,6 @@ export default function AdminLayout({
                 <h1 className="text-xl font-semibold text-gray-800 m-0">
                   {getPageTitle()}
                 </h1>
-              </div>
-            </div>
-
-            <div className="flex items-center space-x-4">
-              <div className="text-sm text-gray-600">
-                Welcome, Admin
-              </div>
-              <div className="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                A
               </div>
             </div>
           </div>

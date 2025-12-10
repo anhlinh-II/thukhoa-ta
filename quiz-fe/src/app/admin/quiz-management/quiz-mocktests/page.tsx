@@ -30,7 +30,7 @@ export default function QuizMockTests() {
                sorter: true,
           },
           {
-               title: 'Name',
+               title: 'Tên bài Quiz',
                dataIndex: 'examName',
                key: 'name',
                ellipsis: true,
@@ -38,55 +38,55 @@ export default function QuizMockTests() {
                width: 300,
           },
           {
-               title: 'Description',
+               title: 'Mô tả',
                dataIndex: 'description',
                key: 'description',
                ellipsis: true,
                width: 300,
-               render: (text: string) => text || 'No description',
+               render: (text: string) => text || 'Chưa có mô tả',
           },
           {
-               title: 'Slug',
+               title: 'Đường dẫn',
                dataIndex: 'slug',
                key: 'slug',
                width: 300,
                ellipsis: true,
-               render: (text: string) => text || 'No slug',
+               render: (text: string) => text || 'Chưa có',
           },
           {
-               title: 'Group Name',
+               title: 'Nhóm Quiz',
                dataIndex: 'groupName',
                width: 300,
                key: 'groupName',
                ellipsis: true,
-               render: (text: string) => text || 'No group name',
+               render: (text: string) => text || 'Chưa phân nhóm',
           },
           {
-               title: 'Status',
+               title: 'Trạng thái',
                dataIndex: 'isDeleted',
                key: 'isDeleted',
                width: 100,
                render: (isDeleted: boolean) => (
                     <span className={`px-2 py-1 rounded-full text-xs ${!isDeleted ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
                          }`}>
-                         {!isDeleted ? 'Active' : 'Deleted'}
+                         {!isDeleted ? 'Hoạt động' : 'Đã xóa'}
                     </span>
                ),
           },
           {
-               title: 'Created',
+               title: 'Ngày tạo',
                dataIndex: 'createdAt',
                key: 'createdAt',
                width: 120,
-               render: (date: string) => new Date(date).toLocaleDateString(),
+               render: (date: string) => new Date(date).toLocaleDateString('vi-VN'),
                sorter: true,
           },
           {
-               title: 'Updated',
+               title: 'Cập nhật',
                dataIndex: 'updatedAt',
                key: 'updatedAt',
                width: 120,
-               render: (date: string) => new Date(date).toLocaleDateString(),
+               render: (date: string) => new Date(date).toLocaleDateString('vi-VN'),
                sorter: true,
           },
      ];
@@ -121,20 +121,12 @@ export default function QuizMockTests() {
 
      return (
           <>
-               <div className="mb-4 flex justify-end gap-2">
-                    <Link href="/admin/quiz-management/quiz-mocktests/import">
-                         <Button type="primary" icon={<ImportOutlined />}>
-                              Import from Word
-                         </Button>
-                    </Link>
-               </div>
-
                <CrudListComponent
                     config={{
                          queryKeyPrefix: 'quiz-mock-tests',
-                         resourceName: 'Quiz Mock Test',
-                         createTitle: 'Create Quiz Mock Test',
-                         editTitle: 'Edit Quiz Mock Test',
+                         resourceName: 'Bài Quiz',
+                         createTitle: 'Tạo bài Quiz mới',
+                         editTitle: 'Chỉnh sửa bài Quiz',
                          pageSize: 100,
                     }}
                     service={quizMockTestService}
@@ -145,17 +137,17 @@ export default function QuizMockTests() {
                               type="text"
                               icon={<EyeOutlined />}
                               onClick={() => handlePreview(record)}
-                              title="Preview Quiz"
+                              title="Xem trước"
                          />
                     )}
                     onCreateSuccess={(data: QuizMockTestResponse) => {
-                         console.log('Quiz mock test created:', data);
+                         console.log('Bài quiz đã tạo:', data);
                     }}
                     onUpdateSuccess={(data: QuizMockTestResponse) => {
-                         console.log('Quiz mock test updated:', data);
+                         console.log('Bài quiz đã cập nhật:', data);
                     }}
                     onDeleteSuccess={() => {
-                         console.log('Quiz mock test deleted');
+                         console.log('Bài quiz đã xóa');
                     }}
                     tableProps={{
                          bordered: true,
@@ -163,36 +155,43 @@ export default function QuizMockTests() {
                     }}
                     filterParams={fixedFilters}
                     searchFields={['title', 'slug', 'examName']}
-                    searchPlaceholder="Search quiz mock tests..."
+                    searchPlaceholder="Tìm kiếm bài quiz..."
+                    extraHeaderButtons={
+                         <Link href="/admin/quiz-management/quiz-mocktests/import">
+                              <Button type="primary" icon={<ImportOutlined />}>
+                                   Nhập từ Word
+                              </Button>
+                         </Link>
+                    }
                />
 
                <Modal
-                    title="Quiz Preview"
+                    title="Xem trước bài Quiz"
                     open={previewVisible}
                     onCancel={() => setPreviewVisible(false)}
                     footer={null}
                     width="90%"
                     centered
-                    bodyStyle={{ maxHeight: '75vh', overflow: 'auto' }}
+                    styles={{ body: { maxHeight: '75vh', overflow: 'auto' } }}
                >
                     {previewLoading ? (
-                         <div>Loading...</div>
+                         <div>Đang tải...</div>
                     ) : previewData ? (
                          <div>
-                              <Card title="Quiz Info" style={{ marginBottom: 16 }}>
-                                   <p><strong>Name:</strong> {previewData.quiz?.examName}</p>
-                                   <p><strong>Duration:</strong> {previewData.quiz?.durationMinutes} minutes</p>
-                                   <p><strong>Total Questions:</strong> {previewData.totalQuestions}</p>
+                              <Card title="Thông tin bài Quiz" style={{ marginBottom: 16 }}>
+                                   <p><strong>Tên:</strong> {previewData.quiz?.examName}</p>
+                                   <p><strong>Thời gian:</strong> {previewData.quiz?.durationMinutes} phút</p>
+                                   <p><strong>Tổng số câu hỏi:</strong> {previewData.totalQuestions}</p>
                               </Card>
 
                               {previewData.questionGroups?.map((group: any, gIdx: number) => (
-                                   <Card key={gIdx} title={`Group: ${group.title}`} style={{ marginBottom: 16 }}>
+                                   <Card key={gIdx} title={`Nhóm: ${group.title}`} style={{ marginBottom: 16 }}>
                                         {group.contentHtml && <div dangerouslySetInnerHTML={{ __html: group.contentHtml }} />}
                                         {group.questions?.map((q: any, qIdx: number) => (
                                              <Card key={qIdx} size="small" style={{ marginBottom: 12, marginLeft: 16 }}>
-                                                  <p><strong>Question {qIdx + 1}:</strong></p>
+                                                  <p><strong>Câu hỏi {qIdx + 1}:</strong></p>
                                                   <div dangerouslySetInnerHTML={{ __html: q.contentHtml }} />
-                                                  <p><strong>Score:</strong> {q.score}</p>
+                                                  <p><strong>Điểm:</strong> {q.score}</p>
                                                   {q.options?.map((opt: any, oIdx: number) => (
                                                        <div key={oIdx} style={{ marginLeft: 16, padding: 4, background: opt.isCorrect ? '#e6ffe6' : '#fff', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
                                                             <div style={{ minWidth: 20 }}>{String.fromCharCode(65 + oIdx)}.</div>
@@ -206,12 +205,12 @@ export default function QuizMockTests() {
                               ))}
 
                               {previewData.standaloneQuestions?.length > 0 && (
-                                   <Card title="Standalone Questions" style={{ marginBottom: 16 }}>
+                                   <Card title="Câu hỏi đơn lẻ" style={{ marginBottom: 16 }}>
                                         {previewData.standaloneQuestions.map((q: any, qIdx: number) => (
                                              <Card key={qIdx} size="small" style={{ marginBottom: 12 }}>
-                                                  <p><strong>Question {qIdx + 1}:</strong></p>
+                                                  <p><strong>Câu hỏi {qIdx + 1}:</strong></p>
                                                   <div dangerouslySetInnerHTML={{ __html: q.contentHtml }} />
-                                                  <p><strong>Score:</strong> {q.score}</p>
+                                                  <p><strong>Điểm:</strong> {q.score}</p>
                                                   {q.options?.map((opt: any, oIdx: number) => (
                                                        <div key={oIdx} style={{ marginLeft: 16, padding: 4, background: opt.isCorrect ? '#e6ffe6' : '#fff', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
                                                             <div style={{ minWidth: 20 }}>{String.fromCharCode(65 + oIdx)}.</div>

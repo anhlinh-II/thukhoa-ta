@@ -43,6 +43,7 @@ export interface BaseComponentProps<
   filterParams?: FilterItemDto[];
   searchFields?: string[];
   searchPlaceholder?: string;
+  extraHeaderButtons?: React.ReactNode;
 }
 
 export function CrudListComponent<
@@ -65,6 +66,7 @@ export function CrudListComponent<
   filterParams,
   searchFields,
   searchPlaceholder,
+  extraHeaderButtons,
 }: BaseComponentProps<Entity, Request, Response, View>) {
   const hooks = new BaseHooks(service, config);
 
@@ -498,8 +500,9 @@ export function CrudListComponent<
               loading={isLoading}
               style={{ fontSize: 14 }}
             >
-              Refresh
+              Làm mới
             </Button>
+            {extraHeaderButtons}
             <Button
               type="primary"
               icon={<PlusOutlined />}
@@ -507,7 +510,7 @@ export function CrudListComponent<
               loading={createMutation.isPending}
               style={{ fontSize: 14 }}
             >
-              Create {config.resourceName}
+              Tạo {config.resourceName}
             </Button>
           </Space>
         </div>

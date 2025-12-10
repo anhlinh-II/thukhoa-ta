@@ -55,9 +55,10 @@ public class BattleService {
         
         // Fetch and set quiz name
         try {
-            var quizPreview = quizMockTestService.getQuizPreview(request.getQuizId());
-            String quizName = (String) quizPreview.getOrDefault("examName", 
-                              quizPreview.getOrDefault("title", "Quiz #" + request.getQuizId()));
+            // var quizPreview = quizMockTestService.getQuizPreview(request.getQuizId());
+            var quizEntity = quizMockTestService.getById(request.getQuizId());
+
+            String quizName = quizEntity.getExamName();
             battle.setQuizName(quizName);
         } catch (Exception e) {
             log.warn("Failed to fetch quiz name for quizId: {}", request.getQuizId(), e);

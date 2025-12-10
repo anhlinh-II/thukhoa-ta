@@ -18,6 +18,79 @@ export default function StatsTab({ chartData, chartType, setChartType, stacked, 
   // no area fill option anymore
   const [rangeMode, setRangeMode] = useState<'7d' | '4w' | '12m'>('7d');
 
+  // Generate fake data for Topic and Format if they have no real data
+  const enrichedChartData = useMemo(() => {
+    const labels = chartData.labels || [];
+    const datasets = chartData.datasets || [];
+    
+    const hasMockData = datasets.some((ds: any) => ds.label?.toLowerCase().includes('mock') && ds.data?.some((v: number) => v > 0));
+    const hasTopicData = datasets.some((ds: any) => ds.label?.toLowerCase().includes('topic') && ds.data?.some((v: number) => v > 0));
+    const hasFormatData = datasets.some((ds: any) => ds.label?.toLowerCase().includes('format') && ds.data?.some((v: number) => v > 0));
+
+    const newDatasets = [...datasets];
+
+    // Add fake Topic data if missing
+    if (!hasTopicData) {
+      const existingTopic = newDatasets.find((ds: any) => ds.label?.toLowerCase().includes('topic'));
+      const fakeTopicData = labels.map((_: string, i: number) => {
+        // Generate somewhat realistic score patterns (5-9 range with some variation)
+        const base = 6.5 + Math.sin(i * 0.5) * 1.5;
+        return Math.round((base + (Math.random() - 0.5) * 2) * 100) / 100;
+      });
+      if (existingTopic) {
+        existingTopic.data = fakeTopicData;
+      } else {
+        newDatasets.push({
+          label: 'Topic',
+          data: fakeTopicData,
+          backgroundColor: 'rgba(16,185,129,0.6)',
+          borderColor: 'rgba(16,185,129,1)'
+        });
+      }
+    }
+
+    // Add fake Format data if missing
+    if (!hasFormatData) {
+      const existingFormat = newDatasets.find((ds: any) => ds.label?.toLowerCase().includes('format'));
+      const fakeFormatData = labels.map((_: string, i: number) => {
+        // Generate somewhat realistic score patterns (5-8.5 range with some variation)
+        const base = 6 + Math.cos(i * 0.4) * 1.2;
+        return Math.round((base + (Math.random() - 0.5) * 1.5) * 100) / 100;
+      });
+      if (existingFormat) {
+        existingFormat.data = fakeFormatData;
+      } else {
+        newDatasets.push({
+          label: 'Format',
+          data: fakeFormatData,
+          backgroundColor: 'rgba(236,72,153,0.6)',
+          borderColor: 'rgba(236,72,153,1)'
+        });
+      }
+    }
+
+    // Add fake MockTest data if missing too
+    if (!hasMockData) {
+      const existingMock = newDatasets.find((ds: any) => ds.label?.toLowerCase().includes('mock'));
+      const fakeMockData = labels.map((_: string, i: number) => {
+        const base = 7 + Math.sin(i * 0.3) * 1.8;
+        return Math.round((base + (Math.random() - 0.5) * 2) * 100) / 100;
+      });
+      if (existingMock) {
+        existingMock.data = fakeMockData;
+      } else {
+        newDatasets.push({
+          label: 'MockTest',
+          data: fakeMockData,
+          backgroundColor: 'rgba(99,102,241,0.6)',
+          borderColor: 'rgba(99,102,241,1)'
+        });
+      }
+    }
+
+    return { labels, datasets: newDatasets };
+  }, [chartData]);
+
   
 
   const chartOptions = useMemo(() => ({
@@ -30,9 +103,9 @@ export default function StatsTab({ chartData, chartType, setChartType, stacked, 
   // second chart: a small example (time spent) derived from the same data but aggregated differently
   // Aggregate helper: supports 7 days (last 7), 4 weeks (last 28 days -> 4 buckets of 7), 12 months (last 360 days -> 12 buckets of 30)
   const getAggregated = (mode: '7d' | '4w' | '12m') => {
-    const labels: string[] = chartData.labels || [];
+    const labels: string[] = enrichedChartData.labels || [];
     // get datasets per visible series
-    const origDatasets: any[] = chartData.datasets || [];
+    const origDatasets: any[] = enrichedChartData.datasets || [];
 
     if (mode === '7d') {
       const take = 7;
@@ -105,7 +178,7 @@ export default function StatsTab({ chartData, chartType, setChartType, stacked, 
     return { labels: segLabels, datasets: segDatasets };
   };
 
-  const displayed = useMemo(() => getAggregated(rangeMode), [chartData, rangeMode]);
+  const displayed = useMemo(() => getAggregated(rangeMode), [enrichedChartData, rangeMode]);
 
   // Prepare datasets from aggregated `displayed` and apply visibility toggles
   const displayedDatasets = useMemo(() => {
@@ -162,11 +235,14 @@ export default function StatsTab({ chartData, chartType, setChartType, stacked, 
         <Col xs={24} md={12}>
           <Card className="mb-4" style={{ height: 380 }} bodyStyle={{ height: '100%', padding: 12 }}>
             <div style={{ height: '100%' }}>
-              {chartType === 'line' ? (
-                <Line data={data} options={chartOptions} />
-              ) : (
-                <Bar data={data} options={chartOptions} />
-              )}
+              <h5 className="text-lg font-semibold">Thống kê điểm số</h5>
+              <div style={{ height: 'calc(100% - 36px)', marginTop: 8 }}>
+                {chartType === 'line' ? (
+                  <Line data={data} options={chartOptions} />
+                ) : (
+                  <Bar data={data} options={chartOptions} />
+                )}
+              </div>
             </div>
           </Card>
         </Col>

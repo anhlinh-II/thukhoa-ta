@@ -12,4 +12,7 @@ public class UserQuizMockHisResponseDto {
     private Integer totalQuestions;
     private Integer correctCount;
     private Instant createdAt;
+    private Integer timeSpent;
+    private String quizType;
+    private String examName;
 }

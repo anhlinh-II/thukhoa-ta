@@ -1,12 +1,8 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from 'react';
-import { Card, List, Typography, Pagination, Spin, Button, Tag, Space, Modal, Row, Col, Tabs, Input, Select, Radio, Checkbox, Divider } from 'antd';
+import { Card, Typography, Spin, Tabs, Input, Select, Radio } from 'antd';
 import { userQuizHistoryService } from '@/share/services/user_quiz_history/user-quiz-history.service';
-import { questionService } from '@/share/services/question/question.service';
-import { questionOptionService } from '@/share/services/question_option/question-option.service';
-import { LinkOutlined } from '@ant-design/icons';
-import Link from 'next/link';
 
 import {
   Chart as ChartJS,
@@ -19,7 +15,6 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { Bar, Line } from 'react-chartjs-2';
 import HistoryTab from './HistoryTab';
 import StatsTab from './StatsTab';
 
@@ -33,15 +28,11 @@ export default function QuizHistoryPage() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(10);
-  const [detailVisible, setDetailVisible] = useState(false);
-  const [activeItem, setActiveItem] = useState<any | null>(null);
-  // UI state for redesign
   const [tabKey, setTabKey] = useState<'mocktest' | 'topic' | 'format'>('mocktest');
   const [searchText, setSearchText] = useState('');
   const [sortBy, setSortBy] = useState<'newest' | 'scoreDesc' | 'scoreAsc'>('newest');
   const [daysFilter, setDaysFilter] = useState<number | 'all'>(30);
 
-  // Chart controls
   const [chartType, setChartType] = useState<'line' | 'bar'>('line');
   const [stacked, setStacked] = useState(false);
   const [visibleSets, setVisibleSets] = useState({ mocktest: true, topic: true, format: true });
@@ -70,6 +61,27 @@ export default function QuizHistoryPage() {
   };
 
   useEffect(() => { fetch(0, 10, tabKey); }, [tabKey]);
+
+  // Fetch all quiz types when switching to stats tab
+  useEffect(() => {
+    if (topTab === 'stats') {
+      const fetchAll = async () => {
+        try {
+          const [mockRes, topicRes, formatRes] = await Promise.all([
+            userQuizHistoryService.listPaged(0, 100, 'MOCK_TEST'),
+            userQuizHistoryService.listPaged(0, 100, 'TOPIC'),
+            userQuizHistoryService.listPaged(0, 100, 'FORMAT'),
+          ]);
+          setItems(mockRes.content || []);
+          setTopicItems(topicRes.content || []);
+          setFormatItems(formatRes.content || []);
+        } catch (e) {
+          console.error('Failed to fetch stats data', e);
+        }
+      };
+      fetchAll();
+    }
+  }, [topTab]);
 
   // derive lists for topic and format based on quizType returned from backend
   const [topicItems, setTopicItems] = useState<any[]>([]);
@@ -118,17 +130,16 @@ export default function QuizHistoryPage() {
     const aggregate = (list: any[]) => {
       const map = new Map<string, { sum: number; cnt: number }>();
       list.forEach((it) => {
-        const d = new Date(it.createdAt || Date.now()).toLocaleDateString();
-        const key = new Date(it.createdAt || Date.now()).toLocaleDateString();
+        const date = new Date(it.createdAt || Date.now());
+        const key = `${date.getMonth() + 1}/${date.getDate()}`;
         const val = it.score ?? 0;
         const cur = map.get(key) || { sum: 0, cnt: 0 };
         cur.sum += val; cur.cnt += 1; map.set(key, cur);
       });
 
       const data = labels.map(l => {
-        // find matching key by converting label back to a date string - approximate match by month/day
-        const found = Array.from(map.entries()).find(([k]) => k.includes('/' + l.split('/')[1]) && k.includes('/' + l.split('/')[0]));
-        if (found) return found[1].sum / found[1].cnt;
+        const found = map.get(l);
+        if (found && found.cnt > 0) return found.sum / found.cnt;
         return 0;
       });
       return data;
@@ -141,38 +152,6 @@ export default function QuizHistoryPage() {
 
     return { labels, datasets };
   }, [allSets, visibleSets, chartDays]);
-
-  const openDetail = (item: any) => {
-    // load detail from backend    
-    setActiveItem(item);
-    setDetailVisible(true);
-    loadDetail(item);
-  };
-
-  const closeDetail = () => {
-    setDetailVisible(false);
-    setActiveItem(null);
-  };
-
-  const [detailLoading, setDetailLoading] = useState(false);
-  const [historyDetail, setHistoryDetail] = useState<any | null>(null);
-  const [questionModalVisible, setQuestionModalVisible] = useState(false);
-  const [questionLoading, setQuestionLoading] = useState(false);
-  const [questionDetail, setQuestionDetail] = useState<any | null>(null);
-  const [questionOptions, setQuestionOptions] = useState<any[]>([]);
-
-  const loadDetail = async (item: any) => {
-    setDetailLoading(true);
-    try {
-      const res = await userQuizHistoryService.getDetail(item.id ?? item);
-      setHistoryDetail(res || null);
-    } catch (e) {
-      console.error('Failed to load history detail', e);
-      setHistoryDetail(null);
-    } finally {
-      setDetailLoading(false);
-    }
-  };
 
   const fmtDate = (d?: string) => d ? new Date(d).toLocaleString() : '-';
 
@@ -191,7 +170,6 @@ export default function QuizHistoryPage() {
                     size={size}
                     total={total}
                     fetch={fetch}
-                    openDetail={openDetail}
                     tabKey={tabKey}
                     setTabKey={setTabKey}
                     searchText={searchText}
@@ -212,7 +190,6 @@ export default function QuizHistoryPage() {
                     size={size}
                     total={total}
                     fetch={fetch}
-                    openDetail={openDetail}
                     tabKey={tabKey}
                     setTabKey={setTabKey}
                     searchText={searchText}
@@ -233,7 +210,6 @@ export default function QuizHistoryPage() {
                     size={size}
                     total={total}
                     fetch={fetch}
-                    openDetail={openDetail}
                     tabKey={tabKey}
                     setTabKey={setTabKey}
                     searchText={searchText}
@@ -262,110 +238,6 @@ export default function QuizHistoryPage() {
           </Tabs.TabPane>
         </Tabs>
       </Card>
-
-      <Modal visible={detailVisible} title="Chi tiết lần làm bài" footer={null} onCancel={closeDetail} width={800}>
-        {activeItem ? (
-          <div>
-            <Row gutter={[16,16]}>
-              <Col span={12}><Text strong>Quiz:</Text> <div>{activeItem.title ?? `Quiz ${activeItem.quizMockTestId ?? activeItem.id}`}</div></Col>
-              <Col span={12}><Text strong>Ngày:</Text> <div>{fmtDate(activeItem.createdAt)}</div></Col>
-              <Col span={12}><Text strong>Điểm:</Text> <div>{(activeItem.score ?? 0).toFixed(2)}/10</div></Col>
-              <Col span={12}><Text strong>Đúng:</Text> <div>{activeItem.correctCount ?? 0}/{activeItem.totalQuestions ?? '-'}</div></Col>
-            </Row>
-
-            <div className="mt-4">
-              <Text strong>Danh sách câu hỏi:</Text>
-              {detailLoading ? (
-                <div className="py-8 flex justify-center"><Spin /></div>
-              ) : (
-                <List
-                  dataSource={historyDetail?.questions ?? []}
-                  locale={{ emptyText: 'Không có dữ liệu' }}
-                  renderItem={(q: any, idx: number) => (
-                    <List.Item>
-                      <div className="w-full flex justify-between items-center">
-                        <div>
-                          <Text>{idx + 1}. </Text>
-                          <Text>Câu #{q.questionId}</Text>
-                          <div className="text-sm text-gray-600">(Question id: {q.questionId})</div>
-                        </div>
-                        <div className="text-sm">
-                          {q.isCorrect ? (
-                            <Tag color="green">Đúng</Tag>
-                          ) : (
-                            <Tag color="red">Sai</Tag>
-                          )}
-                          <div className="mt-1">
-                            <span className="mr-4">Bạn: {q.userOptionId ?? '-'}</span>
-                            <span>Đúng: {q.correctOptionId ?? '-'}</span>
-                          </div>
-                          <div className="mt-2">
-                            <Button size="small" onClick={async () => {
-                              setQuestionLoading(true);
-                              setQuestionDetail(null);
-                              setQuestionOptions([]);
-                              try {
-                                const qd = await questionService.findById(q.questionId);
-                                const opts = await questionOptionService.findAll();
-                                const filtered = (opts || []).filter((o:any) => o.questionId === q.questionId);
-                                setQuestionDetail(qd);
-                                setQuestionOptions(filtered);
-                                setQuestionModalVisible(true);
-                              } catch (e) {
-                                console.error('Failed to load question detail', e);
-                              } finally {
-                                setQuestionLoading(false);
-                              }
-                            }}>Xem chi tiết</Button>
-                          </div>
-                        </div>
-                      </div>
-                    </List.Item>
-                  )}
-                />
-              )}
-            </div>
-          </div>
-        ) : null}
-      </Modal>
-      <Modal visible={questionModalVisible} title={questionDetail?.contentHtml ? 'Chi tiết câu hỏi' : 'Loading...'} footer={null} onCancel={() => setQuestionModalVisible(false)} width={900}>
-        {questionLoading ? (
-          <div className="py-8 flex justify-center"><Spin /></div>
-        ) : questionDetail ? (
-          <div>
-            <div className="mb-4" dangerouslySetInnerHTML={{ __html: questionDetail.contentHtml }} />
-            <List
-              dataSource={questionOptions}
-              renderItem={(opt: any) => (
-                <List.Item>
-                  <div className="w-full flex items-center justify-between">
-                    <div>
-                      <div dangerouslySetInnerHTML={{ __html: opt.contentHtml }} />
-                    </div>
-                    <div className="text-right">
-                      {historyDetail && historyDetail.questions?.find((qq:any) => qq.questionId === questionDetail.id)?.userOptionId === opt.id && (
-                        <Tag color="blue">Bạn chọn</Tag>
-                      )}
-                      {opt.isCorrect && (
-                        <Tag color="green">Đáp án đúng</Tag>
-                      )}
-                      {historyDetail && historyDetail.questions?.find((qq:any) => qq.questionId === questionDetail.id)?.userOptionId === opt.id && !opt.isCorrect && (
-                        <div className="text-red-600 line-through">Sai</div>
-                      )}
-                    </div>
-                  </div>
-                </List.Item>
-              )}
-            />
-
-            {historyDetail?.isShowExplain && questionDetail.explanationHtml && (
-              <div className="mt-4 p-3 bg-gray-50 rounded" dangerouslySetInnerHTML={{ __html: questionDetail.explanationHtml }} />
-            )}
-          </div>
-        ) : (
-          <div>Không có dữ liệu</div>
-        )}
-      </Modal>
     </div>
   );
 }

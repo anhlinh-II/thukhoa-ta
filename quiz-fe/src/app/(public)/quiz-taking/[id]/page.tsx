@@ -361,8 +361,19 @@ export default function QuizTakingPage() {
                                 id={`question-${question.id}`}
                                 className="mb-6 scroll-mt-24"
                               >
-                                <div className="mb-3">
+                                <div className="mb-3 flex items-center justify-between">
                                   <Text strong className="text-base">Câu {questionNumber}</Text>
+                                  <div className="flex items-center gap-2">
+                                    <Button
+                                      type="text"
+                                      size="small"
+                                      onClick={() => toggleMark(question.id)}
+                                      title={marks[question.id] ? 'Bỏ đánh dấu chưa chắc chắn' : 'Đánh dấu chưa chắc chắn'}
+                                      className="!p-0"
+                                    >
+                                      <FlagOutlined style={{ color: marks[question.id] ? '#f5222d' : '#9aa0a6' }} />
+                                    </Button>
+                                  </div>
                                 </div>
 
                                 <div

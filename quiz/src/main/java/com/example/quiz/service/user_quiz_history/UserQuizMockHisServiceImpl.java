@@ -67,7 +67,22 @@ public class UserQuizMockHisServiceImpl implements UserQuizMockHisService {
             p = userQuizMockHisRepository.findAllByUserIdOrderByCreatedAtDesc(user.getId(), pr);
         }
 
-        List<UserQuizHisResponse> items = p.stream().map(h -> new UserQuizHisResponse(h.getId(), h.getQuizMockTestId(), h.getScore(), h.getTotalQuestions(), h.getCorrectCount(), h.getCreatedAt(), h.getQuizType() == null ? null : h.getQuizType().name())).collect(Collectors.toList());
+        List<UserQuizHisResponse> items = p.stream().map(h -> {
+            UserQuizHisResponse response = new UserQuizHisResponse(
+                h.getId(),
+                h.getQuizMockTestId(),
+                h.getScore(),
+                h.getTotalQuestions(),
+                h.getCorrectCount(),
+                h.getCreatedAt(),
+                h.getQuizType() == null ? null : h.getQuizType().name()
+            );
+            if (h.getQuizMockTestId() != null) {
+                quizMockTestRepository.findById(h.getQuizMockTestId())
+                    .ifPresent(quiz -> response.setExamName(quiz.getExamName()));
+            }
+            return response;
+        }).collect(Collectors.toList());
 
         return new PageImpl<>(items, pr, p.getTotalElements());
     }

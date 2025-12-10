@@ -18,4 +18,15 @@ public class UserQuizHisResponse {
     private Integer correctCount;
     private Instant createdAt;
     private String quizType;
+    private String examName;
+
+    public UserQuizHisResponse(Long id, Long quizMockTestId, Double score, Integer totalQuestions, Integer correctCount, Instant createdAt, String quizType) {
+        this.id = id;
+        this.quizMockTestId = quizMockTestId;
+        this.score = score;
+        this.totalQuestions = totalQuestions;
+        this.correctCount = correctCount;
+        this.createdAt = createdAt;
+        this.quizType = quizType;
+    }
 }

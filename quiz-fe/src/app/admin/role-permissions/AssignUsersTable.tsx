@@ -16,9 +16,9 @@ type Props = {
 export default function AssignUsersTable({ users, loading, selectedIds, onSelectionChange, onSearch }: Props) {
   const columns = [
     { title: 'ID', dataIndex: 'id', key: 'id', width: 80 },
-    { title: 'Username', dataIndex: 'username', key: 'username' },
+    { title: 'Tên đăng nhập', dataIndex: 'username', key: 'username' },
     { title: 'Email', dataIndex: 'email', key: 'email' },
-    { title: 'Full name', dataIndex: 'fullName', key: 'fullName' },
+    { title: 'Họ và tên', dataIndex: 'fullName', key: 'fullName' },
   ];
 
   const rowSelection = {
@@ -30,8 +30,8 @@ export default function AssignUsersTable({ users, loading, selectedIds, onSelect
     <div>
       <div style={{ marginBottom: 8, display: 'flex', gap: 8, alignItems: 'center' }}>
         <Input.Search
-          placeholder="Search by username or email"
-          enterButton="Search"
+          placeholder="Tìm kiếm người dùng theo tên, email..."
+          enterButton="Tìm kiếm"
           onSearch={(val) => onSearch(val)}
           allowClear
           style={{ width: 420 }}

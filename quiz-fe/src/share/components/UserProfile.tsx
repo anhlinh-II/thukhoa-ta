@@ -1,8 +1,9 @@
-import React from 'react';
-import { Avatar, Menu, MenuProps, Dropdown, Space, Button, Spin } from 'antd';
-import { UserOutlined, LogoutOutlined, SettingOutlined, HistoryOutlined } from '@ant-design/icons';
+import React, { useEffect, useState } from 'react';
+import { Avatar, Menu, MenuProps, Dropdown, Space, Button, Spin, Switch } from 'antd';
+import { UserOutlined, LogoutOutlined, SettingOutlined, HistoryOutlined, GlobalOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import { useAccount, useLogout } from '../hooks/useAuth';
+import { t, defaultLang } from '@/share/locales';
 
 interface UserProfileProps {
   onLogout?: () => void;
@@ -15,6 +16,22 @@ interface UserProfileProps {
 export const UserProfile: React.FC<UserProfileProps> = ({ onLogout, showDetails = true }) => {
   const { data: user, isLoading } = useAccount();
   const { mutate: logout, isPending: isLoggingOut } = useLogout();
+  const [lang, setLang] = useState<string>(defaultLang);
+
+  useEffect(() => {
+    try {
+      const stored = typeof window !== 'undefined' ? localStorage.getItem('lang') : null;
+      if (stored) setLang(stored);
+    } catch (e) {}
+
+    const handler = (e: Event) => {
+      const ce = e as CustomEvent<string>;
+      if (ce?.detail) setLang(ce.detail);
+    };
+
+    window.addEventListener('langChange', handler as EventListener);
+    return () => window.removeEventListener('langChange', handler as EventListener);
+  }, []);
 
   if (isLoading) {
     return <Spin />;
@@ -27,17 +44,44 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onLogout, showDetails 
   const menuItems: MenuProps['items'] = [
     {
       key: 'profile',
-      label: <Link href="/profile">Tài khoản</Link>,
+      label: <Link href="/profile">{t(lang, 'account')}</Link>,
       icon: <UserOutlined />,
+    },
+    // language toggle (moved up so it's higher in the menu). Stop propagation so dropdown stays open.
+    {
+      key: 'language',
+      label: (
+        <div onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()} style={{ display: 'flex', alignItems: 'center', gap: 8, paddingTop: 6, paddingBottom: 6 }}>
+          <GlobalOutlined />
+          <span style={{ flex: '0 0 auto', fontSize: 13 }}>{t(lang, 'language')}</span>
+          <div style={{ marginLeft: 'auto' }}>
+            <Switch
+              checked={lang === 'en'}
+              onChange={(checked) => {
+                const newLang = checked ? 'en' : 'vi';
+                try {
+                  localStorage.setItem('lang', newLang);
+                } catch (e) {}
+                // dispatch event but keep dropdown open (we prevented propagation)
+                window.dispatchEvent(new CustomEvent('langChange', { detail: newLang }));
+                setLang(newLang);
+              }}
+              checkedChildren={t(lang, 'english')}
+              unCheckedChildren={t(lang, 'vietnamese')}
+              size="small"
+            />
+          </div>
+        </div>
+      ),
     },
     {
       key: 'history',
-      label: <Link href="/quiz-history">Lịch sử làm bài</Link>,
+      label: <Link href="/quiz-history">{t(lang, 'quizHistory')}</Link>,
       icon: <HistoryOutlined />,
     },
     {
       key: 'settings',
-      label: <Link href="/profile">Cài đặt</Link>,
+      label: <Link href="/profile">{t(lang, 'settings')}</Link>,
       icon: <SettingOutlined />,
     },
     {
@@ -45,7 +89,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ onLogout, showDetails 
     },
     {
       key: 'logout',
-      label: 'Đăng xuất',
+      label: t(lang, 'logout'),
       icon: <LogoutOutlined />,
       danger: true,
       onClick: () => logout(),

@@ -11,6 +11,10 @@ export interface UserQuizHis extends BaseEntity {
 
     correctCount: number;
     
+    timeSpent?: number;
+    
+    examName?: string;
+    
   // Matches backend GroupType: FORMAT, TOPIC, MOCK_TEST, OTHER
   quizType?: 'FORMAT' | 'TOPIC' | 'MOCK_TEST' | 'OTHER';
 }
@@ -28,4 +32,5 @@ export interface UserQuizHisResponse extends UserQuizHisView {
   score: number;
   totalQuestions: number;
   correctCount: number;
+  examName?: string;
 }
