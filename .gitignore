@@ -1,0 +1,4 @@
+quiz-be/dist/
+quiz-be/node_modules/
+quiz-fe/node_modules/
+quiz-fe/.next/
