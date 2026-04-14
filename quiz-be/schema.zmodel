@@ -10,18 +10,111 @@ generator client {
     provider = "prisma-client-js"
 }
 
+plugin hooks {
+    provider = "@zenstackhq/tanstack-query"
+    target = "react"
+    version = "v5"
+    portable = true
+    output = "../quiz-fe/src/share/hooks/zenstack"
+}
+
 /// User model
 model User {
-    id       String @id @default(cuid())
-    email    String @unique @email @length(6, 32)
-    password String @password @omit
-    posts    Post[]
+    id                          String   @id @default(cuid())
+    created_at                  DateTime @default(now())
+    created_by                  String?
+    updated_at                  DateTime @updatedAt
+    updated_by                  String?
+    avatar_url                  String?
+    bio                         String?
+    dob                         DateTime?
+    email                       String   @unique @email @length(6, 100)
+    first_name                  String?
+    full_name                   String?
+    gender                      String?
+    google_id                   String?  @unique
+    is_active                   Boolean  @default(true)
+    is_delete                   Boolean  @default(false)
+    last_name                   String?
+    locale                      String?
+    location                    String?
+    otp                         String?
+    otp_generated_time          DateTime?
+    password                    String   @password @omit
+    phone                       String?  @unique
+    refresh_token               String?  @omit
+    reset_password_token        String?
+    reset_password_token_expiry DateTime?
+    username                    String   @unique
+    current_streak              Int      @default(0)
+    last_activity_date          DateTime?
+    longest_streak              Int      @default(0)
+    ranking_points              Int      @default(0)
+    total_quizzes_completed     Int      @default(0)
+    posts                       Post[]
+    user_roles                  UserRole[]
 
     // everybody can signup
     @@allow('create', true)
 
+    // allow users to read active records
+    @@allow('read', auth() != null && is_active && !is_delete)
+
     // full access by self
-    @@allow('all', auth() == this)
+    @@allow('update', auth() != null && auth().id == id)
+    @@allow('delete', auth() != null && auth().id == id)
+}
+
+/// Role model
+model Role {
+    id          Int              @id @default(autoincrement())
+    authority   String           @unique
+    description String?
+    users       UserRole[]
+    permissions RolePermission[]
+    created_at  DateTime         @default(now())
+    updated_at  DateTime         @updatedAt
+
+    @@allow('read', auth() != null)
+}
+
+/// Permission model
+model Permission {
+    id          Int              @id @default(autoincrement())
+    name        String
+    description String?
+    resource    String
+    action      String
+    roles       RolePermission[]
+    created_at  DateTime         @default(now())
+    updated_at  DateTime         @updatedAt
+
+    @@unique([resource, action])
+    @@allow('read', auth() != null)
+}
+
+/// User-role link
+model UserRole {
+    user_id    String
+    role_id    Int
+    assignedAt DateTime @default(now())
+    user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+    role       Role     @relation(fields: [role_id], references: [id], onDelete: Cascade)
+
+    @@id([user_id, role_id])
+    @@allow('read', auth() != null)
+}
+
+/// Role-permission link
+model RolePermission {
+    role_id       Int
+    permission_id Int
+    assignedAt    DateTime   @default(now())
+    role          Role       @relation(fields: [role_id], references: [id], onDelete: Cascade)
+    permission    Permission @relation(fields: [permission_id], references: [id], onDelete: Cascade)
+
+    @@id([role_id, permission_id])
+    @@allow('read', auth() != null)
 }
 
 /// Post model

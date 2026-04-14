@@ -2,8 +2,14 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import { useState } from 'react';
+import { Provider as ZenstackHooksProvider } from '@/share/hooks/zenstack';
 
 export default function QueryProvider({ children }: { children: React.ReactNode }) {
+  const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4200';
+  const zenstackEndpoint =
+    process.env.NEXT_PUBLIC_ZENSTACK_API_URL ||
+    `${apiBase.replace(/\/api\/v1\/?$/, '')}/api/model`;
+
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -38,7 +44,9 @@ export default function QueryProvider({ children }: { children: React.ReactNode 
 
   return (
     <QueryClientProvider client={queryClient}>
-      {children}
+      <ZenstackHooksProvider value={{ endpoint: zenstackEndpoint }}>
+        {children}
+      </ZenstackHooksProvider>
       {/* Show DevTools only in development */}
       {process.env.NODE_ENV === 'development' && (
         <ReactQueryDevtools 
