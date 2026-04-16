@@ -13,7 +13,7 @@ export interface RegisterRequest {
   firstName?: string;
   lastName?: string;
   phone?: string;
-  gender: 'MALE' | 'FEMALE' | 'OTHER';
+  gender?: 'MALE' | 'FEMALE' | 'OTHER';
   dob?: string; // ISO date string
 }
 

@@ -1,12 +1,11 @@
 "use client";
-import { Button, Form, Input, Typography } from "antd";
+import { Button, Form, Input } from "antd";
 import { GoogleOutlined, UserOutlined, LockOutlined } from "@ant-design/icons";
 import React, { useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import FloatingBubbles from "@/share/components/ui/FloatingBubbles";
 import { useLogin } from "@/share/hooks/useAuth";
-import { authService } from "@/share/services/authService";
 import messageService from "@/share/services/messageService";
 
 export default function LoginPage() {
@@ -15,19 +14,18 @@ export default function LoginPage() {
   const { mutate: login, isPending } = useLogin();
 
   useEffect(() => {
-    // Reset form on mount
     form.resetFields();
   }, [form]);
 
-  const onFinish = async (values: { username: string; password: string }) => {
+  const onFinish = (values: { username: string; password: string }) => {
     login(values, {
       onSuccess: () => {
         messageService.success('Đăng nhập thành công!');
-        // Redirect to home
         router.push('/');
       },
       onError: (error: any) => {
-        const errorMessage = error?.message || 'Đăng nhập thất bại!';
+        const errorMessage =
+          error?.response?.data?.message || error?.message || 'Đăng nhập thất bại!';
         messageService.error(errorMessage);
       },
     });
@@ -76,7 +74,7 @@ export default function LoginPage() {
                 <div className="flex gap-2 items-center w-full">
                   <span className="text-gray-700 font-medium">Mật khẩu</span>
                   <span>-</span>
-                  <Link href="/forgot-password" className="text-sm text-purple-500 hover:text-purple-400">
+                  <Link href="/auth/forgot-password" className="text-sm text-purple-500 hover:text-purple-400">
                     Quên mật khẩu?
                   </Link>
                 </div>
@@ -123,12 +121,13 @@ export default function LoginPage() {
             className="border-gray-300 rounded-lg h-12 font-medium hover:bg-gray-50"
             disabled={isPending}
             onClick={() => {
-              const apiBase = process.env.NEXT_PUBLIC_API_URL!;
-                const backendOrigin = apiBase.replace(/\/api\/v1\/?$/, '');
-                const authStartUrl = `${backendOrigin}/oauth2/authorization/google`;
-                if (typeof window !== 'undefined') {
-                  window.location.assign(authStartUrl);
-                }
+              const apiBase =
+                process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4200';
+              const backendOrigin = apiBase.replace(/\/api\/v1\/?$/, '');
+              const authStartUrl = `${backendOrigin}/oauth2/authorization/google`;
+              if (typeof window !== 'undefined') {
+                window.location.assign(authStartUrl);
+              }
             }}
           >
             Đăng nhập với Google

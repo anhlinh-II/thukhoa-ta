@@ -2,6 +2,10 @@
 
 Backend for quiz system using NestJS + Prisma + ZenStack.
 
+## Additional documentation
+
+- Detailed auth and authorization flow: `README_AUTH_RBAC.md`
+
 ## Architecture
 
 - Schema source of truth: `schema.zmodel`

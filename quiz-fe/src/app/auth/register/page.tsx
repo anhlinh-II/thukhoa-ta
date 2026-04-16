@@ -6,7 +6,7 @@ import Link from "next/link";
 import dayjs from "dayjs";
 import FloatingBubbles from "@/share/components/ui/FloatingBubbles";
 import { RegisterRequest, authService } from "@/share/services/authService";
-import { userService } from "@/share/services/user_service/user.service";
+import { useRegister } from "@/share/hooks/useAuth";
 import messageService from "@/share/services/messageService";
 
 export default function RegisterPage() {
@@ -15,9 +15,10 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [step, setStep] = useState<number>(1);
-  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
-  const [checkingUsername, setCheckingUsername] = useState<boolean>(false);
-  const usernameTimerRef = useRef<number | null>(null);
+  const [checkingEmail, setCheckingEmail] = useState<boolean>(false);
+  const [emailExists, setEmailExists] = useState<boolean | null>(null);
+  const emailTimerRef = useRef<number | null>(null);
+  const { mutateAsync: registerMutation } = useRegister();
 
   const onFinish = async (values: any) => {
     console.log('Register onFinish called', values);
@@ -61,92 +62,74 @@ export default function RegisterPage() {
         dob: ((values.dob ?? allValues.dob) ? (values.dob ?? allValues.dob).toISOString() : undefined) as string | undefined,
       };
 
-      const response = await authService.register(registerData);
+      const result = await registerMutation(registerData);
 
-      if (response.code === 1000) {
+      if (result) {
         messageService.success("Đăng ký thành công! Vui lòng kiểm tra email để xác thực.");
-        // Store pending credentials briefly in sessionStorage so OTP page can auto-login after verify
         try {
           sessionStorage.setItem('pending_register', JSON.stringify({ email: registerData.email, password: registerData.password }));
         } catch (e) {
-          // ignore
         }
-        // Redirect to OTP verification page with email query
         setTimeout(() => {
           router.push(`/auth/verify-otp?email=${encodeURIComponent(registerData.email || '')}`);
         }, 800);
-      } else {
-        messageService.error(response.message || "Đăng ký thất bại!");
       }
     } catch (error: any) {
       console.error("Register error:", error);
-      messageService.error(error?.response?.data?.message || "Có lỗi xảy ra!");
+      messageService.error(error?.message || error?.response?.data?.message || "Có lỗi xảy ra!");
     } finally {
       setLoading(false);
     }
   };
 
-  // validate availability of username using BaseService filter API
-  const checkUsernameAvailable = async (username: string) => {
+  const checkEmailExists = async (email: string) => {
     try {
-      const req = {
-        skip: 0,
-        take: 1,
-        columns: "id",
-        filter: JSON.stringify([{ field: 'username', operator: 'EQUALS', value: username }]),
-        isGetTotal: true,
-      } as any;
-      const resp = await userService.getViewsPagedWithFilter(req);
-      // resp.empty === true means no results
-      if (!resp) return true;
-      return resp.empty === true || (Array.isArray(resp.data) && resp.data.length === 0);
+      const resp = await authService.checkEmailExists(email);
+      if (resp.code !== 1000) {
+        return false;
+      }
+      return !!resp.result.exists;
     } catch (err) {
-      // on error, assume not available to be safe
-      console.error('Username check error', err);
-      return false;
+      console.error('Email check error', err);
+      return true;
     }
   };
 
-  // debounce username availability check on change
-  const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const v = (e.target.value || '').trim();
-    // reset state
-    setUsernameAvailable(null);
-    if (usernameTimerRef.current) {
-      window.clearTimeout(usernameTimerRef.current);
-      usernameTimerRef.current = null;
+    setEmailExists(null);
+    if (emailTimerRef.current) {
+      window.clearTimeout(emailTimerRef.current);
+      emailTimerRef.current = null;
     }
 
     if (!v) {
-      setCheckingUsername(false);
+      setCheckingEmail(false);
       return;
     }
 
-    setCheckingUsername(true);
-    // debounce 300ms
-    usernameTimerRef.current = window.setTimeout(async () => {
+    setCheckingEmail(true);
+    emailTimerRef.current = window.setTimeout(async () => {
       try {
-        const available = await checkUsernameAvailable(v);
-        setUsernameAvailable(available);
-        if (!available) {
-          // set form error for username
-          form.setFields([{ name: 'username', errors: ['Tên đăng nhập đã tồn tại'] }]);
+        const exists = await checkEmailExists(v);
+        setEmailExists(exists);
+        if (exists) {
+          form.setFields([{ name: 'email', errors: ['Email đã tồn tại'] }]);
         } else {
-          // clear errors
-          form.setFields([{ name: 'username', errors: [] }]);
+          form.setFields([{ name: 'email', errors: [] }]);
         }
       } catch (err) {
-        setUsernameAvailable(false);
+        setEmailExists(null);
       } finally {
-        setCheckingUsername(false);
+        setCheckingEmail(false);
       }
     }, 300);
   };
 
   useEffect(() => {
     return () => {
-      if (usernameTimerRef.current) {
-        window.clearTimeout(usernameTimerRef.current);
+      if (emailTimerRef.current) {
+        window.clearTimeout(emailTimerRef.current);
       }
     };
   }, []);
@@ -161,14 +144,14 @@ export default function RegisterPage() {
         return;
       }
 
-      const username = values.username || (values.email || '').split('@')[0];
-      const available = await checkUsernameAvailable(username);
-      if (!available) {
-        messageService.error('Tên đăng nhập đã tồn tại, vui lòng chọn tên khác');
+      const email = values.email as string;
+      const exists = await checkEmailExists(email);
+      if (exists) {
+        messageService.error('Email đã tồn tại, vui lòng dùng email khác');
         return;
       }
 
-      // set username field normalized
+      const username = values.username || (values.email || '').split('@')[0];
       form.setFieldsValue({ username });
       setStep(2);
     } catch (err) {
@@ -201,10 +184,8 @@ export default function RegisterPage() {
                   label="Tên đăng nhập"
                   name="username"
                   rules={[{ required: true, message: 'Vui lòng nhập tên đăng nhập!' }]}
-                  validateStatus={checkingUsername ? 'validating' : usernameAvailable === false ? 'error' : usernameAvailable === true ? 'success' : undefined}
-                  help={usernameAvailable === false ? 'Tên đăng nhập đã tồn tại' : undefined}
                 >
-                  <Input placeholder="Tên đăng nhập" size="large" disabled={loading} onChange={handleUsernameChange} />
+                  <Input placeholder="Tên đăng nhập" size="large" disabled={loading} />
                 </Form.Item>
 
                 {/* Email */}
@@ -215,8 +196,10 @@ export default function RegisterPage() {
                     { required: true, message: "Vui lòng nhập email!" },
                     { type: "email", message: "Email không hợp lệ!" },
                   ]}
+                  validateStatus={checkingEmail ? 'validating' : emailExists === true ? 'error' : emailExists === false ? 'success' : undefined}
+                  help={emailExists === true ? 'Email đã tồn tại' : undefined}
                 >
-                  <Input placeholder="Email" type="email" size="large" disabled={loading} />
+                  <Input placeholder="Email" type="email" size="large" disabled={loading} onChange={handleEmailChange} />
                 </Form.Item>
 
                 {/* Mật khẩu */}

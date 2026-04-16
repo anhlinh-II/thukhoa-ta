@@ -42,7 +42,7 @@ model User {
     otp_generated_time          DateTime?
     password                    String   @password @omit
     phone                       String?  @unique
-    refresh_token               String?  @omit
+    refresh_token               String?  @omit @db.Text
     reset_password_token        String?
     reset_password_token_expiry DateTime?
     username                    String   @unique

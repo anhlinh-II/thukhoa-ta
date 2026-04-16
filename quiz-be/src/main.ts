@@ -1,4 +1,4 @@
-import { ValidationPipe } from '@nestjs/common';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
@@ -6,6 +6,20 @@ import { ResponseEnvelopeInterceptor } from './common/interceptors/response-enve
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const logger = new Logger('HTTP');
+
+  app.use((req, res, next) => {
+    const { method, originalUrl } = req;
+    const userAgent = req.get('user-agent') || '';
+
+    res.on('finish', () => {
+      const { statusCode } = res;
+      logger.log(`${method} ${originalUrl} ${statusCode} - ${userAgent}`);
+    });
+
+    next();
+  });
+
   app.enableCors();
   app.useGlobalPipes(
     new ValidationPipe({

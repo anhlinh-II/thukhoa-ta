@@ -36,7 +36,7 @@ model User {
   otp_generated_time          DateTime?
   password                    String
   phone                       String?    @unique()
-  refresh_token               String?
+  refresh_token               String?    @db.Text
   reset_password_token        String?
   reset_password_token_expiry DateTime?
   username                    String     @unique()
