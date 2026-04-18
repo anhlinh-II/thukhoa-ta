@@ -1,4 +1,5 @@
 quiz-be/dist/
 quiz-be/node_modules/
+quiz-be/test/
 quiz-fe/node_modules/
 quiz-fe/.next/

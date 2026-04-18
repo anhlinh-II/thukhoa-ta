@@ -10,6 +10,7 @@ export * from './permission';
 export * from './user-role';
 export * from './role-permission';
 export * from './post';
+export * from './user-learning-item';
 export { getQueryKey } from '@zenstackhq/tanstack-query/runtime-v5';
 export { Provider } from '@zenstackhq/tanstack-query/runtime-v5/react';
 export { default as metadata } from './__model_meta';

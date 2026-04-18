@@ -13,7 +13,7 @@ Backend for quiz system using NestJS + Prisma + ZenStack.
 ## Prerequisites
 
 - Node.js 18+
-- MySQL running (or use Docker compose)
+- PostgreSQL running (or use Docker compose)
 
 ## Install
 

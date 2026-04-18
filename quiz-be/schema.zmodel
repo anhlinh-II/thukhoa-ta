@@ -1,8 +1,8 @@
 // This is a sample model to get you started.
 
-/// MySQL datasource for local development.
+/// PostgreSQL datasource for local development.
 datasource db {
-    provider = 'mysql'
+    provider = 'postgresql'
     url = env('DATABASE_URL')
 }
 
@@ -18,13 +18,16 @@ plugin hooks {
     output = "../quiz-fe/src/share/hooks/zenstack"
 }
 
+abstract model BaseEntity {
+    created_at DateTime @default(now())
+    created_by String?
+    updated_at DateTime @updatedAt
+    updated_by String?
+}
+
 /// User model
-model User {
+model User extends BaseEntity {
     id                          String   @id @default(cuid())
-    created_at                  DateTime @default(now())
-    created_by                  String?
-    updated_at                  DateTime @updatedAt
-    updated_by                  String?
     avatar_url                  String?
     bio                         String?
     dob                         DateTime?
@@ -53,6 +56,7 @@ model User {
     total_quizzes_completed     Int      @default(0)
     posts                       Post[]
     user_roles                  UserRole[]
+    user_learning_items         UserLearningItem[]
 
     // everybody can signup
     @@allow('create', true)
@@ -66,35 +70,31 @@ model User {
 }
 
 /// Role model
-model Role {
+model Role extends BaseEntity {
     id          Int              @id @default(autoincrement())
     authority   String           @unique
     description String?
     users       UserRole[]
     permissions RolePermission[]
-    created_at  DateTime         @default(now())
-    updated_at  DateTime         @updatedAt
 
     @@allow('read', auth() != null)
 }
 
 /// Permission model
-model Permission {
+model Permission extends BaseEntity {
     id          Int              @id @default(autoincrement())
     name        String
     description String?
     resource    String
     action      String
     roles       RolePermission[]
-    created_at  DateTime         @default(now())
-    updated_at  DateTime         @updatedAt
 
     @@unique([resource, action])
     @@allow('read', auth() != null)
 }
 
 /// User-role link
-model UserRole {
+model UserRole extends BaseEntity {
     user_id    String
     role_id    Int
     assignedAt DateTime @default(now())
@@ -106,7 +106,7 @@ model UserRole {
 }
 
 /// Role-permission link
-model RolePermission {
+model RolePermission extends BaseEntity {
     role_id       Int
     permission_id Int
     assignedAt    DateTime   @default(now())
@@ -118,10 +118,8 @@ model RolePermission {
 }
 
 /// Post model
-model Post {
+model Post extends BaseEntity {
     id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
     title     String   @length(1, 256)
     content   String
     published Boolean  @default(false)
@@ -133,4 +131,33 @@ model Post {
 
     // full access by author
     @@allow('all', author == auth())
+}
+
+/// User learning item model
+model UserLearningItem extends BaseEntity {
+    id                  BigInt        @id @default(autoincrement())
+    user                User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+    user_id             String
+    question_id         BigInt
+    ef                  Float?
+    repetitions         Int?
+    interval_days       Int?
+    next_review_at      DateTime?
+    last_reviewed_at    DateTime?
+    lapses              Int?
+    consecutive_fails   Int?
+    priority            Float?
+    learning_type       LearningType
+
+    @@unique([user_id, question_id])
+    @@index([user_id])
+    @@index([question_id])
+    @@allow('all', user == auth())
+}
+
+enum LearningType {
+    NEW
+    LEARNING
+    REVIEW
+    RELEARNING
 }

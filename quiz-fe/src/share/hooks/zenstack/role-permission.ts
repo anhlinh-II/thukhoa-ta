@@ -327,7 +327,7 @@ export function useSuspenseCountRolePermission<TArgs extends Prisma.RolePermissi
     return useSuspenseModelQuery<TQueryFnData, TData, TError>('RolePermission', `${endpoint}/rolePermission/count`, args, options, fetch);
 }
 
-export function useCheckRolePermission<TError = DefaultError>(args: { operation: PolicyCrudKind; where?: { role_id?: number; permission_id?: number }; }, options?: (Omit<UseQueryOptions<boolean, TError, boolean>, 'queryKey'> & ExtraQueryOptions)) {
+export function useCheckRolePermission<TError = DefaultError>(args: { operation: PolicyCrudKind; where?: { created_by?: string; updated_by?: string; role_id?: number; permission_id?: number }; }, options?: (Omit<UseQueryOptions<boolean, TError, boolean>, 'queryKey'> & ExtraQueryOptions)) {
     const { endpoint, fetch } = getHooksContext();
     return useModelQuery<boolean, boolean, TError>('RolePermission', `${endpoint}/rolePermission/check`, args, options, fetch);
 }

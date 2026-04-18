@@ -10,7 +10,7 @@
     "db:generate": "zenstack generate",
     "db:migrate": "prisma migrate dev",
     "db:studio": "npx @zenstackhq/proxy",
-    "docker:up": "docker compose up -d mysql minio",
+    "docker:up": "docker compose up -d postgres minio",
     "docker:down": "docker compose down",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",

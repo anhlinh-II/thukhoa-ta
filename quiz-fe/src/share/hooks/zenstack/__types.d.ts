@@ -44,6 +44,30 @@ export type RolePermission = $Result.DefaultSelection<Prisma.$RolePermissionPayl
  * Post model
  */
 export type Post = $Result.DefaultSelection<Prisma.$PostPayload>
+/**
+ * Model UserLearningItem
+ * User learning item model
+ */
+export type UserLearningItem = $Result.DefaultSelection<Prisma.$UserLearningItemPayload>
+
+/**
+ * Enums
+ */
+export namespace $Enums {
+    export const LearningType: {
+        NEW: 'NEW',
+        LEARNING: 'LEARNING',
+        REVIEW: 'REVIEW',
+        RELEARNING: 'RELEARNING'
+    };
+
+    export type LearningType = (typeof LearningType)[keyof typeof LearningType]
+
+}
+
+export type LearningType = $Enums.LearningType
+
+export const LearningType: typeof $Enums.LearningType
 
 /**
  * ##  Prisma Client ʲˢ
@@ -222,6 +246,16 @@ export class PrismaClient<
       * ```
       */
     get post(): Prisma.PostDelegate<ExtArgs, ClientOptions>;
+
+    /**
+     * `prisma.userLearningItem`: Exposes CRUD operations for the **UserLearningItem** model.
+      * Example usage:
+      * ```ts
+      * // Fetch zero or more UserLearningItems
+      * const userLearningItems = await prisma.userLearningItem.findMany()
+      * ```
+      */
+    get userLearningItem(): Prisma.UserLearningItemDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -668,7 +702,8 @@ export namespace Prisma {
         Permission: 'Permission',
         UserRole: 'UserRole',
         RolePermission: 'RolePermission',
-        Post: 'Post'
+        Post: 'Post',
+        UserLearningItem: 'UserLearningItem'
     };
 
     export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -687,7 +722,7 @@ export namespace Prisma {
             omit: GlobalOmitOptions
         }
         meta: {
-            modelProps: "user" | "role" | "permission" | "userRole" | "rolePermission" | "post"
+            modelProps: "user" | "role" | "permission" | "userRole" | "rolePermission" | "post" | "userLearningItem"
             txIsolationLevel: Prisma.TransactionIsolationLevel
         }
         model: {
@@ -723,6 +758,10 @@ export namespace Prisma {
                         args: Prisma.UserCreateManyArgs<ExtArgs>
                         result: BatchPayload
                     }
+                    createManyAndReturn: {
+                        args: Prisma.UserCreateManyAndReturnArgs<ExtArgs>
+                        result: $Utils.PayloadToResult<Prisma.$UserPayload>[]
+                    }
                     delete: {
                         args: Prisma.UserDeleteArgs<ExtArgs>
                         result: $Utils.PayloadToResult<Prisma.$UserPayload>
@@ -738,6 +777,10 @@ export namespace Prisma {
                     updateMany: {
                         args: Prisma.UserUpdateManyArgs<ExtArgs>
                         result: BatchPayload
+                    }
+                    updateManyAndReturn: {
+                        args: Prisma.UserUpdateManyAndReturnArgs<ExtArgs>
+                        result: $Utils.PayloadToResult<Prisma.$UserPayload>[]
                     }
                     upsert: {
                         args: Prisma.UserUpsertArgs<ExtArgs>
@@ -789,6 +832,10 @@ export namespace Prisma {
                         args: Prisma.RoleCreateManyArgs<ExtArgs>
                         result: BatchPayload
                     }
+                    createManyAndReturn: {
+                        args: Prisma.RoleCreateManyAndReturnArgs<ExtArgs>
+                        result: $Utils.PayloadToResult<Prisma.$RolePayload>[]
+                    }
                     delete: {
                         args: Prisma.RoleDeleteArgs<ExtArgs>
                         result: $Utils.PayloadToResult<Prisma.$RolePayload>
@@ -804,6 +851,10 @@ export namespace Prisma {
                     updateMany: {
                         args: Prisma.RoleUpdateManyArgs<ExtArgs>
                         result: BatchPayload
+                    }
+                    updateManyAndReturn: {
+                        args: Prisma.RoleUpdateManyAndReturnArgs<ExtArgs>
+                        result: $Utils.PayloadToResult<Prisma.$RolePayload>[]
                     }
                     upsert: {
                         args: Prisma.RoleUpsertArgs<ExtArgs>
@@ -855,6 +906,10 @@ export namespace Prisma {
                         args: Prisma.PermissionCreateManyArgs<ExtArgs>
                         result: BatchPayload
                     }
+                    createManyAndReturn: {
+                        args: Prisma.PermissionCreateManyAndReturnArgs<ExtArgs>
+                        result: $Utils.PayloadToResult<Prisma.$PermissionPayload>[]
+                    }
                     delete: {
                         args: Prisma.PermissionDeleteArgs<ExtArgs>
                         result: $Utils.PayloadToResult<Prisma.$PermissionPayload>
@@ -870,6 +925,10 @@ export namespace Prisma {
                     updateMany: {
                         args: Prisma.PermissionUpdateManyArgs<ExtArgs>
                         result: BatchPayload
+                    }
+                    updateManyAndReturn: {
+                        args: Prisma.PermissionUpdateManyAndReturnArgs<ExtArgs>
+                        result: $Utils.PayloadToResult<Prisma.$PermissionPayload>[]
                     }
                     upsert: {
                         args: Prisma.PermissionUpsertArgs<ExtArgs>
@@ -921,6 +980,10 @@ export namespace Prisma {
                         args: Prisma.UserRoleCreateManyArgs<ExtArgs>
                         result: BatchPayload
                     }
+                    createManyAndReturn: {
+                        args: Prisma.UserRoleCreateManyAndReturnArgs<ExtArgs>
+                        result: $Utils.PayloadToResult<Prisma.$UserRolePayload>[]
+                    }
                     delete: {
                         args: Prisma.UserRoleDeleteArgs<ExtArgs>
                         result: $Utils.PayloadToResult<Prisma.$UserRolePayload>
@@ -936,6 +999,10 @@ export namespace Prisma {
                     updateMany: {
                         args: Prisma.UserRoleUpdateManyArgs<ExtArgs>
                         result: BatchPayload
+                    }
+                    updateManyAndReturn: {
+                        args: Prisma.UserRoleUpdateManyAndReturnArgs<ExtArgs>
+                        result: $Utils.PayloadToResult<Prisma.$UserRolePayload>[]
                     }
                     upsert: {
                         args: Prisma.UserRoleUpsertArgs<ExtArgs>
@@ -987,6 +1054,10 @@ export namespace Prisma {
                         args: Prisma.RolePermissionCreateManyArgs<ExtArgs>
                         result: BatchPayload
                     }
+                    createManyAndReturn: {
+                        args: Prisma.RolePermissionCreateManyAndReturnArgs<ExtArgs>
+                        result: $Utils.PayloadToResult<Prisma.$RolePermissionPayload>[]
+                    }
                     delete: {
                         args: Prisma.RolePermissionDeleteArgs<ExtArgs>
                         result: $Utils.PayloadToResult<Prisma.$RolePermissionPayload>
@@ -1002,6 +1073,10 @@ export namespace Prisma {
                     updateMany: {
                         args: Prisma.RolePermissionUpdateManyArgs<ExtArgs>
                         result: BatchPayload
+                    }
+                    updateManyAndReturn: {
+                        args: Prisma.RolePermissionUpdateManyAndReturnArgs<ExtArgs>
+                        result: $Utils.PayloadToResult<Prisma.$RolePermissionPayload>[]
                     }
                     upsert: {
                         args: Prisma.RolePermissionUpsertArgs<ExtArgs>
@@ -1053,6 +1128,10 @@ export namespace Prisma {
                         args: Prisma.PostCreateManyArgs<ExtArgs>
                         result: BatchPayload
                     }
+                    createManyAndReturn: {
+                        args: Prisma.PostCreateManyAndReturnArgs<ExtArgs>
+                        result: $Utils.PayloadToResult<Prisma.$PostPayload>[]
+                    }
                     delete: {
                         args: Prisma.PostDeleteArgs<ExtArgs>
                         result: $Utils.PayloadToResult<Prisma.$PostPayload>
@@ -1069,6 +1148,10 @@ export namespace Prisma {
                         args: Prisma.PostUpdateManyArgs<ExtArgs>
                         result: BatchPayload
                     }
+                    updateManyAndReturn: {
+                        args: Prisma.PostUpdateManyAndReturnArgs<ExtArgs>
+                        result: $Utils.PayloadToResult<Prisma.$PostPayload>[]
+                    }
                     upsert: {
                         args: Prisma.PostUpsertArgs<ExtArgs>
                         result: $Utils.PayloadToResult<Prisma.$PostPayload>
@@ -1084,6 +1167,80 @@ export namespace Prisma {
                     count: {
                         args: Prisma.PostCountArgs<ExtArgs>
                         result: $Utils.Optional<PostCountAggregateOutputType> | number
+                    }
+                }
+            }
+            UserLearningItem: {
+                payload: Prisma.$UserLearningItemPayload<ExtArgs>
+                fields: Prisma.UserLearningItemFieldRefs
+                operations: {
+                    findUnique: {
+                        args: Prisma.UserLearningItemFindUniqueArgs<ExtArgs>
+                        result: $Utils.PayloadToResult<Prisma.$UserLearningItemPayload> | null
+                    }
+                    findUniqueOrThrow: {
+                        args: Prisma.UserLearningItemFindUniqueOrThrowArgs<ExtArgs>
+                        result: $Utils.PayloadToResult<Prisma.$UserLearningItemPayload>
+                    }
+                    findFirst: {
+                        args: Prisma.UserLearningItemFindFirstArgs<ExtArgs>
+                        result: $Utils.PayloadToResult<Prisma.$UserLearningItemPayload> | null
+                    }
+                    findFirstOrThrow: {
+                        args: Prisma.UserLearningItemFindFirstOrThrowArgs<ExtArgs>
+                        result: $Utils.PayloadToResult<Prisma.$UserLearningItemPayload>
+                    }
+                    findMany: {
+                        args: Prisma.UserLearningItemFindManyArgs<ExtArgs>
+                        result: $Utils.PayloadToResult<Prisma.$UserLearningItemPayload>[]
+                    }
+                    create: {
+                        args: Prisma.UserLearningItemCreateArgs<ExtArgs>
+                        result: $Utils.PayloadToResult<Prisma.$UserLearningItemPayload>
+                    }
+                    createMany: {
+                        args: Prisma.UserLearningItemCreateManyArgs<ExtArgs>
+                        result: BatchPayload
+                    }
+                    createManyAndReturn: {
+                        args: Prisma.UserLearningItemCreateManyAndReturnArgs<ExtArgs>
+                        result: $Utils.PayloadToResult<Prisma.$UserLearningItemPayload>[]
+                    }
+                    delete: {
+                        args: Prisma.UserLearningItemDeleteArgs<ExtArgs>
+                        result: $Utils.PayloadToResult<Prisma.$UserLearningItemPayload>
+                    }
+                    update: {
+                        args: Prisma.UserLearningItemUpdateArgs<ExtArgs>
+                        result: $Utils.PayloadToResult<Prisma.$UserLearningItemPayload>
+                    }
+                    deleteMany: {
+                        args: Prisma.UserLearningItemDeleteManyArgs<ExtArgs>
+                        result: BatchPayload
+                    }
+                    updateMany: {
+                        args: Prisma.UserLearningItemUpdateManyArgs<ExtArgs>
+                        result: BatchPayload
+                    }
+                    updateManyAndReturn: {
+                        args: Prisma.UserLearningItemUpdateManyAndReturnArgs<ExtArgs>
+                        result: $Utils.PayloadToResult<Prisma.$UserLearningItemPayload>[]
+                    }
+                    upsert: {
+                        args: Prisma.UserLearningItemUpsertArgs<ExtArgs>
+                        result: $Utils.PayloadToResult<Prisma.$UserLearningItemPayload>
+                    }
+                    aggregate: {
+                        args: Prisma.UserLearningItemAggregateArgs<ExtArgs>
+                        result: $Utils.Optional<AggregateUserLearningItem>
+                    }
+                    groupBy: {
+                        args: Prisma.UserLearningItemGroupByArgs<ExtArgs>
+                        result: $Utils.Optional<UserLearningItemGroupByOutputType>[]
+                    }
+                    count: {
+                        args: Prisma.UserLearningItemCountArgs<ExtArgs>
+                        result: $Utils.Optional<UserLearningItemCountAggregateOutputType> | number
                     }
                 }
             }
@@ -1189,6 +1346,7 @@ export namespace Prisma {
         userRole?: UserRoleOmit
         rolePermission?: RolePermissionOmit
         post?: PostOmit
+        userLearningItem?: UserLearningItemOmit
     }
 
     /* Types for Logging */
@@ -1271,11 +1429,13 @@ export namespace Prisma {
     export type UserCountOutputType = {
         posts: number
         user_roles: number
+        user_learning_items: number
     }
 
     export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
         posts?: boolean | UserCountOutputTypeCountPostsArgs
         user_roles?: boolean | UserCountOutputTypeCountUser_rolesArgs
+        user_learning_items?: boolean | UserCountOutputTypeCountUser_learning_itemsArgs
     }
 
     // Custom InputTypes
@@ -1301,6 +1461,13 @@ export namespace Prisma {
      */
     export type UserCountOutputTypeCountUser_rolesArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
         where?: UserRoleWhereInput
+    }
+
+    /**
+     * UserCountOutputType without action
+     */
+    export type UserCountOutputTypeCountUser_learning_itemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        where?: UserLearningItemWhereInput
     }
 
 
@@ -1406,11 +1573,11 @@ export namespace Prisma {
     }
 
     export type UserMinAggregateOutputType = {
-        id: string | null
         created_at: Date | null
         created_by: string | null
         updated_at: Date | null
         updated_by: string | null
+        id: string | null
         avatar_url: string | null
         bio: string | null
         dob: Date | null
@@ -1440,11 +1607,11 @@ export namespace Prisma {
     }
 
     export type UserMaxAggregateOutputType = {
-        id: string | null
         created_at: Date | null
         created_by: string | null
         updated_at: Date | null
         updated_by: string | null
+        id: string | null
         avatar_url: string | null
         bio: string | null
         dob: Date | null
@@ -1474,11 +1641,11 @@ export namespace Prisma {
     }
 
     export type UserCountAggregateOutputType = {
-        id: number
         created_at: number
         created_by: number
         updated_at: number
         updated_by: number
+        id: number
         avatar_url: number
         bio: number
         dob: number
@@ -1524,11 +1691,11 @@ export namespace Prisma {
     }
 
     export type UserMinAggregateInputType = {
-        id?: true
         created_at?: true
         created_by?: true
         updated_at?: true
         updated_by?: true
+        id?: true
         avatar_url?: true
         bio?: true
         dob?: true
@@ -1558,11 +1725,11 @@ export namespace Prisma {
     }
 
     export type UserMaxAggregateInputType = {
-        id?: true
         created_at?: true
         created_by?: true
         updated_at?: true
         updated_by?: true
+        id?: true
         avatar_url?: true
         bio?: true
         dob?: true
@@ -1592,11 +1759,11 @@ export namespace Prisma {
     }
 
     export type UserCountAggregateInputType = {
-        id?: true
         created_at?: true
         created_by?: true
         updated_at?: true
         updated_by?: true
+        id?: true
         avatar_url?: true
         bio?: true
         dob?: true
@@ -1713,11 +1880,11 @@ export namespace Prisma {
     }
 
     export type UserGroupByOutputType = {
-        id: string
         created_at: Date
         created_by: string | null
         updated_at: Date
         updated_by: string | null
+        id: string
         avatar_url: string | null
         bio: string | null
         dob: Date | null
@@ -1766,11 +1933,11 @@ export namespace Prisma {
 
 
     export type UserSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
-        id?: boolean
         created_at?: boolean
         created_by?: boolean
         updated_at?: boolean
         updated_by?: boolean
+        id?: boolean
         avatar_url?: boolean
         bio?: boolean
         dob?: boolean
@@ -1799,17 +1966,84 @@ export namespace Prisma {
         total_quizzes_completed?: boolean
         posts?: boolean | User$postsArgs<ExtArgs>
         user_roles?: boolean | User$user_rolesArgs<ExtArgs>
+        user_learning_items?: boolean | User$user_learning_itemsArgs<ExtArgs>
         _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
     }, ExtArgs["result"]["user"]>
 
-
-
-    export type UserSelectScalar = {
-        id?: boolean
+    export type UserSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
         created_at?: boolean
         created_by?: boolean
         updated_at?: boolean
         updated_by?: boolean
+        id?: boolean
+        avatar_url?: boolean
+        bio?: boolean
+        dob?: boolean
+        email?: boolean
+        first_name?: boolean
+        full_name?: boolean
+        gender?: boolean
+        google_id?: boolean
+        is_active?: boolean
+        is_delete?: boolean
+        last_name?: boolean
+        locale?: boolean
+        location?: boolean
+        otp?: boolean
+        otp_generated_time?: boolean
+        password?: boolean
+        phone?: boolean
+        refresh_token?: boolean
+        reset_password_token?: boolean
+        reset_password_token_expiry?: boolean
+        username?: boolean
+        current_streak?: boolean
+        last_activity_date?: boolean
+        longest_streak?: boolean
+        ranking_points?: boolean
+        total_quizzes_completed?: boolean
+    }, ExtArgs["result"]["user"]>
+
+    export type UserSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+        created_at?: boolean
+        created_by?: boolean
+        updated_at?: boolean
+        updated_by?: boolean
+        id?: boolean
+        avatar_url?: boolean
+        bio?: boolean
+        dob?: boolean
+        email?: boolean
+        first_name?: boolean
+        full_name?: boolean
+        gender?: boolean
+        google_id?: boolean
+        is_active?: boolean
+        is_delete?: boolean
+        last_name?: boolean
+        locale?: boolean
+        location?: boolean
+        otp?: boolean
+        otp_generated_time?: boolean
+        password?: boolean
+        phone?: boolean
+        refresh_token?: boolean
+        reset_password_token?: boolean
+        reset_password_token_expiry?: boolean
+        username?: boolean
+        current_streak?: boolean
+        last_activity_date?: boolean
+        longest_streak?: boolean
+        ranking_points?: boolean
+        total_quizzes_completed?: boolean
+    }, ExtArgs["result"]["user"]>
+
+    export type UserSelectScalar = {
+        created_at?: boolean
+        created_by?: boolean
+        updated_at?: boolean
+        updated_by?: boolean
+        id?: boolean
         avatar_url?: boolean
         bio?: boolean
         dob?: boolean
@@ -1838,25 +2072,29 @@ export namespace Prisma {
         total_quizzes_completed?: boolean
     }
 
-    export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "created_at" | "created_by" | "updated_at" | "updated_by" | "avatar_url" | "bio" | "dob" | "email" | "first_name" | "full_name" | "gender" | "google_id" | "is_active" | "is_delete" | "last_name" | "locale" | "location" | "otp" | "otp_generated_time" | "password" | "phone" | "refresh_token" | "reset_password_token" | "reset_password_token_expiry" | "username" | "current_streak" | "last_activity_date" | "longest_streak" | "ranking_points" | "total_quizzes_completed", ExtArgs["result"]["user"]>
+    export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"created_at" | "created_by" | "updated_at" | "updated_by" | "id" | "avatar_url" | "bio" | "dob" | "email" | "first_name" | "full_name" | "gender" | "google_id" | "is_active" | "is_delete" | "last_name" | "locale" | "location" | "otp" | "otp_generated_time" | "password" | "phone" | "refresh_token" | "reset_password_token" | "reset_password_token_expiry" | "username" | "current_streak" | "last_activity_date" | "longest_streak" | "ranking_points" | "total_quizzes_completed", ExtArgs["result"]["user"]>
     export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
         posts?: boolean | User$postsArgs<ExtArgs>
         user_roles?: boolean | User$user_rolesArgs<ExtArgs>
+        user_learning_items?: boolean | User$user_learning_itemsArgs<ExtArgs>
         _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
     }
+    export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+    export type UserIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
     export type $UserPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
         name: "User"
         objects: {
             posts: Prisma.$PostPayload<ExtArgs>[]
             user_roles: Prisma.$UserRolePayload<ExtArgs>[]
+            user_learning_items: Prisma.$UserLearningItemPayload<ExtArgs>[]
         }
         scalars: $Extensions.GetPayloadResult<{
-            id: string
             created_at: Date
             created_by: string | null
             updated_at: Date
             updated_by: string | null
+            id: string
             avatar_url: string | null
             bio: string | null
             dob: Date | null
@@ -1966,8 +2204,8 @@ export namespace Prisma {
          * // Get first 10 Users
          * const users = await prisma.user.findMany({ take: 10 })
          * 
-         * // Only select the `id`
-         * const userWithIdOnly = await prisma.user.findMany({ select: { id: true } })
+         * // Only select the `created_at`
+         * const userWithCreated_atOnly = await prisma.user.findMany({ select: { created_at: true } })
          * 
          */
         findMany<T extends UserFindManyArgs>(args?: SelectSubset<T, UserFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -1999,6 +2237,30 @@ export namespace Prisma {
          *     
          */
         createMany<T extends UserCreateManyArgs>(args?: SelectSubset<T, UserCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+        /**
+         * Create many Users and returns the data saved in the database.
+         * @param {UserCreateManyAndReturnArgs} args - Arguments to create many Users.
+         * @example
+         * // Create many Users
+         * const user = await prisma.user.createManyAndReturn({
+         *   data: [
+         *     // ... provide data here
+         *   ]
+         * })
+         * 
+         * // Create many Users and only return the `created_at`
+         * const userWithCreated_atOnly = await prisma.user.createManyAndReturn({
+         *   select: { created_at: true },
+         *   data: [
+         *     // ... provide data here
+         *   ]
+         * })
+         * Note, that providing `undefined` is treated as the value not being there.
+         * Read more here: https://pris.ly/d/null-undefined
+         * 
+         */
+        createManyAndReturn<T extends UserCreateManyAndReturnArgs>(args?: SelectSubset<T, UserCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
         /**
          * Delete a User.
@@ -2063,6 +2325,36 @@ export namespace Prisma {
          * 
          */
         updateMany<T extends UserUpdateManyArgs>(args: SelectSubset<T, UserUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+        /**
+         * Update zero or more Users and returns the data updated in the database.
+         * @param {UserUpdateManyAndReturnArgs} args - Arguments to update many Users.
+         * @example
+         * // Update many Users
+         * const user = await prisma.user.updateManyAndReturn({
+         *   where: {
+         *     // ... provide filter here
+         *   },
+         *   data: [
+         *     // ... provide data here
+         *   ]
+         * })
+         * 
+         * // Update zero or more Users and only return the `created_at`
+         * const userWithCreated_atOnly = await prisma.user.updateManyAndReturn({
+         *   select: { created_at: true },
+         *   where: {
+         *     // ... provide filter here
+         *   },
+         *   data: [
+         *     // ... provide data here
+         *   ]
+         * })
+         * Note, that providing `undefined` is treated as the value not being there.
+         * Read more here: https://pris.ly/d/null-undefined
+         * 
+         */
+        updateManyAndReturn<T extends UserUpdateManyAndReturnArgs>(args: SelectSubset<T, UserUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
         /**
          * Create or update one User.
@@ -2225,6 +2517,7 @@ export namespace Prisma {
         readonly [Symbol.toStringTag]: "PrismaPromise"
         posts<T extends User$postsArgs<ExtArgs> = {}>(args?: Subset<T, User$postsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PostPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
         user_roles<T extends User$user_rolesArgs<ExtArgs> = {}>(args?: Subset<T, User$user_rolesArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+        user_learning_items<T extends User$user_learning_itemsArgs<ExtArgs> = {}>(args?: Subset<T, User$user_learning_itemsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserLearningItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
         /**
          * Attaches callbacks for the resolution and/or rejection of the Promise.
          * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2254,11 +2547,11 @@ export namespace Prisma {
      * Fields of the User model
      */
     interface UserFieldRefs {
-        readonly id: FieldRef<"User", 'String'>
         readonly created_at: FieldRef<"User", 'DateTime'>
         readonly created_by: FieldRef<"User", 'String'>
         readonly updated_at: FieldRef<"User", 'DateTime'>
         readonly updated_by: FieldRef<"User", 'String'>
+        readonly id: FieldRef<"User", 'String'>
         readonly avatar_url: FieldRef<"User", 'String'>
         readonly bio: FieldRef<"User", 'String'>
         readonly dob: FieldRef<"User", 'DateTime'>
@@ -2518,6 +2811,25 @@ export namespace Prisma {
     }
 
     /**
+     * User createManyAndReturn
+     */
+    export type UserCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * Select specific fields to fetch from the User
+         */
+        select?: UserSelectCreateManyAndReturn<ExtArgs> | null
+        /**
+         * Omit specific fields from the User
+         */
+        omit?: UserOmit<ExtArgs> | null
+        /**
+         * The data used to create many Users.
+         */
+        data: UserCreateManyInput | UserCreateManyInput[]
+        skipDuplicates?: boolean
+    }
+
+    /**
      * User update
      */
     export type UserUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2547,6 +2859,32 @@ export namespace Prisma {
      * User updateMany
      */
     export type UserUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * The data used to update Users.
+         */
+        data: XOR<UserUpdateManyMutationInput, UserUncheckedUpdateManyInput>
+        /**
+         * Filter which Users to update
+         */
+        where?: UserWhereInput
+        /**
+         * Limit how many Users to update.
+         */
+        limit?: number
+    }
+
+    /**
+     * User updateManyAndReturn
+     */
+    export type UserUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * Select specific fields to fetch from the User
+         */
+        select?: UserSelectUpdateManyAndReturn<ExtArgs> | null
+        /**
+         * Omit specific fields from the User
+         */
+        omit?: UserOmit<ExtArgs> | null
         /**
          * The data used to update Users.
          */
@@ -2676,6 +3014,30 @@ export namespace Prisma {
     }
 
     /**
+     * User.user_learning_items
+     */
+    export type User$user_learning_itemsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * Select specific fields to fetch from the UserLearningItem
+         */
+        select?: UserLearningItemSelect<ExtArgs> | null
+        /**
+         * Omit specific fields from the UserLearningItem
+         */
+        omit?: UserLearningItemOmit<ExtArgs> | null
+        /**
+         * Choose, which related nodes to fetch as well
+         */
+        include?: UserLearningItemInclude<ExtArgs> | null
+        where?: UserLearningItemWhereInput
+        orderBy?: UserLearningItemOrderByWithRelationInput | UserLearningItemOrderByWithRelationInput[]
+        cursor?: UserLearningItemWhereUniqueInput
+        take?: number
+        skip?: number
+        distinct?: UserLearningItemScalarFieldEnum | UserLearningItemScalarFieldEnum[]
+    }
+
+    /**
      * User without action
      */
     export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2715,27 +3077,33 @@ export namespace Prisma {
     }
 
     export type RoleMinAggregateOutputType = {
+        created_at: Date | null
+        created_by: string | null
+        updated_at: Date | null
+        updated_by: string | null
         id: number | null
         authority: string | null
         description: string | null
-        created_at: Date | null
-        updated_at: Date | null
     }
 
     export type RoleMaxAggregateOutputType = {
+        created_at: Date | null
+        created_by: string | null
+        updated_at: Date | null
+        updated_by: string | null
         id: number | null
         authority: string | null
         description: string | null
-        created_at: Date | null
-        updated_at: Date | null
     }
 
     export type RoleCountAggregateOutputType = {
+        created_at: number
+        created_by: number
+        updated_at: number
+        updated_by: number
         id: number
         authority: number
         description: number
-        created_at: number
-        updated_at: number
         _all: number
     }
 
@@ -2749,27 +3117,33 @@ export namespace Prisma {
     }
 
     export type RoleMinAggregateInputType = {
+        created_at?: true
+        created_by?: true
+        updated_at?: true
+        updated_by?: true
         id?: true
         authority?: true
         description?: true
-        created_at?: true
-        updated_at?: true
     }
 
     export type RoleMaxAggregateInputType = {
+        created_at?: true
+        created_by?: true
+        updated_at?: true
+        updated_by?: true
         id?: true
         authority?: true
         description?: true
-        created_at?: true
-        updated_at?: true
     }
 
     export type RoleCountAggregateInputType = {
+        created_at?: true
+        created_by?: true
+        updated_at?: true
+        updated_by?: true
         id?: true
         authority?: true
         description?: true
-        created_at?: true
-        updated_at?: true
         _all?: true
     }
 
@@ -2860,11 +3234,13 @@ export namespace Prisma {
     }
 
     export type RoleGroupByOutputType = {
+        created_at: Date
+        created_by: string | null
+        updated_at: Date
+        updated_by: string | null
         id: number
         authority: string
         description: string | null
-        created_at: Date
-        updated_at: Date
         _count: RoleCountAggregateOutputType | null
         _avg: RoleAvgAggregateOutputType | null
         _sum: RoleSumAggregateOutputType | null
@@ -2887,32 +3263,56 @@ export namespace Prisma {
 
 
     export type RoleSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+        created_at?: boolean
+        created_by?: boolean
+        updated_at?: boolean
+        updated_by?: boolean
         id?: boolean
         authority?: boolean
         description?: boolean
-        created_at?: boolean
-        updated_at?: boolean
         users?: boolean | Role$usersArgs<ExtArgs>
         permissions?: boolean | Role$permissionsArgs<ExtArgs>
         _count?: boolean | RoleCountOutputTypeDefaultArgs<ExtArgs>
     }, ExtArgs["result"]["role"]>
 
-
-
-    export type RoleSelectScalar = {
+    export type RoleSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+        created_at?: boolean
+        created_by?: boolean
+        updated_at?: boolean
+        updated_by?: boolean
         id?: boolean
         authority?: boolean
         description?: boolean
+    }, ExtArgs["result"]["role"]>
+
+    export type RoleSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
         created_at?: boolean
+        created_by?: boolean
         updated_at?: boolean
+        updated_by?: boolean
+        id?: boolean
+        authority?: boolean
+        description?: boolean
+    }, ExtArgs["result"]["role"]>
+
+    export type RoleSelectScalar = {
+        created_at?: boolean
+        created_by?: boolean
+        updated_at?: boolean
+        updated_by?: boolean
+        id?: boolean
+        authority?: boolean
+        description?: boolean
     }
 
-    export type RoleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "authority" | "description" | "created_at" | "updated_at", ExtArgs["result"]["role"]>
+    export type RoleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"created_at" | "created_by" | "updated_at" | "updated_by" | "id" | "authority" | "description", ExtArgs["result"]["role"]>
     export type RoleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
         users?: boolean | Role$usersArgs<ExtArgs>
         permissions?: boolean | Role$permissionsArgs<ExtArgs>
         _count?: boolean | RoleCountOutputTypeDefaultArgs<ExtArgs>
     }
+    export type RoleIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+    export type RoleIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
     export type $RolePayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
         name: "Role"
@@ -2921,11 +3321,13 @@ export namespace Prisma {
             permissions: Prisma.$RolePermissionPayload<ExtArgs>[]
         }
         scalars: $Extensions.GetPayloadResult<{
+            created_at: Date
+            created_by: string | null
+            updated_at: Date
+            updated_by: string | null
             id: number
             authority: string
             description: string | null
-            created_at: Date
-            updated_at: Date
         }, ExtArgs["result"]["role"]>
         composites: {}
     }
@@ -3009,8 +3411,8 @@ export namespace Prisma {
          * // Get first 10 Roles
          * const roles = await prisma.role.findMany({ take: 10 })
          * 
-         * // Only select the `id`
-         * const roleWithIdOnly = await prisma.role.findMany({ select: { id: true } })
+         * // Only select the `created_at`
+         * const roleWithCreated_atOnly = await prisma.role.findMany({ select: { created_at: true } })
          * 
          */
         findMany<T extends RoleFindManyArgs>(args?: SelectSubset<T, RoleFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -3042,6 +3444,30 @@ export namespace Prisma {
          *     
          */
         createMany<T extends RoleCreateManyArgs>(args?: SelectSubset<T, RoleCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+        /**
+         * Create many Roles and returns the data saved in the database.
+         * @param {RoleCreateManyAndReturnArgs} args - Arguments to create many Roles.
+         * @example
+         * // Create many Roles
+         * const role = await prisma.role.createManyAndReturn({
+         *   data: [
+         *     // ... provide data here
+         *   ]
+         * })
+         * 
+         * // Create many Roles and only return the `created_at`
+         * const roleWithCreated_atOnly = await prisma.role.createManyAndReturn({
+         *   select: { created_at: true },
+         *   data: [
+         *     // ... provide data here
+         *   ]
+         * })
+         * Note, that providing `undefined` is treated as the value not being there.
+         * Read more here: https://pris.ly/d/null-undefined
+         * 
+         */
+        createManyAndReturn<T extends RoleCreateManyAndReturnArgs>(args?: SelectSubset<T, RoleCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
         /**
          * Delete a Role.
@@ -3106,6 +3532,36 @@ export namespace Prisma {
          * 
          */
         updateMany<T extends RoleUpdateManyArgs>(args: SelectSubset<T, RoleUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+        /**
+         * Update zero or more Roles and returns the data updated in the database.
+         * @param {RoleUpdateManyAndReturnArgs} args - Arguments to update many Roles.
+         * @example
+         * // Update many Roles
+         * const role = await prisma.role.updateManyAndReturn({
+         *   where: {
+         *     // ... provide filter here
+         *   },
+         *   data: [
+         *     // ... provide data here
+         *   ]
+         * })
+         * 
+         * // Update zero or more Roles and only return the `created_at`
+         * const roleWithCreated_atOnly = await prisma.role.updateManyAndReturn({
+         *   select: { created_at: true },
+         *   where: {
+         *     // ... provide filter here
+         *   },
+         *   data: [
+         *     // ... provide data here
+         *   ]
+         * })
+         * Note, that providing `undefined` is treated as the value not being there.
+         * Read more here: https://pris.ly/d/null-undefined
+         * 
+         */
+        updateManyAndReturn<T extends RoleUpdateManyAndReturnArgs>(args: SelectSubset<T, RoleUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
         /**
          * Create or update one Role.
@@ -3297,11 +3753,13 @@ export namespace Prisma {
      * Fields of the Role model
      */
     interface RoleFieldRefs {
+        readonly created_at: FieldRef<"Role", 'DateTime'>
+        readonly created_by: FieldRef<"Role", 'String'>
+        readonly updated_at: FieldRef<"Role", 'DateTime'>
+        readonly updated_by: FieldRef<"Role", 'String'>
         readonly id: FieldRef<"Role", 'Int'>
         readonly authority: FieldRef<"Role", 'String'>
         readonly description: FieldRef<"Role", 'String'>
-        readonly created_at: FieldRef<"Role", 'DateTime'>
-        readonly updated_at: FieldRef<"Role", 'DateTime'>
     }
 
 
@@ -3535,6 +3993,25 @@ export namespace Prisma {
     }
 
     /**
+     * Role createManyAndReturn
+     */
+    export type RoleCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * Select specific fields to fetch from the Role
+         */
+        select?: RoleSelectCreateManyAndReturn<ExtArgs> | null
+        /**
+         * Omit specific fields from the Role
+         */
+        omit?: RoleOmit<ExtArgs> | null
+        /**
+         * The data used to create many Roles.
+         */
+        data: RoleCreateManyInput | RoleCreateManyInput[]
+        skipDuplicates?: boolean
+    }
+
+    /**
      * Role update
      */
     export type RoleUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3564,6 +4041,32 @@ export namespace Prisma {
      * Role updateMany
      */
     export type RoleUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * The data used to update Roles.
+         */
+        data: XOR<RoleUpdateManyMutationInput, RoleUncheckedUpdateManyInput>
+        /**
+         * Filter which Roles to update
+         */
+        where?: RoleWhereInput
+        /**
+         * Limit how many Roles to update.
+         */
+        limit?: number
+    }
+
+    /**
+     * Role updateManyAndReturn
+     */
+    export type RoleUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * Select specific fields to fetch from the Role
+         */
+        select?: RoleSelectUpdateManyAndReturn<ExtArgs> | null
+        /**
+         * Omit specific fields from the Role
+         */
+        omit?: RoleOmit<ExtArgs> | null
         /**
          * The data used to update Roles.
          */
@@ -3732,33 +4235,39 @@ export namespace Prisma {
     }
 
     export type PermissionMinAggregateOutputType = {
+        created_at: Date | null
+        created_by: string | null
+        updated_at: Date | null
+        updated_by: string | null
         id: number | null
         name: string | null
         description: string | null
         resource: string | null
         action: string | null
-        created_at: Date | null
-        updated_at: Date | null
     }
 
     export type PermissionMaxAggregateOutputType = {
+        created_at: Date | null
+        created_by: string | null
+        updated_at: Date | null
+        updated_by: string | null
         id: number | null
         name: string | null
         description: string | null
         resource: string | null
         action: string | null
-        created_at: Date | null
-        updated_at: Date | null
     }
 
     export type PermissionCountAggregateOutputType = {
+        created_at: number
+        created_by: number
+        updated_at: number
+        updated_by: number
         id: number
         name: number
         description: number
         resource: number
         action: number
-        created_at: number
-        updated_at: number
         _all: number
     }
 
@@ -3772,33 +4281,39 @@ export namespace Prisma {
     }
 
     export type PermissionMinAggregateInputType = {
+        created_at?: true
+        created_by?: true
+        updated_at?: true
+        updated_by?: true
         id?: true
         name?: true
         description?: true
         resource?: true
         action?: true
-        created_at?: true
-        updated_at?: true
     }
 
     export type PermissionMaxAggregateInputType = {
+        created_at?: true
+        created_by?: true
+        updated_at?: true
+        updated_by?: true
         id?: true
         name?: true
         description?: true
         resource?: true
         action?: true
-        created_at?: true
-        updated_at?: true
     }
 
     export type PermissionCountAggregateInputType = {
+        created_at?: true
+        created_by?: true
+        updated_at?: true
+        updated_by?: true
         id?: true
         name?: true
         description?: true
         resource?: true
         action?: true
-        created_at?: true
-        updated_at?: true
         _all?: true
     }
 
@@ -3889,13 +4404,15 @@ export namespace Prisma {
     }
 
     export type PermissionGroupByOutputType = {
+        created_at: Date
+        created_by: string | null
+        updated_at: Date
+        updated_by: string | null
         id: number
         name: string
         description: string | null
         resource: string
         action: string
-        created_at: Date
-        updated_at: Date
         _count: PermissionCountAggregateOutputType | null
         _avg: PermissionAvgAggregateOutputType | null
         _sum: PermissionSumAggregateOutputType | null
@@ -3918,34 +4435,62 @@ export namespace Prisma {
 
 
     export type PermissionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+        created_at?: boolean
+        created_by?: boolean
+        updated_at?: boolean
+        updated_by?: boolean
         id?: boolean
         name?: boolean
         description?: boolean
         resource?: boolean
         action?: boolean
-        created_at?: boolean
-        updated_at?: boolean
         roles?: boolean | Permission$rolesArgs<ExtArgs>
         _count?: boolean | PermissionCountOutputTypeDefaultArgs<ExtArgs>
     }, ExtArgs["result"]["permission"]>
 
-
-
-    export type PermissionSelectScalar = {
+    export type PermissionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+        created_at?: boolean
+        created_by?: boolean
+        updated_at?: boolean
+        updated_by?: boolean
         id?: boolean
         name?: boolean
         description?: boolean
         resource?: boolean
         action?: boolean
+    }, ExtArgs["result"]["permission"]>
+
+    export type PermissionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
         created_at?: boolean
+        created_by?: boolean
         updated_at?: boolean
+        updated_by?: boolean
+        id?: boolean
+        name?: boolean
+        description?: boolean
+        resource?: boolean
+        action?: boolean
+    }, ExtArgs["result"]["permission"]>
+
+    export type PermissionSelectScalar = {
+        created_at?: boolean
+        created_by?: boolean
+        updated_at?: boolean
+        updated_by?: boolean
+        id?: boolean
+        name?: boolean
+        description?: boolean
+        resource?: boolean
+        action?: boolean
     }
 
-    export type PermissionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "resource" | "action" | "created_at" | "updated_at", ExtArgs["result"]["permission"]>
+    export type PermissionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"created_at" | "created_by" | "updated_at" | "updated_by" | "id" | "name" | "description" | "resource" | "action", ExtArgs["result"]["permission"]>
     export type PermissionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
         roles?: boolean | Permission$rolesArgs<ExtArgs>
         _count?: boolean | PermissionCountOutputTypeDefaultArgs<ExtArgs>
     }
+    export type PermissionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+    export type PermissionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
 
     export type $PermissionPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
         name: "Permission"
@@ -3953,13 +4498,15 @@ export namespace Prisma {
             roles: Prisma.$RolePermissionPayload<ExtArgs>[]
         }
         scalars: $Extensions.GetPayloadResult<{
+            created_at: Date
+            created_by: string | null
+            updated_at: Date
+            updated_by: string | null
             id: number
             name: string
             description: string | null
             resource: string
             action: string
-            created_at: Date
-            updated_at: Date
         }, ExtArgs["result"]["permission"]>
         composites: {}
     }
@@ -4043,8 +4590,8 @@ export namespace Prisma {
          * // Get first 10 Permissions
          * const permissions = await prisma.permission.findMany({ take: 10 })
          * 
-         * // Only select the `id`
-         * const permissionWithIdOnly = await prisma.permission.findMany({ select: { id: true } })
+         * // Only select the `created_at`
+         * const permissionWithCreated_atOnly = await prisma.permission.findMany({ select: { created_at: true } })
          * 
          */
         findMany<T extends PermissionFindManyArgs>(args?: SelectSubset<T, PermissionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -4076,6 +4623,30 @@ export namespace Prisma {
          *     
          */
         createMany<T extends PermissionCreateManyArgs>(args?: SelectSubset<T, PermissionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+        /**
+         * Create many Permissions and returns the data saved in the database.
+         * @param {PermissionCreateManyAndReturnArgs} args - Arguments to create many Permissions.
+         * @example
+         * // Create many Permissions
+         * const permission = await prisma.permission.createManyAndReturn({
+         *   data: [
+         *     // ... provide data here
+         *   ]
+         * })
+         * 
+         * // Create many Permissions and only return the `created_at`
+         * const permissionWithCreated_atOnly = await prisma.permission.createManyAndReturn({
+         *   select: { created_at: true },
+         *   data: [
+         *     // ... provide data here
+         *   ]
+         * })
+         * Note, that providing `undefined` is treated as the value not being there.
+         * Read more here: https://pris.ly/d/null-undefined
+         * 
+         */
+        createManyAndReturn<T extends PermissionCreateManyAndReturnArgs>(args?: SelectSubset<T, PermissionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
         /**
          * Delete a Permission.
@@ -4140,6 +4711,36 @@ export namespace Prisma {
          * 
          */
         updateMany<T extends PermissionUpdateManyArgs>(args: SelectSubset<T, PermissionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+        /**
+         * Update zero or more Permissions and returns the data updated in the database.
+         * @param {PermissionUpdateManyAndReturnArgs} args - Arguments to update many Permissions.
+         * @example
+         * // Update many Permissions
+         * const permission = await prisma.permission.updateManyAndReturn({
+         *   where: {
+         *     // ... provide filter here
+         *   },
+         *   data: [
+         *     // ... provide data here
+         *   ]
+         * })
+         * 
+         * // Update zero or more Permissions and only return the `created_at`
+         * const permissionWithCreated_atOnly = await prisma.permission.updateManyAndReturn({
+         *   select: { created_at: true },
+         *   where: {
+         *     // ... provide filter here
+         *   },
+         *   data: [
+         *     // ... provide data here
+         *   ]
+         * })
+         * Note, that providing `undefined` is treated as the value not being there.
+         * Read more here: https://pris.ly/d/null-undefined
+         * 
+         */
+        updateManyAndReturn<T extends PermissionUpdateManyAndReturnArgs>(args: SelectSubset<T, PermissionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PermissionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
         /**
          * Create or update one Permission.
@@ -4330,13 +4931,15 @@ export namespace Prisma {
      * Fields of the Permission model
      */
     interface PermissionFieldRefs {
+        readonly created_at: FieldRef<"Permission", 'DateTime'>
+        readonly created_by: FieldRef<"Permission", 'String'>
+        readonly updated_at: FieldRef<"Permission", 'DateTime'>
+        readonly updated_by: FieldRef<"Permission", 'String'>
         readonly id: FieldRef<"Permission", 'Int'>
         readonly name: FieldRef<"Permission", 'String'>
         readonly description: FieldRef<"Permission", 'String'>
         readonly resource: FieldRef<"Permission", 'String'>
         readonly action: FieldRef<"Permission", 'String'>
-        readonly created_at: FieldRef<"Permission", 'DateTime'>
-        readonly updated_at: FieldRef<"Permission", 'DateTime'>
     }
 
 
@@ -4570,6 +5173,25 @@ export namespace Prisma {
     }
 
     /**
+     * Permission createManyAndReturn
+     */
+    export type PermissionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * Select specific fields to fetch from the Permission
+         */
+        select?: PermissionSelectCreateManyAndReturn<ExtArgs> | null
+        /**
+         * Omit specific fields from the Permission
+         */
+        omit?: PermissionOmit<ExtArgs> | null
+        /**
+         * The data used to create many Permissions.
+         */
+        data: PermissionCreateManyInput | PermissionCreateManyInput[]
+        skipDuplicates?: boolean
+    }
+
+    /**
      * Permission update
      */
     export type PermissionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -4599,6 +5221,32 @@ export namespace Prisma {
      * Permission updateMany
      */
     export type PermissionUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * The data used to update Permissions.
+         */
+        data: XOR<PermissionUpdateManyMutationInput, PermissionUncheckedUpdateManyInput>
+        /**
+         * Filter which Permissions to update
+         */
+        where?: PermissionWhereInput
+        /**
+         * Limit how many Permissions to update.
+         */
+        limit?: number
+    }
+
+    /**
+     * Permission updateManyAndReturn
+     */
+    export type PermissionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * Select specific fields to fetch from the Permission
+         */
+        select?: PermissionSelectUpdateManyAndReturn<ExtArgs> | null
+        /**
+         * Omit specific fields from the Permission
+         */
+        omit?: PermissionOmit<ExtArgs> | null
         /**
          * The data used to update Permissions.
          */
@@ -4743,18 +5391,30 @@ export namespace Prisma {
     }
 
     export type UserRoleMinAggregateOutputType = {
+        created_at: Date | null
+        created_by: string | null
+        updated_at: Date | null
+        updated_by: string | null
         user_id: string | null
         role_id: number | null
         assignedAt: Date | null
     }
 
     export type UserRoleMaxAggregateOutputType = {
+        created_at: Date | null
+        created_by: string | null
+        updated_at: Date | null
+        updated_by: string | null
         user_id: string | null
         role_id: number | null
         assignedAt: Date | null
     }
 
     export type UserRoleCountAggregateOutputType = {
+        created_at: number
+        created_by: number
+        updated_at: number
+        updated_by: number
         user_id: number
         role_id: number
         assignedAt: number
@@ -4771,18 +5431,30 @@ export namespace Prisma {
     }
 
     export type UserRoleMinAggregateInputType = {
+        created_at?: true
+        created_by?: true
+        updated_at?: true
+        updated_by?: true
         user_id?: true
         role_id?: true
         assignedAt?: true
     }
 
     export type UserRoleMaxAggregateInputType = {
+        created_at?: true
+        created_by?: true
+        updated_at?: true
+        updated_by?: true
         user_id?: true
         role_id?: true
         assignedAt?: true
     }
 
     export type UserRoleCountAggregateInputType = {
+        created_at?: true
+        created_by?: true
+        updated_at?: true
+        updated_by?: true
         user_id?: true
         role_id?: true
         assignedAt?: true
@@ -4876,6 +5548,10 @@ export namespace Prisma {
     }
 
     export type UserRoleGroupByOutputType = {
+        created_at: Date
+        created_by: string | null
+        updated_at: Date
+        updated_by: string | null
         user_id: string
         role_id: number
         assignedAt: Date
@@ -4901,6 +5577,10 @@ export namespace Prisma {
 
 
     export type UserRoleSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+        created_at?: boolean
+        created_by?: boolean
+        updated_at?: boolean
+        updated_by?: boolean
         user_id?: boolean
         role_id?: boolean
         assignedAt?: boolean
@@ -4908,16 +5588,50 @@ export namespace Prisma {
         role?: boolean | RoleDefaultArgs<ExtArgs>
     }, ExtArgs["result"]["userRole"]>
 
+    export type UserRoleSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+        created_at?: boolean
+        created_by?: boolean
+        updated_at?: boolean
+        updated_by?: boolean
+        user_id?: boolean
+        role_id?: boolean
+        assignedAt?: boolean
+        user?: boolean | UserDefaultArgs<ExtArgs>
+        role?: boolean | RoleDefaultArgs<ExtArgs>
+    }, ExtArgs["result"]["userRole"]>
 
+    export type UserRoleSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+        created_at?: boolean
+        created_by?: boolean
+        updated_at?: boolean
+        updated_by?: boolean
+        user_id?: boolean
+        role_id?: boolean
+        assignedAt?: boolean
+        user?: boolean | UserDefaultArgs<ExtArgs>
+        role?: boolean | RoleDefaultArgs<ExtArgs>
+    }, ExtArgs["result"]["userRole"]>
 
     export type UserRoleSelectScalar = {
+        created_at?: boolean
+        created_by?: boolean
+        updated_at?: boolean
+        updated_by?: boolean
         user_id?: boolean
         role_id?: boolean
         assignedAt?: boolean
     }
 
-    export type UserRoleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"user_id" | "role_id" | "assignedAt", ExtArgs["result"]["userRole"]>
+    export type UserRoleOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"created_at" | "created_by" | "updated_at" | "updated_by" | "user_id" | "role_id" | "assignedAt", ExtArgs["result"]["userRole"]>
     export type UserRoleInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        user?: boolean | UserDefaultArgs<ExtArgs>
+        role?: boolean | RoleDefaultArgs<ExtArgs>
+    }
+    export type UserRoleIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        user?: boolean | UserDefaultArgs<ExtArgs>
+        role?: boolean | RoleDefaultArgs<ExtArgs>
+    }
+    export type UserRoleIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
         user?: boolean | UserDefaultArgs<ExtArgs>
         role?: boolean | RoleDefaultArgs<ExtArgs>
     }
@@ -4929,6 +5643,10 @@ export namespace Prisma {
             role: Prisma.$RolePayload<ExtArgs>
         }
         scalars: $Extensions.GetPayloadResult<{
+            created_at: Date
+            created_by: string | null
+            updated_at: Date
+            updated_by: string | null
             user_id: string
             role_id: number
             assignedAt: Date
@@ -5015,8 +5733,8 @@ export namespace Prisma {
          * // Get first 10 UserRoles
          * const userRoles = await prisma.userRole.findMany({ take: 10 })
          * 
-         * // Only select the `user_id`
-         * const userRoleWithUser_idOnly = await prisma.userRole.findMany({ select: { user_id: true } })
+         * // Only select the `created_at`
+         * const userRoleWithCreated_atOnly = await prisma.userRole.findMany({ select: { created_at: true } })
          * 
          */
         findMany<T extends UserRoleFindManyArgs>(args?: SelectSubset<T, UserRoleFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -5048,6 +5766,30 @@ export namespace Prisma {
          *     
          */
         createMany<T extends UserRoleCreateManyArgs>(args?: SelectSubset<T, UserRoleCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+        /**
+         * Create many UserRoles and returns the data saved in the database.
+         * @param {UserRoleCreateManyAndReturnArgs} args - Arguments to create many UserRoles.
+         * @example
+         * // Create many UserRoles
+         * const userRole = await prisma.userRole.createManyAndReturn({
+         *   data: [
+         *     // ... provide data here
+         *   ]
+         * })
+         * 
+         * // Create many UserRoles and only return the `created_at`
+         * const userRoleWithCreated_atOnly = await prisma.userRole.createManyAndReturn({
+         *   select: { created_at: true },
+         *   data: [
+         *     // ... provide data here
+         *   ]
+         * })
+         * Note, that providing `undefined` is treated as the value not being there.
+         * Read more here: https://pris.ly/d/null-undefined
+         * 
+         */
+        createManyAndReturn<T extends UserRoleCreateManyAndReturnArgs>(args?: SelectSubset<T, UserRoleCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserRolePayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
         /**
          * Delete a UserRole.
@@ -5112,6 +5854,36 @@ export namespace Prisma {
          * 
          */
         updateMany<T extends UserRoleUpdateManyArgs>(args: SelectSubset<T, UserRoleUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+        /**
+         * Update zero or more UserRoles and returns the data updated in the database.
+         * @param {UserRoleUpdateManyAndReturnArgs} args - Arguments to update many UserRoles.
+         * @example
+         * // Update many UserRoles
+         * const userRole = await prisma.userRole.updateManyAndReturn({
+         *   where: {
+         *     // ... provide filter here
+         *   },
+         *   data: [
+         *     // ... provide data here
+         *   ]
+         * })
+         * 
+         * // Update zero or more UserRoles and only return the `created_at`
+         * const userRoleWithCreated_atOnly = await prisma.userRole.updateManyAndReturn({
+         *   select: { created_at: true },
+         *   where: {
+         *     // ... provide filter here
+         *   },
+         *   data: [
+         *     // ... provide data here
+         *   ]
+         * })
+         * Note, that providing `undefined` is treated as the value not being there.
+         * Read more here: https://pris.ly/d/null-undefined
+         * 
+         */
+        updateManyAndReturn<T extends UserRoleUpdateManyAndReturnArgs>(args: SelectSubset<T, UserRoleUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserRolePayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
         /**
          * Create or update one UserRole.
@@ -5303,6 +6075,10 @@ export namespace Prisma {
      * Fields of the UserRole model
      */
     interface UserRoleFieldRefs {
+        readonly created_at: FieldRef<"UserRole", 'DateTime'>
+        readonly created_by: FieldRef<"UserRole", 'String'>
+        readonly updated_at: FieldRef<"UserRole", 'DateTime'>
+        readonly updated_by: FieldRef<"UserRole", 'String'>
         readonly user_id: FieldRef<"UserRole", 'String'>
         readonly role_id: FieldRef<"UserRole", 'Int'>
         readonly assignedAt: FieldRef<"UserRole", 'DateTime'>
@@ -5539,6 +6315,29 @@ export namespace Prisma {
     }
 
     /**
+     * UserRole createManyAndReturn
+     */
+    export type UserRoleCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * Select specific fields to fetch from the UserRole
+         */
+        select?: UserRoleSelectCreateManyAndReturn<ExtArgs> | null
+        /**
+         * Omit specific fields from the UserRole
+         */
+        omit?: UserRoleOmit<ExtArgs> | null
+        /**
+         * The data used to create many UserRoles.
+         */
+        data: UserRoleCreateManyInput | UserRoleCreateManyInput[]
+        skipDuplicates?: boolean
+        /**
+         * Choose, which related nodes to fetch as well
+         */
+        include?: UserRoleIncludeCreateManyAndReturn<ExtArgs> | null
+    }
+
+    /**
      * UserRole update
      */
     export type UserRoleUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -5580,6 +6379,36 @@ export namespace Prisma {
          * Limit how many UserRoles to update.
          */
         limit?: number
+    }
+
+    /**
+     * UserRole updateManyAndReturn
+     */
+    export type UserRoleUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * Select specific fields to fetch from the UserRole
+         */
+        select?: UserRoleSelectUpdateManyAndReturn<ExtArgs> | null
+        /**
+         * Omit specific fields from the UserRole
+         */
+        omit?: UserRoleOmit<ExtArgs> | null
+        /**
+         * The data used to update UserRoles.
+         */
+        data: XOR<UserRoleUpdateManyMutationInput, UserRoleUncheckedUpdateManyInput>
+        /**
+         * Filter which UserRoles to update
+         */
+        where?: UserRoleWhereInput
+        /**
+         * Limit how many UserRoles to update.
+         */
+        limit?: number
+        /**
+         * Choose, which related nodes to fetch as well
+         */
+        include?: UserRoleIncludeUpdateManyAndReturn<ExtArgs> | null
     }
 
     /**
@@ -5690,18 +6519,30 @@ export namespace Prisma {
     }
 
     export type RolePermissionMinAggregateOutputType = {
+        created_at: Date | null
+        created_by: string | null
+        updated_at: Date | null
+        updated_by: string | null
         role_id: number | null
         permission_id: number | null
         assignedAt: Date | null
     }
 
     export type RolePermissionMaxAggregateOutputType = {
+        created_at: Date | null
+        created_by: string | null
+        updated_at: Date | null
+        updated_by: string | null
         role_id: number | null
         permission_id: number | null
         assignedAt: Date | null
     }
 
     export type RolePermissionCountAggregateOutputType = {
+        created_at: number
+        created_by: number
+        updated_at: number
+        updated_by: number
         role_id: number
         permission_id: number
         assignedAt: number
@@ -5720,18 +6561,30 @@ export namespace Prisma {
     }
 
     export type RolePermissionMinAggregateInputType = {
+        created_at?: true
+        created_by?: true
+        updated_at?: true
+        updated_by?: true
         role_id?: true
         permission_id?: true
         assignedAt?: true
     }
 
     export type RolePermissionMaxAggregateInputType = {
+        created_at?: true
+        created_by?: true
+        updated_at?: true
+        updated_by?: true
         role_id?: true
         permission_id?: true
         assignedAt?: true
     }
 
     export type RolePermissionCountAggregateInputType = {
+        created_at?: true
+        created_by?: true
+        updated_at?: true
+        updated_by?: true
         role_id?: true
         permission_id?: true
         assignedAt?: true
@@ -5825,6 +6678,10 @@ export namespace Prisma {
     }
 
     export type RolePermissionGroupByOutputType = {
+        created_at: Date
+        created_by: string | null
+        updated_at: Date
+        updated_by: string | null
         role_id: number
         permission_id: number
         assignedAt: Date
@@ -5850,6 +6707,10 @@ export namespace Prisma {
 
 
     export type RolePermissionSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+        created_at?: boolean
+        created_by?: boolean
+        updated_at?: boolean
+        updated_by?: boolean
         role_id?: boolean
         permission_id?: boolean
         assignedAt?: boolean
@@ -5857,16 +6718,50 @@ export namespace Prisma {
         permission?: boolean | PermissionDefaultArgs<ExtArgs>
     }, ExtArgs["result"]["rolePermission"]>
 
+    export type RolePermissionSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+        created_at?: boolean
+        created_by?: boolean
+        updated_at?: boolean
+        updated_by?: boolean
+        role_id?: boolean
+        permission_id?: boolean
+        assignedAt?: boolean
+        role?: boolean | RoleDefaultArgs<ExtArgs>
+        permission?: boolean | PermissionDefaultArgs<ExtArgs>
+    }, ExtArgs["result"]["rolePermission"]>
 
+    export type RolePermissionSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+        created_at?: boolean
+        created_by?: boolean
+        updated_at?: boolean
+        updated_by?: boolean
+        role_id?: boolean
+        permission_id?: boolean
+        assignedAt?: boolean
+        role?: boolean | RoleDefaultArgs<ExtArgs>
+        permission?: boolean | PermissionDefaultArgs<ExtArgs>
+    }, ExtArgs["result"]["rolePermission"]>
 
     export type RolePermissionSelectScalar = {
+        created_at?: boolean
+        created_by?: boolean
+        updated_at?: boolean
+        updated_by?: boolean
         role_id?: boolean
         permission_id?: boolean
         assignedAt?: boolean
     }
 
-    export type RolePermissionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"role_id" | "permission_id" | "assignedAt", ExtArgs["result"]["rolePermission"]>
+    export type RolePermissionOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"created_at" | "created_by" | "updated_at" | "updated_by" | "role_id" | "permission_id" | "assignedAt", ExtArgs["result"]["rolePermission"]>
     export type RolePermissionInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        role?: boolean | RoleDefaultArgs<ExtArgs>
+        permission?: boolean | PermissionDefaultArgs<ExtArgs>
+    }
+    export type RolePermissionIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        role?: boolean | RoleDefaultArgs<ExtArgs>
+        permission?: boolean | PermissionDefaultArgs<ExtArgs>
+    }
+    export type RolePermissionIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
         role?: boolean | RoleDefaultArgs<ExtArgs>
         permission?: boolean | PermissionDefaultArgs<ExtArgs>
     }
@@ -5878,6 +6773,10 @@ export namespace Prisma {
             permission: Prisma.$PermissionPayload<ExtArgs>
         }
         scalars: $Extensions.GetPayloadResult<{
+            created_at: Date
+            created_by: string | null
+            updated_at: Date
+            updated_by: string | null
             role_id: number
             permission_id: number
             assignedAt: Date
@@ -5964,8 +6863,8 @@ export namespace Prisma {
          * // Get first 10 RolePermissions
          * const rolePermissions = await prisma.rolePermission.findMany({ take: 10 })
          * 
-         * // Only select the `role_id`
-         * const rolePermissionWithRole_idOnly = await prisma.rolePermission.findMany({ select: { role_id: true } })
+         * // Only select the `created_at`
+         * const rolePermissionWithCreated_atOnly = await prisma.rolePermission.findMany({ select: { created_at: true } })
          * 
          */
         findMany<T extends RolePermissionFindManyArgs>(args?: SelectSubset<T, RolePermissionFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RolePermissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -5997,6 +6896,30 @@ export namespace Prisma {
          *     
          */
         createMany<T extends RolePermissionCreateManyArgs>(args?: SelectSubset<T, RolePermissionCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+        /**
+         * Create many RolePermissions and returns the data saved in the database.
+         * @param {RolePermissionCreateManyAndReturnArgs} args - Arguments to create many RolePermissions.
+         * @example
+         * // Create many RolePermissions
+         * const rolePermission = await prisma.rolePermission.createManyAndReturn({
+         *   data: [
+         *     // ... provide data here
+         *   ]
+         * })
+         * 
+         * // Create many RolePermissions and only return the `created_at`
+         * const rolePermissionWithCreated_atOnly = await prisma.rolePermission.createManyAndReturn({
+         *   select: { created_at: true },
+         *   data: [
+         *     // ... provide data here
+         *   ]
+         * })
+         * Note, that providing `undefined` is treated as the value not being there.
+         * Read more here: https://pris.ly/d/null-undefined
+         * 
+         */
+        createManyAndReturn<T extends RolePermissionCreateManyAndReturnArgs>(args?: SelectSubset<T, RolePermissionCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RolePermissionPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
         /**
          * Delete a RolePermission.
@@ -6061,6 +6984,36 @@ export namespace Prisma {
          * 
          */
         updateMany<T extends RolePermissionUpdateManyArgs>(args: SelectSubset<T, RolePermissionUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+        /**
+         * Update zero or more RolePermissions and returns the data updated in the database.
+         * @param {RolePermissionUpdateManyAndReturnArgs} args - Arguments to update many RolePermissions.
+         * @example
+         * // Update many RolePermissions
+         * const rolePermission = await prisma.rolePermission.updateManyAndReturn({
+         *   where: {
+         *     // ... provide filter here
+         *   },
+         *   data: [
+         *     // ... provide data here
+         *   ]
+         * })
+         * 
+         * // Update zero or more RolePermissions and only return the `created_at`
+         * const rolePermissionWithCreated_atOnly = await prisma.rolePermission.updateManyAndReturn({
+         *   select: { created_at: true },
+         *   where: {
+         *     // ... provide filter here
+         *   },
+         *   data: [
+         *     // ... provide data here
+         *   ]
+         * })
+         * Note, that providing `undefined` is treated as the value not being there.
+         * Read more here: https://pris.ly/d/null-undefined
+         * 
+         */
+        updateManyAndReturn<T extends RolePermissionUpdateManyAndReturnArgs>(args: SelectSubset<T, RolePermissionUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RolePermissionPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
         /**
          * Create or update one RolePermission.
@@ -6252,6 +7205,10 @@ export namespace Prisma {
      * Fields of the RolePermission model
      */
     interface RolePermissionFieldRefs {
+        readonly created_at: FieldRef<"RolePermission", 'DateTime'>
+        readonly created_by: FieldRef<"RolePermission", 'String'>
+        readonly updated_at: FieldRef<"RolePermission", 'DateTime'>
+        readonly updated_by: FieldRef<"RolePermission", 'String'>
         readonly role_id: FieldRef<"RolePermission", 'Int'>
         readonly permission_id: FieldRef<"RolePermission", 'Int'>
         readonly assignedAt: FieldRef<"RolePermission", 'DateTime'>
@@ -6488,6 +7445,29 @@ export namespace Prisma {
     }
 
     /**
+     * RolePermission createManyAndReturn
+     */
+    export type RolePermissionCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * Select specific fields to fetch from the RolePermission
+         */
+        select?: RolePermissionSelectCreateManyAndReturn<ExtArgs> | null
+        /**
+         * Omit specific fields from the RolePermission
+         */
+        omit?: RolePermissionOmit<ExtArgs> | null
+        /**
+         * The data used to create many RolePermissions.
+         */
+        data: RolePermissionCreateManyInput | RolePermissionCreateManyInput[]
+        skipDuplicates?: boolean
+        /**
+         * Choose, which related nodes to fetch as well
+         */
+        include?: RolePermissionIncludeCreateManyAndReturn<ExtArgs> | null
+    }
+
+    /**
      * RolePermission update
      */
     export type RolePermissionUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -6529,6 +7509,36 @@ export namespace Prisma {
          * Limit how many RolePermissions to update.
          */
         limit?: number
+    }
+
+    /**
+     * RolePermission updateManyAndReturn
+     */
+    export type RolePermissionUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * Select specific fields to fetch from the RolePermission
+         */
+        select?: RolePermissionSelectUpdateManyAndReturn<ExtArgs> | null
+        /**
+         * Omit specific fields from the RolePermission
+         */
+        omit?: RolePermissionOmit<ExtArgs> | null
+        /**
+         * The data used to update RolePermissions.
+         */
+        data: XOR<RolePermissionUpdateManyMutationInput, RolePermissionUncheckedUpdateManyInput>
+        /**
+         * Filter which RolePermissions to update
+         */
+        where?: RolePermissionWhereInput
+        /**
+         * Limit how many RolePermissions to update.
+         */
+        limit?: number
+        /**
+         * Choose, which related nodes to fetch as well
+         */
+        include?: RolePermissionIncludeUpdateManyAndReturn<ExtArgs> | null
     }
 
     /**
@@ -6627,9 +7637,11 @@ export namespace Prisma {
     }
 
     export type PostMinAggregateOutputType = {
+        created_at: Date | null
+        created_by: string | null
+        updated_at: Date | null
+        updated_by: string | null
         id: string | null
-        createdAt: Date | null
-        updatedAt: Date | null
         title: string | null
         content: string | null
         published: boolean | null
@@ -6637,9 +7649,11 @@ export namespace Prisma {
     }
 
     export type PostMaxAggregateOutputType = {
+        created_at: Date | null
+        created_by: string | null
+        updated_at: Date | null
+        updated_by: string | null
         id: string | null
-        createdAt: Date | null
-        updatedAt: Date | null
         title: string | null
         content: string | null
         published: boolean | null
@@ -6647,9 +7661,11 @@ export namespace Prisma {
     }
 
     export type PostCountAggregateOutputType = {
+        created_at: number
+        created_by: number
+        updated_at: number
+        updated_by: number
         id: number
-        createdAt: number
-        updatedAt: number
         title: number
         content: number
         published: number
@@ -6659,9 +7675,11 @@ export namespace Prisma {
 
 
     export type PostMinAggregateInputType = {
+        created_at?: true
+        created_by?: true
+        updated_at?: true
+        updated_by?: true
         id?: true
-        createdAt?: true
-        updatedAt?: true
         title?: true
         content?: true
         published?: true
@@ -6669,9 +7687,11 @@ export namespace Prisma {
     }
 
     export type PostMaxAggregateInputType = {
+        created_at?: true
+        created_by?: true
+        updated_at?: true
+        updated_by?: true
         id?: true
-        createdAt?: true
-        updatedAt?: true
         title?: true
         content?: true
         published?: true
@@ -6679,9 +7699,11 @@ export namespace Prisma {
     }
 
     export type PostCountAggregateInputType = {
+        created_at?: true
+        created_by?: true
+        updated_at?: true
+        updated_by?: true
         id?: true
-        createdAt?: true
-        updatedAt?: true
         title?: true
         content?: true
         published?: true
@@ -6762,9 +7784,11 @@ export namespace Prisma {
     }
 
     export type PostGroupByOutputType = {
+        created_at: Date
+        created_by: string | null
+        updated_at: Date
+        updated_by: string | null
         id: string
-        createdAt: Date
-        updatedAt: Date
         title: string
         content: string
         published: boolean
@@ -6789,9 +7813,11 @@ export namespace Prisma {
 
 
     export type PostSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+        created_at?: boolean
+        created_by?: boolean
+        updated_at?: boolean
+        updated_by?: boolean
         id?: boolean
-        createdAt?: boolean
-        updatedAt?: boolean
         title?: boolean
         content?: boolean
         published?: boolean
@@ -6799,20 +7825,52 @@ export namespace Prisma {
         author?: boolean | UserDefaultArgs<ExtArgs>
     }, ExtArgs["result"]["post"]>
 
+    export type PostSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+        created_at?: boolean
+        created_by?: boolean
+        updated_at?: boolean
+        updated_by?: boolean
+        id?: boolean
+        title?: boolean
+        content?: boolean
+        published?: boolean
+        authorId?: boolean
+        author?: boolean | UserDefaultArgs<ExtArgs>
+    }, ExtArgs["result"]["post"]>
 
+    export type PostSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+        created_at?: boolean
+        created_by?: boolean
+        updated_at?: boolean
+        updated_by?: boolean
+        id?: boolean
+        title?: boolean
+        content?: boolean
+        published?: boolean
+        authorId?: boolean
+        author?: boolean | UserDefaultArgs<ExtArgs>
+    }, ExtArgs["result"]["post"]>
 
     export type PostSelectScalar = {
+        created_at?: boolean
+        created_by?: boolean
+        updated_at?: boolean
+        updated_by?: boolean
         id?: boolean
-        createdAt?: boolean
-        updatedAt?: boolean
         title?: boolean
         content?: boolean
         published?: boolean
         authorId?: boolean
     }
 
-    export type PostOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "createdAt" | "updatedAt" | "title" | "content" | "published" | "authorId", ExtArgs["result"]["post"]>
+    export type PostOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"created_at" | "created_by" | "updated_at" | "updated_by" | "id" | "title" | "content" | "published" | "authorId", ExtArgs["result"]["post"]>
     export type PostInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        author?: boolean | UserDefaultArgs<ExtArgs>
+    }
+    export type PostIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        author?: boolean | UserDefaultArgs<ExtArgs>
+    }
+    export type PostIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
         author?: boolean | UserDefaultArgs<ExtArgs>
     }
 
@@ -6822,9 +7880,11 @@ export namespace Prisma {
             author: Prisma.$UserPayload<ExtArgs>
         }
         scalars: $Extensions.GetPayloadResult<{
+            created_at: Date
+            created_by: string | null
+            updated_at: Date
+            updated_by: string | null
             id: string
-            createdAt: Date
-            updatedAt: Date
             title: string
             content: string
             published: boolean
@@ -6912,8 +7972,8 @@ export namespace Prisma {
          * // Get first 10 Posts
          * const posts = await prisma.post.findMany({ take: 10 })
          * 
-         * // Only select the `id`
-         * const postWithIdOnly = await prisma.post.findMany({ select: { id: true } })
+         * // Only select the `created_at`
+         * const postWithCreated_atOnly = await prisma.post.findMany({ select: { created_at: true } })
          * 
          */
         findMany<T extends PostFindManyArgs>(args?: SelectSubset<T, PostFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PostPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
@@ -6945,6 +8005,30 @@ export namespace Prisma {
          *     
          */
         createMany<T extends PostCreateManyArgs>(args?: SelectSubset<T, PostCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+        /**
+         * Create many Posts and returns the data saved in the database.
+         * @param {PostCreateManyAndReturnArgs} args - Arguments to create many Posts.
+         * @example
+         * // Create many Posts
+         * const post = await prisma.post.createManyAndReturn({
+         *   data: [
+         *     // ... provide data here
+         *   ]
+         * })
+         * 
+         * // Create many Posts and only return the `created_at`
+         * const postWithCreated_atOnly = await prisma.post.createManyAndReturn({
+         *   select: { created_at: true },
+         *   data: [
+         *     // ... provide data here
+         *   ]
+         * })
+         * Note, that providing `undefined` is treated as the value not being there.
+         * Read more here: https://pris.ly/d/null-undefined
+         * 
+         */
+        createManyAndReturn<T extends PostCreateManyAndReturnArgs>(args?: SelectSubset<T, PostCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PostPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
 
         /**
          * Delete a Post.
@@ -7009,6 +8093,36 @@ export namespace Prisma {
          * 
          */
         updateMany<T extends PostUpdateManyArgs>(args: SelectSubset<T, PostUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+        /**
+         * Update zero or more Posts and returns the data updated in the database.
+         * @param {PostUpdateManyAndReturnArgs} args - Arguments to update many Posts.
+         * @example
+         * // Update many Posts
+         * const post = await prisma.post.updateManyAndReturn({
+         *   where: {
+         *     // ... provide filter here
+         *   },
+         *   data: [
+         *     // ... provide data here
+         *   ]
+         * })
+         * 
+         * // Update zero or more Posts and only return the `created_at`
+         * const postWithCreated_atOnly = await prisma.post.updateManyAndReturn({
+         *   select: { created_at: true },
+         *   where: {
+         *     // ... provide filter here
+         *   },
+         *   data: [
+         *     // ... provide data here
+         *   ]
+         * })
+         * Note, that providing `undefined` is treated as the value not being there.
+         * Read more here: https://pris.ly/d/null-undefined
+         * 
+         */
+        updateManyAndReturn<T extends PostUpdateManyAndReturnArgs>(args: SelectSubset<T, PostUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$PostPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
 
         /**
          * Create or update one Post.
@@ -7199,9 +8313,11 @@ export namespace Prisma {
      * Fields of the Post model
      */
     interface PostFieldRefs {
+        readonly created_at: FieldRef<"Post", 'DateTime'>
+        readonly created_by: FieldRef<"Post", 'String'>
+        readonly updated_at: FieldRef<"Post", 'DateTime'>
+        readonly updated_by: FieldRef<"Post", 'String'>
         readonly id: FieldRef<"Post", 'String'>
-        readonly createdAt: FieldRef<"Post", 'DateTime'>
-        readonly updatedAt: FieldRef<"Post", 'DateTime'>
         readonly title: FieldRef<"Post", 'String'>
         readonly content: FieldRef<"Post", 'String'>
         readonly published: FieldRef<"Post", 'Boolean'>
@@ -7439,6 +8555,29 @@ export namespace Prisma {
     }
 
     /**
+     * Post createManyAndReturn
+     */
+    export type PostCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * Select specific fields to fetch from the Post
+         */
+        select?: PostSelectCreateManyAndReturn<ExtArgs> | null
+        /**
+         * Omit specific fields from the Post
+         */
+        omit?: PostOmit<ExtArgs> | null
+        /**
+         * The data used to create many Posts.
+         */
+        data: PostCreateManyInput | PostCreateManyInput[]
+        skipDuplicates?: boolean
+        /**
+         * Choose, which related nodes to fetch as well
+         */
+        include?: PostIncludeCreateManyAndReturn<ExtArgs> | null
+    }
+
+    /**
      * Post update
      */
     export type PostUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -7480,6 +8619,36 @@ export namespace Prisma {
          * Limit how many Posts to update.
          */
         limit?: number
+    }
+
+    /**
+     * Post updateManyAndReturn
+     */
+    export type PostUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * Select specific fields to fetch from the Post
+         */
+        select?: PostSelectUpdateManyAndReturn<ExtArgs> | null
+        /**
+         * Omit specific fields from the Post
+         */
+        omit?: PostOmit<ExtArgs> | null
+        /**
+         * The data used to update Posts.
+         */
+        data: XOR<PostUpdateManyMutationInput, PostUncheckedUpdateManyInput>
+        /**
+         * Filter which Posts to update
+         */
+        where?: PostWhereInput
+        /**
+         * Limit how many Posts to update.
+         */
+        limit?: number
+        /**
+         * Choose, which related nodes to fetch as well
+         */
+        include?: PostIncludeUpdateManyAndReturn<ExtArgs> | null
     }
 
     /**
@@ -7568,6 +8737,1269 @@ export namespace Prisma {
 
 
     /**
+     * Model UserLearningItem
+     */
+
+    export type AggregateUserLearningItem = {
+        _count: UserLearningItemCountAggregateOutputType | null
+        _avg: UserLearningItemAvgAggregateOutputType | null
+        _sum: UserLearningItemSumAggregateOutputType | null
+        _min: UserLearningItemMinAggregateOutputType | null
+        _max: UserLearningItemMaxAggregateOutputType | null
+    }
+
+    export type UserLearningItemAvgAggregateOutputType = {
+        id: number | null
+        question_id: number | null
+        ef: number | null
+        repetitions: number | null
+        interval_days: number | null
+        lapses: number | null
+        consecutive_fails: number | null
+        priority: number | null
+    }
+
+    export type UserLearningItemSumAggregateOutputType = {
+        id: bigint | null
+        question_id: bigint | null
+        ef: number | null
+        repetitions: number | null
+        interval_days: number | null
+        lapses: number | null
+        consecutive_fails: number | null
+        priority: number | null
+    }
+
+    export type UserLearningItemMinAggregateOutputType = {
+        created_at: Date | null
+        created_by: string | null
+        updated_at: Date | null
+        updated_by: string | null
+        id: bigint | null
+        user_id: string | null
+        question_id: bigint | null
+        ef: number | null
+        repetitions: number | null
+        interval_days: number | null
+        next_review_at: Date | null
+        last_reviewed_at: Date | null
+        lapses: number | null
+        consecutive_fails: number | null
+        priority: number | null
+        learning_type: $Enums.LearningType | null
+    }
+
+    export type UserLearningItemMaxAggregateOutputType = {
+        created_at: Date | null
+        created_by: string | null
+        updated_at: Date | null
+        updated_by: string | null
+        id: bigint | null
+        user_id: string | null
+        question_id: bigint | null
+        ef: number | null
+        repetitions: number | null
+        interval_days: number | null
+        next_review_at: Date | null
+        last_reviewed_at: Date | null
+        lapses: number | null
+        consecutive_fails: number | null
+        priority: number | null
+        learning_type: $Enums.LearningType | null
+    }
+
+    export type UserLearningItemCountAggregateOutputType = {
+        created_at: number
+        created_by: number
+        updated_at: number
+        updated_by: number
+        id: number
+        user_id: number
+        question_id: number
+        ef: number
+        repetitions: number
+        interval_days: number
+        next_review_at: number
+        last_reviewed_at: number
+        lapses: number
+        consecutive_fails: number
+        priority: number
+        learning_type: number
+        _all: number
+    }
+
+
+    export type UserLearningItemAvgAggregateInputType = {
+        id?: true
+        question_id?: true
+        ef?: true
+        repetitions?: true
+        interval_days?: true
+        lapses?: true
+        consecutive_fails?: true
+        priority?: true
+    }
+
+    export type UserLearningItemSumAggregateInputType = {
+        id?: true
+        question_id?: true
+        ef?: true
+        repetitions?: true
+        interval_days?: true
+        lapses?: true
+        consecutive_fails?: true
+        priority?: true
+    }
+
+    export type UserLearningItemMinAggregateInputType = {
+        created_at?: true
+        created_by?: true
+        updated_at?: true
+        updated_by?: true
+        id?: true
+        user_id?: true
+        question_id?: true
+        ef?: true
+        repetitions?: true
+        interval_days?: true
+        next_review_at?: true
+        last_reviewed_at?: true
+        lapses?: true
+        consecutive_fails?: true
+        priority?: true
+        learning_type?: true
+    }
+
+    export type UserLearningItemMaxAggregateInputType = {
+        created_at?: true
+        created_by?: true
+        updated_at?: true
+        updated_by?: true
+        id?: true
+        user_id?: true
+        question_id?: true
+        ef?: true
+        repetitions?: true
+        interval_days?: true
+        next_review_at?: true
+        last_reviewed_at?: true
+        lapses?: true
+        consecutive_fails?: true
+        priority?: true
+        learning_type?: true
+    }
+
+    export type UserLearningItemCountAggregateInputType = {
+        created_at?: true
+        created_by?: true
+        updated_at?: true
+        updated_by?: true
+        id?: true
+        user_id?: true
+        question_id?: true
+        ef?: true
+        repetitions?: true
+        interval_days?: true
+        next_review_at?: true
+        last_reviewed_at?: true
+        lapses?: true
+        consecutive_fails?: true
+        priority?: true
+        learning_type?: true
+        _all?: true
+    }
+
+    export type UserLearningItemAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * Filter which UserLearningItem to aggregate.
+         */
+        where?: UserLearningItemWhereInput
+        /**
+         * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+         * 
+         * Determine the order of UserLearningItems to fetch.
+         */
+        orderBy?: UserLearningItemOrderByWithRelationInput | UserLearningItemOrderByWithRelationInput[]
+        /**
+         * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+         * 
+         * Sets the start position
+         */
+        cursor?: UserLearningItemWhereUniqueInput
+        /**
+         * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+         * 
+         * Take `±n` UserLearningItems from the position of the cursor.
+         */
+        take?: number
+        /**
+         * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+         * 
+         * Skip the first `n` UserLearningItems.
+         */
+        skip?: number
+        /**
+         * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+         * 
+         * Count returned UserLearningItems
+        **/
+        _count?: true | UserLearningItemCountAggregateInputType
+        /**
+         * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+         * 
+         * Select which fields to average
+        **/
+        _avg?: UserLearningItemAvgAggregateInputType
+        /**
+         * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+         * 
+         * Select which fields to sum
+        **/
+        _sum?: UserLearningItemSumAggregateInputType
+        /**
+         * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+         * 
+         * Select which fields to find the minimum value
+        **/
+        _min?: UserLearningItemMinAggregateInputType
+        /**
+         * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+         * 
+         * Select which fields to find the maximum value
+        **/
+        _max?: UserLearningItemMaxAggregateInputType
+    }
+
+    export type GetUserLearningItemAggregateType<T extends UserLearningItemAggregateArgs> = {
+        [P in keyof T & keyof AggregateUserLearningItem]: P extends '_count' | 'count'
+        ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateUserLearningItem[P]>
+        : GetScalarType<T[P], AggregateUserLearningItem[P]>
+    }
+
+
+
+
+    export type UserLearningItemGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        where?: UserLearningItemWhereInput
+        orderBy?: UserLearningItemOrderByWithAggregationInput | UserLearningItemOrderByWithAggregationInput[]
+        by: UserLearningItemScalarFieldEnum[] | UserLearningItemScalarFieldEnum
+        having?: UserLearningItemScalarWhereWithAggregatesInput
+        take?: number
+        skip?: number
+        _count?: UserLearningItemCountAggregateInputType | true
+        _avg?: UserLearningItemAvgAggregateInputType
+        _sum?: UserLearningItemSumAggregateInputType
+        _min?: UserLearningItemMinAggregateInputType
+        _max?: UserLearningItemMaxAggregateInputType
+    }
+
+    export type UserLearningItemGroupByOutputType = {
+        created_at: Date
+        created_by: string | null
+        updated_at: Date
+        updated_by: string | null
+        id: bigint
+        user_id: string
+        question_id: bigint
+        ef: number | null
+        repetitions: number | null
+        interval_days: number | null
+        next_review_at: Date | null
+        last_reviewed_at: Date | null
+        lapses: number | null
+        consecutive_fails: number | null
+        priority: number | null
+        learning_type: $Enums.LearningType
+        _count: UserLearningItemCountAggregateOutputType | null
+        _avg: UserLearningItemAvgAggregateOutputType | null
+        _sum: UserLearningItemSumAggregateOutputType | null
+        _min: UserLearningItemMinAggregateOutputType | null
+        _max: UserLearningItemMaxAggregateOutputType | null
+    }
+
+    type GetUserLearningItemGroupByPayload<T extends UserLearningItemGroupByArgs> = Prisma.PrismaPromise<
+        Array<
+            PickEnumerable<UserLearningItemGroupByOutputType, T['by']> &
+            {
+                [P in ((keyof T) & (keyof UserLearningItemGroupByOutputType))]: P extends '_count'
+                ? T[P] extends boolean
+                ? number
+                : GetScalarType<T[P], UserLearningItemGroupByOutputType[P]>
+                : GetScalarType<T[P], UserLearningItemGroupByOutputType[P]>
+            }
+        >
+    >
+
+
+    export type UserLearningItemSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+        created_at?: boolean
+        created_by?: boolean
+        updated_at?: boolean
+        updated_by?: boolean
+        id?: boolean
+        user_id?: boolean
+        question_id?: boolean
+        ef?: boolean
+        repetitions?: boolean
+        interval_days?: boolean
+        next_review_at?: boolean
+        last_reviewed_at?: boolean
+        lapses?: boolean
+        consecutive_fails?: boolean
+        priority?: boolean
+        learning_type?: boolean
+        user?: boolean | UserDefaultArgs<ExtArgs>
+    }, ExtArgs["result"]["userLearningItem"]>
+
+    export type UserLearningItemSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+        created_at?: boolean
+        created_by?: boolean
+        updated_at?: boolean
+        updated_by?: boolean
+        id?: boolean
+        user_id?: boolean
+        question_id?: boolean
+        ef?: boolean
+        repetitions?: boolean
+        interval_days?: boolean
+        next_review_at?: boolean
+        last_reviewed_at?: boolean
+        lapses?: boolean
+        consecutive_fails?: boolean
+        priority?: boolean
+        learning_type?: boolean
+        user?: boolean | UserDefaultArgs<ExtArgs>
+    }, ExtArgs["result"]["userLearningItem"]>
+
+    export type UserLearningItemSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+        created_at?: boolean
+        created_by?: boolean
+        updated_at?: boolean
+        updated_by?: boolean
+        id?: boolean
+        user_id?: boolean
+        question_id?: boolean
+        ef?: boolean
+        repetitions?: boolean
+        interval_days?: boolean
+        next_review_at?: boolean
+        last_reviewed_at?: boolean
+        lapses?: boolean
+        consecutive_fails?: boolean
+        priority?: boolean
+        learning_type?: boolean
+        user?: boolean | UserDefaultArgs<ExtArgs>
+    }, ExtArgs["result"]["userLearningItem"]>
+
+    export type UserLearningItemSelectScalar = {
+        created_at?: boolean
+        created_by?: boolean
+        updated_at?: boolean
+        updated_by?: boolean
+        id?: boolean
+        user_id?: boolean
+        question_id?: boolean
+        ef?: boolean
+        repetitions?: boolean
+        interval_days?: boolean
+        next_review_at?: boolean
+        last_reviewed_at?: boolean
+        lapses?: boolean
+        consecutive_fails?: boolean
+        priority?: boolean
+        learning_type?: boolean
+    }
+
+    export type UserLearningItemOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"created_at" | "created_by" | "updated_at" | "updated_by" | "id" | "user_id" | "question_id" | "ef" | "repetitions" | "interval_days" | "next_review_at" | "last_reviewed_at" | "lapses" | "consecutive_fails" | "priority" | "learning_type", ExtArgs["result"]["userLearningItem"]>
+    export type UserLearningItemInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        user?: boolean | UserDefaultArgs<ExtArgs>
+    }
+    export type UserLearningItemIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        user?: boolean | UserDefaultArgs<ExtArgs>
+    }
+    export type UserLearningItemIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        user?: boolean | UserDefaultArgs<ExtArgs>
+    }
+
+    export type $UserLearningItemPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        name: "UserLearningItem"
+        objects: {
+            user: Prisma.$UserPayload<ExtArgs>
+        }
+        scalars: $Extensions.GetPayloadResult<{
+            created_at: Date
+            created_by: string | null
+            updated_at: Date
+            updated_by: string | null
+            id: bigint
+            user_id: string
+            question_id: bigint
+            ef: number | null
+            repetitions: number | null
+            interval_days: number | null
+            next_review_at: Date | null
+            last_reviewed_at: Date | null
+            lapses: number | null
+            consecutive_fails: number | null
+            priority: number | null
+            learning_type: $Enums.LearningType
+        }, ExtArgs["result"]["userLearningItem"]>
+        composites: {}
+    }
+
+    type UserLearningItemGetPayload<S extends boolean | null | undefined | UserLearningItemDefaultArgs> = $Result.GetResult<Prisma.$UserLearningItemPayload, S>
+
+    type UserLearningItemCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+        Omit<UserLearningItemFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+            select?: UserLearningItemCountAggregateInputType | true
+        }
+
+    export interface UserLearningItemDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+        [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['UserLearningItem'], meta: { name: 'UserLearningItem' } }
+        /**
+         * Find zero or one UserLearningItem that matches the filter.
+         * @param {UserLearningItemFindUniqueArgs} args - Arguments to find a UserLearningItem
+         * @example
+         * // Get one UserLearningItem
+         * const userLearningItem = await prisma.userLearningItem.findUnique({
+         *   where: {
+         *     // ... provide filter here
+         *   }
+         * })
+         */
+        findUnique<T extends UserLearningItemFindUniqueArgs>(args: SelectSubset<T, UserLearningItemFindUniqueArgs<ExtArgs>>): Prisma__UserLearningItemClient<$Result.GetResult<Prisma.$UserLearningItemPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+        /**
+         * Find one UserLearningItem that matches the filter or throw an error with `error.code='P2025'`
+         * if no matches were found.
+         * @param {UserLearningItemFindUniqueOrThrowArgs} args - Arguments to find a UserLearningItem
+         * @example
+         * // Get one UserLearningItem
+         * const userLearningItem = await prisma.userLearningItem.findUniqueOrThrow({
+         *   where: {
+         *     // ... provide filter here
+         *   }
+         * })
+         */
+        findUniqueOrThrow<T extends UserLearningItemFindUniqueOrThrowArgs>(args: SelectSubset<T, UserLearningItemFindUniqueOrThrowArgs<ExtArgs>>): Prisma__UserLearningItemClient<$Result.GetResult<Prisma.$UserLearningItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+        /**
+         * Find the first UserLearningItem that matches the filter.
+         * Note, that providing `undefined` is treated as the value not being there.
+         * Read more here: https://pris.ly/d/null-undefined
+         * @param {UserLearningItemFindFirstArgs} args - Arguments to find a UserLearningItem
+         * @example
+         * // Get one UserLearningItem
+         * const userLearningItem = await prisma.userLearningItem.findFirst({
+         *   where: {
+         *     // ... provide filter here
+         *   }
+         * })
+         */
+        findFirst<T extends UserLearningItemFindFirstArgs>(args?: SelectSubset<T, UserLearningItemFindFirstArgs<ExtArgs>>): Prisma__UserLearningItemClient<$Result.GetResult<Prisma.$UserLearningItemPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+        /**
+         * Find the first UserLearningItem that matches the filter or
+         * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+         * Note, that providing `undefined` is treated as the value not being there.
+         * Read more here: https://pris.ly/d/null-undefined
+         * @param {UserLearningItemFindFirstOrThrowArgs} args - Arguments to find a UserLearningItem
+         * @example
+         * // Get one UserLearningItem
+         * const userLearningItem = await prisma.userLearningItem.findFirstOrThrow({
+         *   where: {
+         *     // ... provide filter here
+         *   }
+         * })
+         */
+        findFirstOrThrow<T extends UserLearningItemFindFirstOrThrowArgs>(args?: SelectSubset<T, UserLearningItemFindFirstOrThrowArgs<ExtArgs>>): Prisma__UserLearningItemClient<$Result.GetResult<Prisma.$UserLearningItemPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+        /**
+         * Find zero or more UserLearningItems that matches the filter.
+         * Note, that providing `undefined` is treated as the value not being there.
+         * Read more here: https://pris.ly/d/null-undefined
+         * @param {UserLearningItemFindManyArgs} args - Arguments to filter and select certain fields only.
+         * @example
+         * // Get all UserLearningItems
+         * const userLearningItems = await prisma.userLearningItem.findMany()
+         * 
+         * // Get first 10 UserLearningItems
+         * const userLearningItems = await prisma.userLearningItem.findMany({ take: 10 })
+         * 
+         * // Only select the `created_at`
+         * const userLearningItemWithCreated_atOnly = await prisma.userLearningItem.findMany({ select: { created_at: true } })
+         * 
+         */
+        findMany<T extends UserLearningItemFindManyArgs>(args?: SelectSubset<T, UserLearningItemFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserLearningItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+        /**
+         * Create a UserLearningItem.
+         * @param {UserLearningItemCreateArgs} args - Arguments to create a UserLearningItem.
+         * @example
+         * // Create one UserLearningItem
+         * const UserLearningItem = await prisma.userLearningItem.create({
+         *   data: {
+         *     // ... data to create a UserLearningItem
+         *   }
+         * })
+         * 
+         */
+        create<T extends UserLearningItemCreateArgs>(args: SelectSubset<T, UserLearningItemCreateArgs<ExtArgs>>): Prisma__UserLearningItemClient<$Result.GetResult<Prisma.$UserLearningItemPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+        /**
+         * Create many UserLearningItems.
+         * @param {UserLearningItemCreateManyArgs} args - Arguments to create many UserLearningItems.
+         * @example
+         * // Create many UserLearningItems
+         * const userLearningItem = await prisma.userLearningItem.createMany({
+         *   data: [
+         *     // ... provide data here
+         *   ]
+         * })
+         *     
+         */
+        createMany<T extends UserLearningItemCreateManyArgs>(args?: SelectSubset<T, UserLearningItemCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+        /**
+         * Create many UserLearningItems and returns the data saved in the database.
+         * @param {UserLearningItemCreateManyAndReturnArgs} args - Arguments to create many UserLearningItems.
+         * @example
+         * // Create many UserLearningItems
+         * const userLearningItem = await prisma.userLearningItem.createManyAndReturn({
+         *   data: [
+         *     // ... provide data here
+         *   ]
+         * })
+         * 
+         * // Create many UserLearningItems and only return the `created_at`
+         * const userLearningItemWithCreated_atOnly = await prisma.userLearningItem.createManyAndReturn({
+         *   select: { created_at: true },
+         *   data: [
+         *     // ... provide data here
+         *   ]
+         * })
+         * Note, that providing `undefined` is treated as the value not being there.
+         * Read more here: https://pris.ly/d/null-undefined
+         * 
+         */
+        createManyAndReturn<T extends UserLearningItemCreateManyAndReturnArgs>(args?: SelectSubset<T, UserLearningItemCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserLearningItemPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+        /**
+         * Delete a UserLearningItem.
+         * @param {UserLearningItemDeleteArgs} args - Arguments to delete one UserLearningItem.
+         * @example
+         * // Delete one UserLearningItem
+         * const UserLearningItem = await prisma.userLearningItem.delete({
+         *   where: {
+         *     // ... filter to delete one UserLearningItem
+         *   }
+         * })
+         * 
+         */
+        delete<T extends UserLearningItemDeleteArgs>(args: SelectSubset<T, UserLearningItemDeleteArgs<ExtArgs>>): Prisma__UserLearningItemClient<$Result.GetResult<Prisma.$UserLearningItemPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+        /**
+         * Update one UserLearningItem.
+         * @param {UserLearningItemUpdateArgs} args - Arguments to update one UserLearningItem.
+         * @example
+         * // Update one UserLearningItem
+         * const userLearningItem = await prisma.userLearningItem.update({
+         *   where: {
+         *     // ... provide filter here
+         *   },
+         *   data: {
+         *     // ... provide data here
+         *   }
+         * })
+         * 
+         */
+        update<T extends UserLearningItemUpdateArgs>(args: SelectSubset<T, UserLearningItemUpdateArgs<ExtArgs>>): Prisma__UserLearningItemClient<$Result.GetResult<Prisma.$UserLearningItemPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+        /**
+         * Delete zero or more UserLearningItems.
+         * @param {UserLearningItemDeleteManyArgs} args - Arguments to filter UserLearningItems to delete.
+         * @example
+         * // Delete a few UserLearningItems
+         * const { count } = await prisma.userLearningItem.deleteMany({
+         *   where: {
+         *     // ... provide filter here
+         *   }
+         * })
+         * 
+         */
+        deleteMany<T extends UserLearningItemDeleteManyArgs>(args?: SelectSubset<T, UserLearningItemDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+        /**
+         * Update zero or more UserLearningItems.
+         * Note, that providing `undefined` is treated as the value not being there.
+         * Read more here: https://pris.ly/d/null-undefined
+         * @param {UserLearningItemUpdateManyArgs} args - Arguments to update one or more rows.
+         * @example
+         * // Update many UserLearningItems
+         * const userLearningItem = await prisma.userLearningItem.updateMany({
+         *   where: {
+         *     // ... provide filter here
+         *   },
+         *   data: {
+         *     // ... provide data here
+         *   }
+         * })
+         * 
+         */
+        updateMany<T extends UserLearningItemUpdateManyArgs>(args: SelectSubset<T, UserLearningItemUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+        /**
+         * Update zero or more UserLearningItems and returns the data updated in the database.
+         * @param {UserLearningItemUpdateManyAndReturnArgs} args - Arguments to update many UserLearningItems.
+         * @example
+         * // Update many UserLearningItems
+         * const userLearningItem = await prisma.userLearningItem.updateManyAndReturn({
+         *   where: {
+         *     // ... provide filter here
+         *   },
+         *   data: [
+         *     // ... provide data here
+         *   ]
+         * })
+         * 
+         * // Update zero or more UserLearningItems and only return the `created_at`
+         * const userLearningItemWithCreated_atOnly = await prisma.userLearningItem.updateManyAndReturn({
+         *   select: { created_at: true },
+         *   where: {
+         *     // ... provide filter here
+         *   },
+         *   data: [
+         *     // ... provide data here
+         *   ]
+         * })
+         * Note, that providing `undefined` is treated as the value not being there.
+         * Read more here: https://pris.ly/d/null-undefined
+         * 
+         */
+        updateManyAndReturn<T extends UserLearningItemUpdateManyAndReturnArgs>(args: SelectSubset<T, UserLearningItemUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserLearningItemPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+        /**
+         * Create or update one UserLearningItem.
+         * @param {UserLearningItemUpsertArgs} args - Arguments to update or create a UserLearningItem.
+         * @example
+         * // Update or create a UserLearningItem
+         * const userLearningItem = await prisma.userLearningItem.upsert({
+         *   create: {
+         *     // ... data to create a UserLearningItem
+         *   },
+         *   update: {
+         *     // ... in case it already exists, update
+         *   },
+         *   where: {
+         *     // ... the filter for the UserLearningItem we want to update
+         *   }
+         * })
+         */
+        upsert<T extends UserLearningItemUpsertArgs>(args: SelectSubset<T, UserLearningItemUpsertArgs<ExtArgs>>): Prisma__UserLearningItemClient<$Result.GetResult<Prisma.$UserLearningItemPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+        /**
+         * Count the number of UserLearningItems.
+         * Note, that providing `undefined` is treated as the value not being there.
+         * Read more here: https://pris.ly/d/null-undefined
+         * @param {UserLearningItemCountArgs} args - Arguments to filter UserLearningItems to count.
+         * @example
+         * // Count the number of UserLearningItems
+         * const count = await prisma.userLearningItem.count({
+         *   where: {
+         *     // ... the filter for the UserLearningItems we want to count
+         *   }
+         * })
+        **/
+        count<T extends UserLearningItemCountArgs>(
+            args?: Subset<T, UserLearningItemCountArgs>,
+        ): Prisma.PrismaPromise<
+            T extends $Utils.Record<'select', any>
+            ? T['select'] extends true
+            ? number
+            : GetScalarType<T['select'], UserLearningItemCountAggregateOutputType>
+            : number
+        >
+
+        /**
+         * Allows you to perform aggregations operations on a UserLearningItem.
+         * Note, that providing `undefined` is treated as the value not being there.
+         * Read more here: https://pris.ly/d/null-undefined
+         * @param {UserLearningItemAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+         * @example
+         * // Ordered by age ascending
+         * // Where email contains prisma.io
+         * // Limited to the 10 users
+         * const aggregations = await prisma.user.aggregate({
+         *   _avg: {
+         *     age: true,
+         *   },
+         *   where: {
+         *     email: {
+         *       contains: "prisma.io",
+         *     },
+         *   },
+         *   orderBy: {
+         *     age: "asc",
+         *   },
+         *   take: 10,
+         * })
+        **/
+        aggregate<T extends UserLearningItemAggregateArgs>(args: Subset<T, UserLearningItemAggregateArgs>): Prisma.PrismaPromise<GetUserLearningItemAggregateType<T>>
+
+        /**
+         * Group by UserLearningItem.
+         * Note, that providing `undefined` is treated as the value not being there.
+         * Read more here: https://pris.ly/d/null-undefined
+         * @param {UserLearningItemGroupByArgs} args - Group by arguments.
+         * @example
+         * // Group by city, order by createdAt, get count
+         * const result = await prisma.user.groupBy({
+         *   by: ['city', 'createdAt'],
+         *   orderBy: {
+         *     createdAt: true
+         *   },
+         *   _count: {
+         *     _all: true
+         *   },
+         * })
+         * 
+        **/
+        groupBy<
+            T extends UserLearningItemGroupByArgs,
+            HasSelectOrTake extends Or<
+                Extends<'skip', Keys<T>>,
+                Extends<'take', Keys<T>>
+            >,
+            OrderByArg extends True extends HasSelectOrTake
+            ? { orderBy: UserLearningItemGroupByArgs['orderBy'] }
+            : { orderBy?: UserLearningItemGroupByArgs['orderBy'] },
+            OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+            ByFields extends MaybeTupleToUnion<T['by']>,
+            ByValid extends Has<ByFields, OrderFields>,
+            HavingFields extends GetHavingFields<T['having']>,
+            HavingValid extends Has<ByFields, HavingFields>,
+            ByEmpty extends T['by'] extends never[] ? True : False,
+            InputErrors extends ByEmpty extends True
+            ? `Error: "by" must not be empty.`
+            : HavingValid extends False
+            ? {
+                [P in HavingFields]: P extends ByFields
+                ? never
+                : P extends string
+                ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+                : [
+                    Error,
+                    'Field ',
+                    P,
+                    ` in "having" needs to be provided in "by"`,
+                ]
+            }[HavingFields]
+            : 'take' extends Keys<T>
+            ? 'orderBy' extends Keys<T>
+            ? ByValid extends True
+            ? {}
+            : {
+                [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+            : 'Error: If you provide "take", you also need to provide "orderBy"'
+            : 'skip' extends Keys<T>
+            ? 'orderBy' extends Keys<T>
+            ? ByValid extends True
+            ? {}
+            : {
+                [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+            : 'Error: If you provide "skip", you also need to provide "orderBy"'
+            : ByValid extends True
+            ? {}
+            : {
+                [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        >(args: SubsetIntersection<T, UserLearningItemGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetUserLearningItemGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+        /**
+         * Fields of the UserLearningItem model
+         */
+        readonly fields: UserLearningItemFieldRefs;
+    }
+
+    /**
+     * The delegate class that acts as a "Promise-like" for UserLearningItem.
+     * Why is this prefixed with `Prisma__`?
+     * Because we want to prevent naming conflicts as mentioned in
+     * https://github.com/prisma/prisma-client-js/issues/707
+     */
+    export interface Prisma__UserLearningItemClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+        readonly [Symbol.toStringTag]: "PrismaPromise"
+        user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+        /**
+         * Attaches callbacks for the resolution and/or rejection of the Promise.
+         * @param onfulfilled The callback to execute when the Promise is resolved.
+         * @param onrejected The callback to execute when the Promise is rejected.
+         * @returns A Promise for the completion of which ever callback is executed.
+         */
+        then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+        /**
+         * Attaches a callback for only the rejection of the Promise.
+         * @param onrejected The callback to execute when the Promise is rejected.
+         * @returns A Promise for the completion of the callback.
+         */
+        catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+        /**
+         * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+         * resolved value cannot be modified from the callback.
+         * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+         * @returns A Promise for the completion of the callback.
+         */
+        finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+    }
+
+
+
+
+    /**
+     * Fields of the UserLearningItem model
+     */
+    interface UserLearningItemFieldRefs {
+        readonly created_at: FieldRef<"UserLearningItem", 'DateTime'>
+        readonly created_by: FieldRef<"UserLearningItem", 'String'>
+        readonly updated_at: FieldRef<"UserLearningItem", 'DateTime'>
+        readonly updated_by: FieldRef<"UserLearningItem", 'String'>
+        readonly id: FieldRef<"UserLearningItem", 'BigInt'>
+        readonly user_id: FieldRef<"UserLearningItem", 'String'>
+        readonly question_id: FieldRef<"UserLearningItem", 'BigInt'>
+        readonly ef: FieldRef<"UserLearningItem", 'Float'>
+        readonly repetitions: FieldRef<"UserLearningItem", 'Int'>
+        readonly interval_days: FieldRef<"UserLearningItem", 'Int'>
+        readonly next_review_at: FieldRef<"UserLearningItem", 'DateTime'>
+        readonly last_reviewed_at: FieldRef<"UserLearningItem", 'DateTime'>
+        readonly lapses: FieldRef<"UserLearningItem", 'Int'>
+        readonly consecutive_fails: FieldRef<"UserLearningItem", 'Int'>
+        readonly priority: FieldRef<"UserLearningItem", 'Float'>
+        readonly learning_type: FieldRef<"UserLearningItem", 'LearningType'>
+    }
+
+
+    // Custom InputTypes
+    /**
+     * UserLearningItem findUnique
+     */
+    export type UserLearningItemFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * Select specific fields to fetch from the UserLearningItem
+         */
+        select?: UserLearningItemSelect<ExtArgs> | null
+        /**
+         * Omit specific fields from the UserLearningItem
+         */
+        omit?: UserLearningItemOmit<ExtArgs> | null
+        /**
+         * Choose, which related nodes to fetch as well
+         */
+        include?: UserLearningItemInclude<ExtArgs> | null
+        /**
+         * Filter, which UserLearningItem to fetch.
+         */
+        where: UserLearningItemWhereUniqueInput
+    }
+
+    /**
+     * UserLearningItem findUniqueOrThrow
+     */
+    export type UserLearningItemFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * Select specific fields to fetch from the UserLearningItem
+         */
+        select?: UserLearningItemSelect<ExtArgs> | null
+        /**
+         * Omit specific fields from the UserLearningItem
+         */
+        omit?: UserLearningItemOmit<ExtArgs> | null
+        /**
+         * Choose, which related nodes to fetch as well
+         */
+        include?: UserLearningItemInclude<ExtArgs> | null
+        /**
+         * Filter, which UserLearningItem to fetch.
+         */
+        where: UserLearningItemWhereUniqueInput
+    }
+
+    /**
+     * UserLearningItem findFirst
+     */
+    export type UserLearningItemFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * Select specific fields to fetch from the UserLearningItem
+         */
+        select?: UserLearningItemSelect<ExtArgs> | null
+        /**
+         * Omit specific fields from the UserLearningItem
+         */
+        omit?: UserLearningItemOmit<ExtArgs> | null
+        /**
+         * Choose, which related nodes to fetch as well
+         */
+        include?: UserLearningItemInclude<ExtArgs> | null
+        /**
+         * Filter, which UserLearningItem to fetch.
+         */
+        where?: UserLearningItemWhereInput
+        /**
+         * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+         * 
+         * Determine the order of UserLearningItems to fetch.
+         */
+        orderBy?: UserLearningItemOrderByWithRelationInput | UserLearningItemOrderByWithRelationInput[]
+        /**
+         * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+         * 
+         * Sets the position for searching for UserLearningItems.
+         */
+        cursor?: UserLearningItemWhereUniqueInput
+        /**
+         * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+         * 
+         * Take `±n` UserLearningItems from the position of the cursor.
+         */
+        take?: number
+        /**
+         * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+         * 
+         * Skip the first `n` UserLearningItems.
+         */
+        skip?: number
+        /**
+         * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+         * 
+         * Filter by unique combinations of UserLearningItems.
+         */
+        distinct?: UserLearningItemScalarFieldEnum | UserLearningItemScalarFieldEnum[]
+    }
+
+    /**
+     * UserLearningItem findFirstOrThrow
+     */
+    export type UserLearningItemFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * Select specific fields to fetch from the UserLearningItem
+         */
+        select?: UserLearningItemSelect<ExtArgs> | null
+        /**
+         * Omit specific fields from the UserLearningItem
+         */
+        omit?: UserLearningItemOmit<ExtArgs> | null
+        /**
+         * Choose, which related nodes to fetch as well
+         */
+        include?: UserLearningItemInclude<ExtArgs> | null
+        /**
+         * Filter, which UserLearningItem to fetch.
+         */
+        where?: UserLearningItemWhereInput
+        /**
+         * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+         * 
+         * Determine the order of UserLearningItems to fetch.
+         */
+        orderBy?: UserLearningItemOrderByWithRelationInput | UserLearningItemOrderByWithRelationInput[]
+        /**
+         * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+         * 
+         * Sets the position for searching for UserLearningItems.
+         */
+        cursor?: UserLearningItemWhereUniqueInput
+        /**
+         * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+         * 
+         * Take `±n` UserLearningItems from the position of the cursor.
+         */
+        take?: number
+        /**
+         * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+         * 
+         * Skip the first `n` UserLearningItems.
+         */
+        skip?: number
+        /**
+         * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+         * 
+         * Filter by unique combinations of UserLearningItems.
+         */
+        distinct?: UserLearningItemScalarFieldEnum | UserLearningItemScalarFieldEnum[]
+    }
+
+    /**
+     * UserLearningItem findMany
+     */
+    export type UserLearningItemFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * Select specific fields to fetch from the UserLearningItem
+         */
+        select?: UserLearningItemSelect<ExtArgs> | null
+        /**
+         * Omit specific fields from the UserLearningItem
+         */
+        omit?: UserLearningItemOmit<ExtArgs> | null
+        /**
+         * Choose, which related nodes to fetch as well
+         */
+        include?: UserLearningItemInclude<ExtArgs> | null
+        /**
+         * Filter, which UserLearningItems to fetch.
+         */
+        where?: UserLearningItemWhereInput
+        /**
+         * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+         * 
+         * Determine the order of UserLearningItems to fetch.
+         */
+        orderBy?: UserLearningItemOrderByWithRelationInput | UserLearningItemOrderByWithRelationInput[]
+        /**
+         * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+         * 
+         * Sets the position for listing UserLearningItems.
+         */
+        cursor?: UserLearningItemWhereUniqueInput
+        /**
+         * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+         * 
+         * Take `±n` UserLearningItems from the position of the cursor.
+         */
+        take?: number
+        /**
+         * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+         * 
+         * Skip the first `n` UserLearningItems.
+         */
+        skip?: number
+        distinct?: UserLearningItemScalarFieldEnum | UserLearningItemScalarFieldEnum[]
+    }
+
+    /**
+     * UserLearningItem create
+     */
+    export type UserLearningItemCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * Select specific fields to fetch from the UserLearningItem
+         */
+        select?: UserLearningItemSelect<ExtArgs> | null
+        /**
+         * Omit specific fields from the UserLearningItem
+         */
+        omit?: UserLearningItemOmit<ExtArgs> | null
+        /**
+         * Choose, which related nodes to fetch as well
+         */
+        include?: UserLearningItemInclude<ExtArgs> | null
+        /**
+         * The data needed to create a UserLearningItem.
+         */
+        data: XOR<UserLearningItemCreateInput, UserLearningItemUncheckedCreateInput>
+    }
+
+    /**
+     * UserLearningItem createMany
+     */
+    export type UserLearningItemCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * The data used to create many UserLearningItems.
+         */
+        data: UserLearningItemCreateManyInput | UserLearningItemCreateManyInput[]
+        skipDuplicates?: boolean
+    }
+
+    /**
+     * UserLearningItem createManyAndReturn
+     */
+    export type UserLearningItemCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * Select specific fields to fetch from the UserLearningItem
+         */
+        select?: UserLearningItemSelectCreateManyAndReturn<ExtArgs> | null
+        /**
+         * Omit specific fields from the UserLearningItem
+         */
+        omit?: UserLearningItemOmit<ExtArgs> | null
+        /**
+         * The data used to create many UserLearningItems.
+         */
+        data: UserLearningItemCreateManyInput | UserLearningItemCreateManyInput[]
+        skipDuplicates?: boolean
+        /**
+         * Choose, which related nodes to fetch as well
+         */
+        include?: UserLearningItemIncludeCreateManyAndReturn<ExtArgs> | null
+    }
+
+    /**
+     * UserLearningItem update
+     */
+    export type UserLearningItemUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * Select specific fields to fetch from the UserLearningItem
+         */
+        select?: UserLearningItemSelect<ExtArgs> | null
+        /**
+         * Omit specific fields from the UserLearningItem
+         */
+        omit?: UserLearningItemOmit<ExtArgs> | null
+        /**
+         * Choose, which related nodes to fetch as well
+         */
+        include?: UserLearningItemInclude<ExtArgs> | null
+        /**
+         * The data needed to update a UserLearningItem.
+         */
+        data: XOR<UserLearningItemUpdateInput, UserLearningItemUncheckedUpdateInput>
+        /**
+         * Choose, which UserLearningItem to update.
+         */
+        where: UserLearningItemWhereUniqueInput
+    }
+
+    /**
+     * UserLearningItem updateMany
+     */
+    export type UserLearningItemUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * The data used to update UserLearningItems.
+         */
+        data: XOR<UserLearningItemUpdateManyMutationInput, UserLearningItemUncheckedUpdateManyInput>
+        /**
+         * Filter which UserLearningItems to update
+         */
+        where?: UserLearningItemWhereInput
+        /**
+         * Limit how many UserLearningItems to update.
+         */
+        limit?: number
+    }
+
+    /**
+     * UserLearningItem updateManyAndReturn
+     */
+    export type UserLearningItemUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * Select specific fields to fetch from the UserLearningItem
+         */
+        select?: UserLearningItemSelectUpdateManyAndReturn<ExtArgs> | null
+        /**
+         * Omit specific fields from the UserLearningItem
+         */
+        omit?: UserLearningItemOmit<ExtArgs> | null
+        /**
+         * The data used to update UserLearningItems.
+         */
+        data: XOR<UserLearningItemUpdateManyMutationInput, UserLearningItemUncheckedUpdateManyInput>
+        /**
+         * Filter which UserLearningItems to update
+         */
+        where?: UserLearningItemWhereInput
+        /**
+         * Limit how many UserLearningItems to update.
+         */
+        limit?: number
+        /**
+         * Choose, which related nodes to fetch as well
+         */
+        include?: UserLearningItemIncludeUpdateManyAndReturn<ExtArgs> | null
+    }
+
+    /**
+     * UserLearningItem upsert
+     */
+    export type UserLearningItemUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * Select specific fields to fetch from the UserLearningItem
+         */
+        select?: UserLearningItemSelect<ExtArgs> | null
+        /**
+         * Omit specific fields from the UserLearningItem
+         */
+        omit?: UserLearningItemOmit<ExtArgs> | null
+        /**
+         * Choose, which related nodes to fetch as well
+         */
+        include?: UserLearningItemInclude<ExtArgs> | null
+        /**
+         * The filter to search for the UserLearningItem to update in case it exists.
+         */
+        where: UserLearningItemWhereUniqueInput
+        /**
+         * In case the UserLearningItem found by the `where` argument doesn't exist, create a new UserLearningItem with this data.
+         */
+        create: XOR<UserLearningItemCreateInput, UserLearningItemUncheckedCreateInput>
+        /**
+         * In case the UserLearningItem was found with the provided `where` argument, update it with this data.
+         */
+        update: XOR<UserLearningItemUpdateInput, UserLearningItemUncheckedUpdateInput>
+    }
+
+    /**
+     * UserLearningItem delete
+     */
+    export type UserLearningItemDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * Select specific fields to fetch from the UserLearningItem
+         */
+        select?: UserLearningItemSelect<ExtArgs> | null
+        /**
+         * Omit specific fields from the UserLearningItem
+         */
+        omit?: UserLearningItemOmit<ExtArgs> | null
+        /**
+         * Choose, which related nodes to fetch as well
+         */
+        include?: UserLearningItemInclude<ExtArgs> | null
+        /**
+         * Filter which UserLearningItem to delete.
+         */
+        where: UserLearningItemWhereUniqueInput
+    }
+
+    /**
+     * UserLearningItem deleteMany
+     */
+    export type UserLearningItemDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * Filter which UserLearningItems to delete
+         */
+        where?: UserLearningItemWhereInput
+        /**
+         * Limit how many UserLearningItems to delete.
+         */
+        limit?: number
+    }
+
+    /**
+     * UserLearningItem without action
+     */
+    export type UserLearningItemDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+        /**
+         * Select specific fields to fetch from the UserLearningItem
+         */
+        select?: UserLearningItemSelect<ExtArgs> | null
+        /**
+         * Omit specific fields from the UserLearningItem
+         */
+        omit?: UserLearningItemOmit<ExtArgs> | null
+        /**
+         * Choose, which related nodes to fetch as well
+         */
+        include?: UserLearningItemInclude<ExtArgs> | null
+    }
+
+
+    /**
      * Enums
      */
 
@@ -7582,11 +10014,11 @@ export namespace Prisma {
 
 
     export const UserScalarFieldEnum: {
-        id: 'id',
         created_at: 'created_at',
         created_by: 'created_by',
         updated_at: 'updated_at',
         updated_by: 'updated_by',
+        id: 'id',
         avatar_url: 'avatar_url',
         bio: 'bio',
         dob: 'dob',
@@ -7619,30 +10051,38 @@ export namespace Prisma {
 
 
     export const RoleScalarFieldEnum: {
+        created_at: 'created_at',
+        created_by: 'created_by',
+        updated_at: 'updated_at',
+        updated_by: 'updated_by',
         id: 'id',
         authority: 'authority',
-        description: 'description',
-        created_at: 'created_at',
-        updated_at: 'updated_at'
+        description: 'description'
     };
 
     export type RoleScalarFieldEnum = (typeof RoleScalarFieldEnum)[keyof typeof RoleScalarFieldEnum]
 
 
     export const PermissionScalarFieldEnum: {
+        created_at: 'created_at',
+        created_by: 'created_by',
+        updated_at: 'updated_at',
+        updated_by: 'updated_by',
         id: 'id',
         name: 'name',
         description: 'description',
         resource: 'resource',
-        action: 'action',
-        created_at: 'created_at',
-        updated_at: 'updated_at'
+        action: 'action'
     };
 
     export type PermissionScalarFieldEnum = (typeof PermissionScalarFieldEnum)[keyof typeof PermissionScalarFieldEnum]
 
 
     export const UserRoleScalarFieldEnum: {
+        created_at: 'created_at',
+        created_by: 'created_by',
+        updated_at: 'updated_at',
+        updated_by: 'updated_by',
         user_id: 'user_id',
         role_id: 'role_id',
         assignedAt: 'assignedAt'
@@ -7652,6 +10092,10 @@ export namespace Prisma {
 
 
     export const RolePermissionScalarFieldEnum: {
+        created_at: 'created_at',
+        created_by: 'created_by',
+        updated_at: 'updated_at',
+        updated_by: 'updated_by',
         role_id: 'role_id',
         permission_id: 'permission_id',
         assignedAt: 'assignedAt'
@@ -7661,9 +10105,11 @@ export namespace Prisma {
 
 
     export const PostScalarFieldEnum: {
+        created_at: 'created_at',
+        created_by: 'created_by',
+        updated_at: 'updated_at',
+        updated_by: 'updated_by',
         id: 'id',
-        createdAt: 'createdAt',
-        updatedAt: 'updatedAt',
         title: 'title',
         content: 'content',
         published: 'published',
@@ -7671,6 +10117,28 @@ export namespace Prisma {
     };
 
     export type PostScalarFieldEnum = (typeof PostScalarFieldEnum)[keyof typeof PostScalarFieldEnum]
+
+
+    export const UserLearningItemScalarFieldEnum: {
+        created_at: 'created_at',
+        created_by: 'created_by',
+        updated_at: 'updated_at',
+        updated_by: 'updated_by',
+        id: 'id',
+        user_id: 'user_id',
+        question_id: 'question_id',
+        ef: 'ef',
+        repetitions: 'repetitions',
+        interval_days: 'interval_days',
+        next_review_at: 'next_review_at',
+        last_reviewed_at: 'last_reviewed_at',
+        lapses: 'lapses',
+        consecutive_fails: 'consecutive_fails',
+        priority: 'priority',
+        learning_type: 'learning_type'
+    };
+
+    export type UserLearningItemScalarFieldEnum = (typeof UserLearningItemScalarFieldEnum)[keyof typeof UserLearningItemScalarFieldEnum]
 
 
     export const SortOrder: {
@@ -7681,6 +10149,14 @@ export namespace Prisma {
     export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+    export const QueryMode: {
+        default: 'default',
+        insensitive: 'insensitive'
+    };
+
+    export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
     export const NullsOrder: {
         first: 'first',
         last: 'last'
@@ -7689,69 +10165,23 @@ export namespace Prisma {
     export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
 
-    export const UserOrderByRelevanceFieldEnum: {
-        id: 'id',
-        created_by: 'created_by',
-        updated_by: 'updated_by',
-        avatar_url: 'avatar_url',
-        bio: 'bio',
-        email: 'email',
-        first_name: 'first_name',
-        full_name: 'full_name',
-        gender: 'gender',
-        google_id: 'google_id',
-        last_name: 'last_name',
-        locale: 'locale',
-        location: 'location',
-        otp: 'otp',
-        password: 'password',
-        phone: 'phone',
-        refresh_token: 'refresh_token',
-        reset_password_token: 'reset_password_token',
-        username: 'username'
-    };
-
-    export type UserOrderByRelevanceFieldEnum = (typeof UserOrderByRelevanceFieldEnum)[keyof typeof UserOrderByRelevanceFieldEnum]
-
-
-    export const RoleOrderByRelevanceFieldEnum: {
-        authority: 'authority',
-        description: 'description'
-    };
-
-    export type RoleOrderByRelevanceFieldEnum = (typeof RoleOrderByRelevanceFieldEnum)[keyof typeof RoleOrderByRelevanceFieldEnum]
-
-
-    export const PermissionOrderByRelevanceFieldEnum: {
-        name: 'name',
-        description: 'description',
-        resource: 'resource',
-        action: 'action'
-    };
-
-    export type PermissionOrderByRelevanceFieldEnum = (typeof PermissionOrderByRelevanceFieldEnum)[keyof typeof PermissionOrderByRelevanceFieldEnum]
-
-
-    export const UserRoleOrderByRelevanceFieldEnum: {
-        user_id: 'user_id'
-    };
-
-    export type UserRoleOrderByRelevanceFieldEnum = (typeof UserRoleOrderByRelevanceFieldEnum)[keyof typeof UserRoleOrderByRelevanceFieldEnum]
-
-
-    export const PostOrderByRelevanceFieldEnum: {
-        id: 'id',
-        title: 'title',
-        content: 'content',
-        authorId: 'authorId'
-    };
-
-    export type PostOrderByRelevanceFieldEnum = (typeof PostOrderByRelevanceFieldEnum)[keyof typeof PostOrderByRelevanceFieldEnum]
-
-
     /**
      * Field references
      */
+
+
+    /**
+     * Reference to a field of type 'DateTime'
+     */
+    export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+
+
+
+    /**
+     * Reference to a field of type 'DateTime[]'
+     */
+    export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+
 
 
     /**
@@ -7762,9 +10192,9 @@ export namespace Prisma {
 
 
     /**
-     * Reference to a field of type 'DateTime'
+     * Reference to a field of type 'String[]'
      */
-    export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
+    export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String[]'>
 
 
 
@@ -7783,9 +10213,51 @@ export namespace Prisma {
 
 
     /**
+     * Reference to a field of type 'Int[]'
+     */
+    export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+
+
+
+    /**
+     * Reference to a field of type 'BigInt'
+     */
+    export type BigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt'>
+
+
+
+    /**
+     * Reference to a field of type 'BigInt[]'
+     */
+    export type ListBigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt[]'>
+
+
+
+    /**
      * Reference to a field of type 'Float'
      */
     export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+
+
+
+    /**
+     * Reference to a field of type 'Float[]'
+     */
+    export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+
+
+
+    /**
+     * Reference to a field of type 'LearningType'
+     */
+    export type EnumLearningTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LearningType'>
+
+
+
+    /**
+     * Reference to a field of type 'LearningType[]'
+     */
+    export type ListEnumLearningTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'LearningType[]'>
 
     /**
      * Deep Input Types
@@ -7796,11 +10268,11 @@ export namespace Prisma {
         AND?: UserWhereInput | UserWhereInput[]
         OR?: UserWhereInput[]
         NOT?: UserWhereInput | UserWhereInput[]
-        id?: StringFilter<"User"> | string
         created_at?: DateTimeFilter<"User"> | Date | string
         created_by?: StringNullableFilter<"User"> | string | null
         updated_at?: DateTimeFilter<"User"> | Date | string
         updated_by?: StringNullableFilter<"User"> | string | null
+        id?: StringFilter<"User"> | string
         avatar_url?: StringNullableFilter<"User"> | string | null
         bio?: StringNullableFilter<"User"> | string | null
         dob?: DateTimeNullableFilter<"User"> | Date | string | null
@@ -7829,14 +10301,15 @@ export namespace Prisma {
         total_quizzes_completed?: IntFilter<"User"> | number
         posts?: PostListRelationFilter
         user_roles?: UserRoleListRelationFilter
+        user_learning_items?: UserLearningItemListRelationFilter
     }
 
     export type UserOrderByWithRelationInput = {
-        id?: SortOrder
         created_at?: SortOrder
         created_by?: SortOrderInput | SortOrder
         updated_at?: SortOrder
         updated_by?: SortOrderInput | SortOrder
+        id?: SortOrder
         avatar_url?: SortOrderInput | SortOrder
         bio?: SortOrderInput | SortOrder
         dob?: SortOrderInput | SortOrder
@@ -7865,7 +10338,7 @@ export namespace Prisma {
         total_quizzes_completed?: SortOrder
         posts?: PostOrderByRelationAggregateInput
         user_roles?: UserRoleOrderByRelationAggregateInput
-        _relevance?: UserOrderByRelevanceInput
+        user_learning_items?: UserLearningItemOrderByRelationAggregateInput
     }
 
     export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -7905,14 +10378,15 @@ export namespace Prisma {
         total_quizzes_completed?: IntFilter<"User"> | number
         posts?: PostListRelationFilter
         user_roles?: UserRoleListRelationFilter
+        user_learning_items?: UserLearningItemListRelationFilter
     }, "id" | "email" | "google_id" | "phone" | "username">
 
     export type UserOrderByWithAggregationInput = {
-        id?: SortOrder
         created_at?: SortOrder
         created_by?: SortOrderInput | SortOrder
         updated_at?: SortOrder
         updated_by?: SortOrderInput | SortOrder
+        id?: SortOrder
         avatar_url?: SortOrderInput | SortOrder
         bio?: SortOrderInput | SortOrder
         dob?: SortOrderInput | SortOrder
@@ -7950,11 +10424,11 @@ export namespace Prisma {
         AND?: UserScalarWhereWithAggregatesInput | UserScalarWhereWithAggregatesInput[]
         OR?: UserScalarWhereWithAggregatesInput[]
         NOT?: UserScalarWhereWithAggregatesInput | UserScalarWhereWithAggregatesInput[]
-        id?: StringWithAggregatesFilter<"User"> | string
         created_at?: DateTimeWithAggregatesFilter<"User"> | Date | string
         created_by?: StringNullableWithAggregatesFilter<"User"> | string | null
         updated_at?: DateTimeWithAggregatesFilter<"User"> | Date | string
         updated_by?: StringNullableWithAggregatesFilter<"User"> | string | null
+        id?: StringWithAggregatesFilter<"User"> | string
         avatar_url?: StringNullableWithAggregatesFilter<"User"> | string | null
         bio?: StringNullableWithAggregatesFilter<"User"> | string | null
         dob?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
@@ -7987,24 +10461,27 @@ export namespace Prisma {
         AND?: RoleWhereInput | RoleWhereInput[]
         OR?: RoleWhereInput[]
         NOT?: RoleWhereInput | RoleWhereInput[]
+        created_at?: DateTimeFilter<"Role"> | Date | string
+        created_by?: StringNullableFilter<"Role"> | string | null
+        updated_at?: DateTimeFilter<"Role"> | Date | string
+        updated_by?: StringNullableFilter<"Role"> | string | null
         id?: IntFilter<"Role"> | number
         authority?: StringFilter<"Role"> | string
         description?: StringNullableFilter<"Role"> | string | null
-        created_at?: DateTimeFilter<"Role"> | Date | string
-        updated_at?: DateTimeFilter<"Role"> | Date | string
         users?: UserRoleListRelationFilter
         permissions?: RolePermissionListRelationFilter
     }
 
     export type RoleOrderByWithRelationInput = {
+        created_at?: SortOrder
+        created_by?: SortOrderInput | SortOrder
+        updated_at?: SortOrder
+        updated_by?: SortOrderInput | SortOrder
         id?: SortOrder
         authority?: SortOrder
         description?: SortOrderInput | SortOrder
-        created_at?: SortOrder
-        updated_at?: SortOrder
         users?: UserRoleOrderByRelationAggregateInput
         permissions?: RolePermissionOrderByRelationAggregateInput
-        _relevance?: RoleOrderByRelevanceInput
     }
 
     export type RoleWhereUniqueInput = Prisma.AtLeast<{
@@ -8013,19 +10490,23 @@ export namespace Prisma {
         AND?: RoleWhereInput | RoleWhereInput[]
         OR?: RoleWhereInput[]
         NOT?: RoleWhereInput | RoleWhereInput[]
-        description?: StringNullableFilter<"Role"> | string | null
         created_at?: DateTimeFilter<"Role"> | Date | string
+        created_by?: StringNullableFilter<"Role"> | string | null
         updated_at?: DateTimeFilter<"Role"> | Date | string
+        updated_by?: StringNullableFilter<"Role"> | string | null
+        description?: StringNullableFilter<"Role"> | string | null
         users?: UserRoleListRelationFilter
         permissions?: RolePermissionListRelationFilter
     }, "id" | "authority">
 
     export type RoleOrderByWithAggregationInput = {
+        created_at?: SortOrder
+        created_by?: SortOrderInput | SortOrder
+        updated_at?: SortOrder
+        updated_by?: SortOrderInput | SortOrder
         id?: SortOrder
         authority?: SortOrder
         description?: SortOrderInput | SortOrder
-        created_at?: SortOrder
-        updated_at?: SortOrder
         _count?: RoleCountOrderByAggregateInput
         _avg?: RoleAvgOrderByAggregateInput
         _max?: RoleMaxOrderByAggregateInput
@@ -8037,37 +10518,42 @@ export namespace Prisma {
         AND?: RoleScalarWhereWithAggregatesInput | RoleScalarWhereWithAggregatesInput[]
         OR?: RoleScalarWhereWithAggregatesInput[]
         NOT?: RoleScalarWhereWithAggregatesInput | RoleScalarWhereWithAggregatesInput[]
+        created_at?: DateTimeWithAggregatesFilter<"Role"> | Date | string
+        created_by?: StringNullableWithAggregatesFilter<"Role"> | string | null
+        updated_at?: DateTimeWithAggregatesFilter<"Role"> | Date | string
+        updated_by?: StringNullableWithAggregatesFilter<"Role"> | string | null
         id?: IntWithAggregatesFilter<"Role"> | number
         authority?: StringWithAggregatesFilter<"Role"> | string
         description?: StringNullableWithAggregatesFilter<"Role"> | string | null
-        created_at?: DateTimeWithAggregatesFilter<"Role"> | Date | string
-        updated_at?: DateTimeWithAggregatesFilter<"Role"> | Date | string
     }
 
     export type PermissionWhereInput = {
         AND?: PermissionWhereInput | PermissionWhereInput[]
         OR?: PermissionWhereInput[]
         NOT?: PermissionWhereInput | PermissionWhereInput[]
+        created_at?: DateTimeFilter<"Permission"> | Date | string
+        created_by?: StringNullableFilter<"Permission"> | string | null
+        updated_at?: DateTimeFilter<"Permission"> | Date | string
+        updated_by?: StringNullableFilter<"Permission"> | string | null
         id?: IntFilter<"Permission"> | number
         name?: StringFilter<"Permission"> | string
         description?: StringNullableFilter<"Permission"> | string | null
         resource?: StringFilter<"Permission"> | string
         action?: StringFilter<"Permission"> | string
-        created_at?: DateTimeFilter<"Permission"> | Date | string
-        updated_at?: DateTimeFilter<"Permission"> | Date | string
         roles?: RolePermissionListRelationFilter
     }
 
     export type PermissionOrderByWithRelationInput = {
+        created_at?: SortOrder
+        created_by?: SortOrderInput | SortOrder
+        updated_at?: SortOrder
+        updated_by?: SortOrderInput | SortOrder
         id?: SortOrder
         name?: SortOrder
         description?: SortOrderInput | SortOrder
         resource?: SortOrder
         action?: SortOrder
-        created_at?: SortOrder
-        updated_at?: SortOrder
         roles?: RolePermissionOrderByRelationAggregateInput
-        _relevance?: PermissionOrderByRelevanceInput
     }
 
     export type PermissionWhereUniqueInput = Prisma.AtLeast<{
@@ -8076,23 +10562,27 @@ export namespace Prisma {
         AND?: PermissionWhereInput | PermissionWhereInput[]
         OR?: PermissionWhereInput[]
         NOT?: PermissionWhereInput | PermissionWhereInput[]
+        created_at?: DateTimeFilter<"Permission"> | Date | string
+        created_by?: StringNullableFilter<"Permission"> | string | null
+        updated_at?: DateTimeFilter<"Permission"> | Date | string
+        updated_by?: StringNullableFilter<"Permission"> | string | null
         name?: StringFilter<"Permission"> | string
         description?: StringNullableFilter<"Permission"> | string | null
         resource?: StringFilter<"Permission"> | string
         action?: StringFilter<"Permission"> | string
-        created_at?: DateTimeFilter<"Permission"> | Date | string
-        updated_at?: DateTimeFilter<"Permission"> | Date | string
         roles?: RolePermissionListRelationFilter
     }, "id" | "resource_action">
 
     export type PermissionOrderByWithAggregationInput = {
+        created_at?: SortOrder
+        created_by?: SortOrderInput | SortOrder
+        updated_at?: SortOrder
+        updated_by?: SortOrderInput | SortOrder
         id?: SortOrder
         name?: SortOrder
         description?: SortOrderInput | SortOrder
         resource?: SortOrder
         action?: SortOrder
-        created_at?: SortOrder
-        updated_at?: SortOrder
         _count?: PermissionCountOrderByAggregateInput
         _avg?: PermissionAvgOrderByAggregateInput
         _max?: PermissionMaxOrderByAggregateInput
@@ -8104,19 +10594,25 @@ export namespace Prisma {
         AND?: PermissionScalarWhereWithAggregatesInput | PermissionScalarWhereWithAggregatesInput[]
         OR?: PermissionScalarWhereWithAggregatesInput[]
         NOT?: PermissionScalarWhereWithAggregatesInput | PermissionScalarWhereWithAggregatesInput[]
+        created_at?: DateTimeWithAggregatesFilter<"Permission"> | Date | string
+        created_by?: StringNullableWithAggregatesFilter<"Permission"> | string | null
+        updated_at?: DateTimeWithAggregatesFilter<"Permission"> | Date | string
+        updated_by?: StringNullableWithAggregatesFilter<"Permission"> | string | null
         id?: IntWithAggregatesFilter<"Permission"> | number
         name?: StringWithAggregatesFilter<"Permission"> | string
         description?: StringNullableWithAggregatesFilter<"Permission"> | string | null
         resource?: StringWithAggregatesFilter<"Permission"> | string
         action?: StringWithAggregatesFilter<"Permission"> | string
-        created_at?: DateTimeWithAggregatesFilter<"Permission"> | Date | string
-        updated_at?: DateTimeWithAggregatesFilter<"Permission"> | Date | string
     }
 
     export type UserRoleWhereInput = {
         AND?: UserRoleWhereInput | UserRoleWhereInput[]
         OR?: UserRoleWhereInput[]
         NOT?: UserRoleWhereInput | UserRoleWhereInput[]
+        created_at?: DateTimeFilter<"UserRole"> | Date | string
+        created_by?: StringNullableFilter<"UserRole"> | string | null
+        updated_at?: DateTimeFilter<"UserRole"> | Date | string
+        updated_by?: StringNullableFilter<"UserRole"> | string | null
         user_id?: StringFilter<"UserRole"> | string
         role_id?: IntFilter<"UserRole"> | number
         assignedAt?: DateTimeFilter<"UserRole"> | Date | string
@@ -8125,12 +10621,15 @@ export namespace Prisma {
     }
 
     export type UserRoleOrderByWithRelationInput = {
+        created_at?: SortOrder
+        created_by?: SortOrderInput | SortOrder
+        updated_at?: SortOrder
+        updated_by?: SortOrderInput | SortOrder
         user_id?: SortOrder
         role_id?: SortOrder
         assignedAt?: SortOrder
         user?: UserOrderByWithRelationInput
         role?: RoleOrderByWithRelationInput
-        _relevance?: UserRoleOrderByRelevanceInput
     }
 
     export type UserRoleWhereUniqueInput = Prisma.AtLeast<{
@@ -8138,6 +10637,10 @@ export namespace Prisma {
         AND?: UserRoleWhereInput | UserRoleWhereInput[]
         OR?: UserRoleWhereInput[]
         NOT?: UserRoleWhereInput | UserRoleWhereInput[]
+        created_at?: DateTimeFilter<"UserRole"> | Date | string
+        created_by?: StringNullableFilter<"UserRole"> | string | null
+        updated_at?: DateTimeFilter<"UserRole"> | Date | string
+        updated_by?: StringNullableFilter<"UserRole"> | string | null
         user_id?: StringFilter<"UserRole"> | string
         role_id?: IntFilter<"UserRole"> | number
         assignedAt?: DateTimeFilter<"UserRole"> | Date | string
@@ -8146,6 +10649,10 @@ export namespace Prisma {
     }, "user_id_role_id">
 
     export type UserRoleOrderByWithAggregationInput = {
+        created_at?: SortOrder
+        created_by?: SortOrderInput | SortOrder
+        updated_at?: SortOrder
+        updated_by?: SortOrderInput | SortOrder
         user_id?: SortOrder
         role_id?: SortOrder
         assignedAt?: SortOrder
@@ -8160,6 +10667,10 @@ export namespace Prisma {
         AND?: UserRoleScalarWhereWithAggregatesInput | UserRoleScalarWhereWithAggregatesInput[]
         OR?: UserRoleScalarWhereWithAggregatesInput[]
         NOT?: UserRoleScalarWhereWithAggregatesInput | UserRoleScalarWhereWithAggregatesInput[]
+        created_at?: DateTimeWithAggregatesFilter<"UserRole"> | Date | string
+        created_by?: StringNullableWithAggregatesFilter<"UserRole"> | string | null
+        updated_at?: DateTimeWithAggregatesFilter<"UserRole"> | Date | string
+        updated_by?: StringNullableWithAggregatesFilter<"UserRole"> | string | null
         user_id?: StringWithAggregatesFilter<"UserRole"> | string
         role_id?: IntWithAggregatesFilter<"UserRole"> | number
         assignedAt?: DateTimeWithAggregatesFilter<"UserRole"> | Date | string
@@ -8169,6 +10680,10 @@ export namespace Prisma {
         AND?: RolePermissionWhereInput | RolePermissionWhereInput[]
         OR?: RolePermissionWhereInput[]
         NOT?: RolePermissionWhereInput | RolePermissionWhereInput[]
+        created_at?: DateTimeFilter<"RolePermission"> | Date | string
+        created_by?: StringNullableFilter<"RolePermission"> | string | null
+        updated_at?: DateTimeFilter<"RolePermission"> | Date | string
+        updated_by?: StringNullableFilter<"RolePermission"> | string | null
         role_id?: IntFilter<"RolePermission"> | number
         permission_id?: IntFilter<"RolePermission"> | number
         assignedAt?: DateTimeFilter<"RolePermission"> | Date | string
@@ -8177,6 +10692,10 @@ export namespace Prisma {
     }
 
     export type RolePermissionOrderByWithRelationInput = {
+        created_at?: SortOrder
+        created_by?: SortOrderInput | SortOrder
+        updated_at?: SortOrder
+        updated_by?: SortOrderInput | SortOrder
         role_id?: SortOrder
         permission_id?: SortOrder
         assignedAt?: SortOrder
@@ -8189,6 +10708,10 @@ export namespace Prisma {
         AND?: RolePermissionWhereInput | RolePermissionWhereInput[]
         OR?: RolePermissionWhereInput[]
         NOT?: RolePermissionWhereInput | RolePermissionWhereInput[]
+        created_at?: DateTimeFilter<"RolePermission"> | Date | string
+        created_by?: StringNullableFilter<"RolePermission"> | string | null
+        updated_at?: DateTimeFilter<"RolePermission"> | Date | string
+        updated_by?: StringNullableFilter<"RolePermission"> | string | null
         role_id?: IntFilter<"RolePermission"> | number
         permission_id?: IntFilter<"RolePermission"> | number
         assignedAt?: DateTimeFilter<"RolePermission"> | Date | string
@@ -8197,6 +10720,10 @@ export namespace Prisma {
     }, "role_id_permission_id">
 
     export type RolePermissionOrderByWithAggregationInput = {
+        created_at?: SortOrder
+        created_by?: SortOrderInput | SortOrder
+        updated_at?: SortOrder
+        updated_by?: SortOrderInput | SortOrder
         role_id?: SortOrder
         permission_id?: SortOrder
         assignedAt?: SortOrder
@@ -8211,6 +10738,10 @@ export namespace Prisma {
         AND?: RolePermissionScalarWhereWithAggregatesInput | RolePermissionScalarWhereWithAggregatesInput[]
         OR?: RolePermissionScalarWhereWithAggregatesInput[]
         NOT?: RolePermissionScalarWhereWithAggregatesInput | RolePermissionScalarWhereWithAggregatesInput[]
+        created_at?: DateTimeWithAggregatesFilter<"RolePermission"> | Date | string
+        created_by?: StringNullableWithAggregatesFilter<"RolePermission"> | string | null
+        updated_at?: DateTimeWithAggregatesFilter<"RolePermission"> | Date | string
+        updated_by?: StringNullableWithAggregatesFilter<"RolePermission"> | string | null
         role_id?: IntWithAggregatesFilter<"RolePermission"> | number
         permission_id?: IntWithAggregatesFilter<"RolePermission"> | number
         assignedAt?: DateTimeWithAggregatesFilter<"RolePermission"> | Date | string
@@ -8220,9 +10751,11 @@ export namespace Prisma {
         AND?: PostWhereInput | PostWhereInput[]
         OR?: PostWhereInput[]
         NOT?: PostWhereInput | PostWhereInput[]
+        created_at?: DateTimeFilter<"Post"> | Date | string
+        created_by?: StringNullableFilter<"Post"> | string | null
+        updated_at?: DateTimeFilter<"Post"> | Date | string
+        updated_by?: StringNullableFilter<"Post"> | string | null
         id?: StringFilter<"Post"> | string
-        createdAt?: DateTimeFilter<"Post"> | Date | string
-        updatedAt?: DateTimeFilter<"Post"> | Date | string
         title?: StringFilter<"Post"> | string
         content?: StringFilter<"Post"> | string
         published?: BoolFilter<"Post"> | boolean
@@ -8231,15 +10764,16 @@ export namespace Prisma {
     }
 
     export type PostOrderByWithRelationInput = {
+        created_at?: SortOrder
+        created_by?: SortOrderInput | SortOrder
+        updated_at?: SortOrder
+        updated_by?: SortOrderInput | SortOrder
         id?: SortOrder
-        createdAt?: SortOrder
-        updatedAt?: SortOrder
         title?: SortOrder
         content?: SortOrder
         published?: SortOrder
         authorId?: SortOrder
         author?: UserOrderByWithRelationInput
-        _relevance?: PostOrderByRelevanceInput
     }
 
     export type PostWhereUniqueInput = Prisma.AtLeast<{
@@ -8247,8 +10781,10 @@ export namespace Prisma {
         AND?: PostWhereInput | PostWhereInput[]
         OR?: PostWhereInput[]
         NOT?: PostWhereInput | PostWhereInput[]
-        createdAt?: DateTimeFilter<"Post"> | Date | string
-        updatedAt?: DateTimeFilter<"Post"> | Date | string
+        created_at?: DateTimeFilter<"Post"> | Date | string
+        created_by?: StringNullableFilter<"Post"> | string | null
+        updated_at?: DateTimeFilter<"Post"> | Date | string
+        updated_by?: StringNullableFilter<"Post"> | string | null
         title?: StringFilter<"Post"> | string
         content?: StringFilter<"Post"> | string
         published?: BoolFilter<"Post"> | boolean
@@ -8257,9 +10793,11 @@ export namespace Prisma {
     }, "id">
 
     export type PostOrderByWithAggregationInput = {
+        created_at?: SortOrder
+        created_by?: SortOrderInput | SortOrder
+        updated_at?: SortOrder
+        updated_by?: SortOrderInput | SortOrder
         id?: SortOrder
-        createdAt?: SortOrder
-        updatedAt?: SortOrder
         title?: SortOrder
         content?: SortOrder
         published?: SortOrder
@@ -8273,21 +10811,136 @@ export namespace Prisma {
         AND?: PostScalarWhereWithAggregatesInput | PostScalarWhereWithAggregatesInput[]
         OR?: PostScalarWhereWithAggregatesInput[]
         NOT?: PostScalarWhereWithAggregatesInput | PostScalarWhereWithAggregatesInput[]
+        created_at?: DateTimeWithAggregatesFilter<"Post"> | Date | string
+        created_by?: StringNullableWithAggregatesFilter<"Post"> | string | null
+        updated_at?: DateTimeWithAggregatesFilter<"Post"> | Date | string
+        updated_by?: StringNullableWithAggregatesFilter<"Post"> | string | null
         id?: StringWithAggregatesFilter<"Post"> | string
-        createdAt?: DateTimeWithAggregatesFilter<"Post"> | Date | string
-        updatedAt?: DateTimeWithAggregatesFilter<"Post"> | Date | string
         title?: StringWithAggregatesFilter<"Post"> | string
         content?: StringWithAggregatesFilter<"Post"> | string
         published?: BoolWithAggregatesFilter<"Post"> | boolean
         authorId?: StringWithAggregatesFilter<"Post"> | string
     }
 
+    export type UserLearningItemWhereInput = {
+        AND?: UserLearningItemWhereInput | UserLearningItemWhereInput[]
+        OR?: UserLearningItemWhereInput[]
+        NOT?: UserLearningItemWhereInput | UserLearningItemWhereInput[]
+        created_at?: DateTimeFilter<"UserLearningItem"> | Date | string
+        created_by?: StringNullableFilter<"UserLearningItem"> | string | null
+        updated_at?: DateTimeFilter<"UserLearningItem"> | Date | string
+        updated_by?: StringNullableFilter<"UserLearningItem"> | string | null
+        id?: BigIntFilter<"UserLearningItem"> | bigint | number
+        user_id?: StringFilter<"UserLearningItem"> | string
+        question_id?: BigIntFilter<"UserLearningItem"> | bigint | number
+        ef?: FloatNullableFilter<"UserLearningItem"> | number | null
+        repetitions?: IntNullableFilter<"UserLearningItem"> | number | null
+        interval_days?: IntNullableFilter<"UserLearningItem"> | number | null
+        next_review_at?: DateTimeNullableFilter<"UserLearningItem"> | Date | string | null
+        last_reviewed_at?: DateTimeNullableFilter<"UserLearningItem"> | Date | string | null
+        lapses?: IntNullableFilter<"UserLearningItem"> | number | null
+        consecutive_fails?: IntNullableFilter<"UserLearningItem"> | number | null
+        priority?: FloatNullableFilter<"UserLearningItem"> | number | null
+        learning_type?: EnumLearningTypeFilter<"UserLearningItem"> | $Enums.LearningType
+        user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    }
+
+    export type UserLearningItemOrderByWithRelationInput = {
+        created_at?: SortOrder
+        created_by?: SortOrderInput | SortOrder
+        updated_at?: SortOrder
+        updated_by?: SortOrderInput | SortOrder
+        id?: SortOrder
+        user_id?: SortOrder
+        question_id?: SortOrder
+        ef?: SortOrderInput | SortOrder
+        repetitions?: SortOrderInput | SortOrder
+        interval_days?: SortOrderInput | SortOrder
+        next_review_at?: SortOrderInput | SortOrder
+        last_reviewed_at?: SortOrderInput | SortOrder
+        lapses?: SortOrderInput | SortOrder
+        consecutive_fails?: SortOrderInput | SortOrder
+        priority?: SortOrderInput | SortOrder
+        learning_type?: SortOrder
+        user?: UserOrderByWithRelationInput
+    }
+
+    export type UserLearningItemWhereUniqueInput = Prisma.AtLeast<{
+        id?: bigint | number
+        user_id_question_id?: UserLearningItemUser_idQuestion_idCompoundUniqueInput
+        AND?: UserLearningItemWhereInput | UserLearningItemWhereInput[]
+        OR?: UserLearningItemWhereInput[]
+        NOT?: UserLearningItemWhereInput | UserLearningItemWhereInput[]
+        created_at?: DateTimeFilter<"UserLearningItem"> | Date | string
+        created_by?: StringNullableFilter<"UserLearningItem"> | string | null
+        updated_at?: DateTimeFilter<"UserLearningItem"> | Date | string
+        updated_by?: StringNullableFilter<"UserLearningItem"> | string | null
+        user_id?: StringFilter<"UserLearningItem"> | string
+        question_id?: BigIntFilter<"UserLearningItem"> | bigint | number
+        ef?: FloatNullableFilter<"UserLearningItem"> | number | null
+        repetitions?: IntNullableFilter<"UserLearningItem"> | number | null
+        interval_days?: IntNullableFilter<"UserLearningItem"> | number | null
+        next_review_at?: DateTimeNullableFilter<"UserLearningItem"> | Date | string | null
+        last_reviewed_at?: DateTimeNullableFilter<"UserLearningItem"> | Date | string | null
+        lapses?: IntNullableFilter<"UserLearningItem"> | number | null
+        consecutive_fails?: IntNullableFilter<"UserLearningItem"> | number | null
+        priority?: FloatNullableFilter<"UserLearningItem"> | number | null
+        learning_type?: EnumLearningTypeFilter<"UserLearningItem"> | $Enums.LearningType
+        user?: XOR<UserScalarRelationFilter, UserWhereInput>
+    }, "id" | "user_id_question_id">
+
+    export type UserLearningItemOrderByWithAggregationInput = {
+        created_at?: SortOrder
+        created_by?: SortOrderInput | SortOrder
+        updated_at?: SortOrder
+        updated_by?: SortOrderInput | SortOrder
+        id?: SortOrder
+        user_id?: SortOrder
+        question_id?: SortOrder
+        ef?: SortOrderInput | SortOrder
+        repetitions?: SortOrderInput | SortOrder
+        interval_days?: SortOrderInput | SortOrder
+        next_review_at?: SortOrderInput | SortOrder
+        last_reviewed_at?: SortOrderInput | SortOrder
+        lapses?: SortOrderInput | SortOrder
+        consecutive_fails?: SortOrderInput | SortOrder
+        priority?: SortOrderInput | SortOrder
+        learning_type?: SortOrder
+        _count?: UserLearningItemCountOrderByAggregateInput
+        _avg?: UserLearningItemAvgOrderByAggregateInput
+        _max?: UserLearningItemMaxOrderByAggregateInput
+        _min?: UserLearningItemMinOrderByAggregateInput
+        _sum?: UserLearningItemSumOrderByAggregateInput
+    }
+
+    export type UserLearningItemScalarWhereWithAggregatesInput = {
+        AND?: UserLearningItemScalarWhereWithAggregatesInput | UserLearningItemScalarWhereWithAggregatesInput[]
+        OR?: UserLearningItemScalarWhereWithAggregatesInput[]
+        NOT?: UserLearningItemScalarWhereWithAggregatesInput | UserLearningItemScalarWhereWithAggregatesInput[]
+        created_at?: DateTimeWithAggregatesFilter<"UserLearningItem"> | Date | string
+        created_by?: StringNullableWithAggregatesFilter<"UserLearningItem"> | string | null
+        updated_at?: DateTimeWithAggregatesFilter<"UserLearningItem"> | Date | string
+        updated_by?: StringNullableWithAggregatesFilter<"UserLearningItem"> | string | null
+        id?: BigIntWithAggregatesFilter<"UserLearningItem"> | bigint | number
+        user_id?: StringWithAggregatesFilter<"UserLearningItem"> | string
+        question_id?: BigIntWithAggregatesFilter<"UserLearningItem"> | bigint | number
+        ef?: FloatNullableWithAggregatesFilter<"UserLearningItem"> | number | null
+        repetitions?: IntNullableWithAggregatesFilter<"UserLearningItem"> | number | null
+        interval_days?: IntNullableWithAggregatesFilter<"UserLearningItem"> | number | null
+        next_review_at?: DateTimeNullableWithAggregatesFilter<"UserLearningItem"> | Date | string | null
+        last_reviewed_at?: DateTimeNullableWithAggregatesFilter<"UserLearningItem"> | Date | string | null
+        lapses?: IntNullableWithAggregatesFilter<"UserLearningItem"> | number | null
+        consecutive_fails?: IntNullableWithAggregatesFilter<"UserLearningItem"> | number | null
+        priority?: FloatNullableWithAggregatesFilter<"UserLearningItem"> | number | null
+        learning_type?: EnumLearningTypeWithAggregatesFilter<"UserLearningItem"> | $Enums.LearningType
+    }
+
     export type UserCreateInput = {
-        id?: string
         created_at?: Date | string
         created_by?: string | null
         updated_at?: Date | string
         updated_by?: string | null
+        id?: string
         avatar_url?: string | null
         bio?: string | null
         dob?: Date | string | null
@@ -8316,14 +10969,15 @@ export namespace Prisma {
         total_quizzes_completed?: number
         posts?: PostCreateNestedManyWithoutAuthorInput
         user_roles?: UserRoleCreateNestedManyWithoutUserInput
+        user_learning_items?: UserLearningItemCreateNestedManyWithoutUserInput
     }
 
     export type UserUncheckedCreateInput = {
-        id?: string
         created_at?: Date | string
         created_by?: string | null
         updated_at?: Date | string
         updated_by?: string | null
+        id?: string
         avatar_url?: string | null
         bio?: string | null
         dob?: Date | string | null
@@ -8352,14 +11006,15 @@ export namespace Prisma {
         total_quizzes_completed?: number
         posts?: PostUncheckedCreateNestedManyWithoutAuthorInput
         user_roles?: UserRoleUncheckedCreateNestedManyWithoutUserInput
+        user_learning_items?: UserLearningItemUncheckedCreateNestedManyWithoutUserInput
     }
 
     export type UserUpdateInput = {
-        id?: StringFieldUpdateOperationsInput | string
         created_at?: DateTimeFieldUpdateOperationsInput | Date | string
         created_by?: NullableStringFieldUpdateOperationsInput | string | null
         updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
         updated_by?: NullableStringFieldUpdateOperationsInput | string | null
+        id?: StringFieldUpdateOperationsInput | string
         avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
         bio?: NullableStringFieldUpdateOperationsInput | string | null
         dob?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -8388,14 +11043,15 @@ export namespace Prisma {
         total_quizzes_completed?: IntFieldUpdateOperationsInput | number
         posts?: PostUpdateManyWithoutAuthorNestedInput
         user_roles?: UserRoleUpdateManyWithoutUserNestedInput
+        user_learning_items?: UserLearningItemUpdateManyWithoutUserNestedInput
     }
 
     export type UserUncheckedUpdateInput = {
-        id?: StringFieldUpdateOperationsInput | string
         created_at?: DateTimeFieldUpdateOperationsInput | Date | string
         created_by?: NullableStringFieldUpdateOperationsInput | string | null
         updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
         updated_by?: NullableStringFieldUpdateOperationsInput | string | null
+        id?: StringFieldUpdateOperationsInput | string
         avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
         bio?: NullableStringFieldUpdateOperationsInput | string | null
         dob?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -8424,14 +11080,15 @@ export namespace Prisma {
         total_quizzes_completed?: IntFieldUpdateOperationsInput | number
         posts?: PostUncheckedUpdateManyWithoutAuthorNestedInput
         user_roles?: UserRoleUncheckedUpdateManyWithoutUserNestedInput
+        user_learning_items?: UserLearningItemUncheckedUpdateManyWithoutUserNestedInput
     }
 
     export type UserCreateManyInput = {
-        id?: string
         created_at?: Date | string
         created_by?: string | null
         updated_at?: Date | string
         updated_by?: string | null
+        id?: string
         avatar_url?: string | null
         bio?: string | null
         dob?: Date | string | null
@@ -8461,11 +11118,11 @@ export namespace Prisma {
     }
 
     export type UserUpdateManyMutationInput = {
-        id?: StringFieldUpdateOperationsInput | string
         created_at?: DateTimeFieldUpdateOperationsInput | Date | string
         created_by?: NullableStringFieldUpdateOperationsInput | string | null
         updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
         updated_by?: NullableStringFieldUpdateOperationsInput | string | null
+        id?: StringFieldUpdateOperationsInput | string
         avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
         bio?: NullableStringFieldUpdateOperationsInput | string | null
         dob?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -8495,11 +11152,11 @@ export namespace Prisma {
     }
 
     export type UserUncheckedUpdateManyInput = {
-        id?: StringFieldUpdateOperationsInput | string
         created_at?: DateTimeFieldUpdateOperationsInput | Date | string
         created_by?: NullableStringFieldUpdateOperationsInput | string | null
         updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
         updated_by?: NullableStringFieldUpdateOperationsInput | string | null
+        id?: StringFieldUpdateOperationsInput | string
         avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
         bio?: NullableStringFieldUpdateOperationsInput | string | null
         dob?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -8529,221 +11186,307 @@ export namespace Prisma {
     }
 
     export type RoleCreateInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         authority: string
         description?: string | null
-        created_at?: Date | string
-        updated_at?: Date | string
         users?: UserRoleCreateNestedManyWithoutRoleInput
         permissions?: RolePermissionCreateNestedManyWithoutRoleInput
     }
 
     export type RoleUncheckedCreateInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         id?: number
         authority: string
         description?: string | null
-        created_at?: Date | string
-        updated_at?: Date | string
         users?: UserRoleUncheckedCreateNestedManyWithoutRoleInput
         permissions?: RolePermissionUncheckedCreateNestedManyWithoutRoleInput
     }
 
     export type RoleUpdateInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         authority?: StringFieldUpdateOperationsInput | string
         description?: NullableStringFieldUpdateOperationsInput | string | null
-        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
         users?: UserRoleUpdateManyWithoutRoleNestedInput
         permissions?: RolePermissionUpdateManyWithoutRoleNestedInput
     }
 
     export type RoleUncheckedUpdateInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         id?: IntFieldUpdateOperationsInput | number
         authority?: StringFieldUpdateOperationsInput | string
         description?: NullableStringFieldUpdateOperationsInput | string | null
-        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
         users?: UserRoleUncheckedUpdateManyWithoutRoleNestedInput
         permissions?: RolePermissionUncheckedUpdateManyWithoutRoleNestedInput
     }
 
     export type RoleCreateManyInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         id?: number
         authority: string
         description?: string | null
-        created_at?: Date | string
-        updated_at?: Date | string
     }
 
     export type RoleUpdateManyMutationInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         authority?: StringFieldUpdateOperationsInput | string
         description?: NullableStringFieldUpdateOperationsInput | string | null
-        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     }
 
     export type RoleUncheckedUpdateManyInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         id?: IntFieldUpdateOperationsInput | number
         authority?: StringFieldUpdateOperationsInput | string
         description?: NullableStringFieldUpdateOperationsInput | string | null
-        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     }
 
     export type PermissionCreateInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         name: string
         description?: string | null
         resource: string
         action: string
-        created_at?: Date | string
-        updated_at?: Date | string
         roles?: RolePermissionCreateNestedManyWithoutPermissionInput
     }
 
     export type PermissionUncheckedCreateInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         id?: number
         name: string
         description?: string | null
         resource: string
         action: string
-        created_at?: Date | string
-        updated_at?: Date | string
         roles?: RolePermissionUncheckedCreateNestedManyWithoutPermissionInput
     }
 
     export type PermissionUpdateInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         name?: StringFieldUpdateOperationsInput | string
         description?: NullableStringFieldUpdateOperationsInput | string | null
         resource?: StringFieldUpdateOperationsInput | string
         action?: StringFieldUpdateOperationsInput | string
-        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
         roles?: RolePermissionUpdateManyWithoutPermissionNestedInput
     }
 
     export type PermissionUncheckedUpdateInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         id?: IntFieldUpdateOperationsInput | number
         name?: StringFieldUpdateOperationsInput | string
         description?: NullableStringFieldUpdateOperationsInput | string | null
         resource?: StringFieldUpdateOperationsInput | string
         action?: StringFieldUpdateOperationsInput | string
-        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
         roles?: RolePermissionUncheckedUpdateManyWithoutPermissionNestedInput
     }
 
     export type PermissionCreateManyInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         id?: number
         name: string
         description?: string | null
         resource: string
         action: string
-        created_at?: Date | string
-        updated_at?: Date | string
     }
 
     export type PermissionUpdateManyMutationInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         name?: StringFieldUpdateOperationsInput | string
         description?: NullableStringFieldUpdateOperationsInput | string | null
         resource?: StringFieldUpdateOperationsInput | string
         action?: StringFieldUpdateOperationsInput | string
-        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     }
 
     export type PermissionUncheckedUpdateManyInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         id?: IntFieldUpdateOperationsInput | number
         name?: StringFieldUpdateOperationsInput | string
         description?: NullableStringFieldUpdateOperationsInput | string | null
         resource?: StringFieldUpdateOperationsInput | string
         action?: StringFieldUpdateOperationsInput | string
-        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     }
 
     export type UserRoleCreateInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         assignedAt?: Date | string
         user: UserCreateNestedOneWithoutUser_rolesInput
         role: RoleCreateNestedOneWithoutUsersInput
     }
 
     export type UserRoleUncheckedCreateInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         user_id: string
         role_id: number
         assignedAt?: Date | string
     }
 
     export type UserRoleUpdateInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
         user?: UserUpdateOneRequiredWithoutUser_rolesNestedInput
         role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     }
 
     export type UserRoleUncheckedUpdateInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         user_id?: StringFieldUpdateOperationsInput | string
         role_id?: IntFieldUpdateOperationsInput | number
         assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     }
 
     export type UserRoleCreateManyInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         user_id: string
         role_id: number
         assignedAt?: Date | string
     }
 
     export type UserRoleUpdateManyMutationInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     }
 
     export type UserRoleUncheckedUpdateManyInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         user_id?: StringFieldUpdateOperationsInput | string
         role_id?: IntFieldUpdateOperationsInput | number
         assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     }
 
     export type RolePermissionCreateInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         assignedAt?: Date | string
         role: RoleCreateNestedOneWithoutPermissionsInput
         permission: PermissionCreateNestedOneWithoutRolesInput
     }
 
     export type RolePermissionUncheckedCreateInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         role_id: number
         permission_id: number
         assignedAt?: Date | string
     }
 
     export type RolePermissionUpdateInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
         role?: RoleUpdateOneRequiredWithoutPermissionsNestedInput
         permission?: PermissionUpdateOneRequiredWithoutRolesNestedInput
     }
 
     export type RolePermissionUncheckedUpdateInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         role_id?: IntFieldUpdateOperationsInput | number
         permission_id?: IntFieldUpdateOperationsInput | number
         assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     }
 
     export type RolePermissionCreateManyInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         role_id: number
         permission_id: number
         assignedAt?: Date | string
     }
 
     export type RolePermissionUpdateManyMutationInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     }
 
     export type RolePermissionUncheckedUpdateManyInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         role_id?: IntFieldUpdateOperationsInput | number
         permission_id?: IntFieldUpdateOperationsInput | number
         assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     }
 
     export type PostCreateInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         id?: string
-        createdAt?: Date | string
-        updatedAt?: Date | string
         title: string
         content: string
         published?: boolean
@@ -8751,9 +11494,11 @@ export namespace Prisma {
     }
 
     export type PostUncheckedCreateInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         id?: string
-        createdAt?: Date | string
-        updatedAt?: Date | string
         title: string
         content: string
         published?: boolean
@@ -8761,9 +11506,11 @@ export namespace Prisma {
     }
 
     export type PostUpdateInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         id?: StringFieldUpdateOperationsInput | string
-        createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-        updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
         title?: StringFieldUpdateOperationsInput | string
         content?: StringFieldUpdateOperationsInput | string
         published?: BoolFieldUpdateOperationsInput | boolean
@@ -8771,9 +11518,11 @@ export namespace Prisma {
     }
 
     export type PostUncheckedUpdateInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         id?: StringFieldUpdateOperationsInput | string
-        createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-        updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
         title?: StringFieldUpdateOperationsInput | string
         content?: StringFieldUpdateOperationsInput | string
         published?: BoolFieldUpdateOperationsInput | boolean
@@ -8781,9 +11530,11 @@ export namespace Prisma {
     }
 
     export type PostCreateManyInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         id?: string
-        createdAt?: Date | string
-        updatedAt?: Date | string
         title: string
         content: string
         published?: boolean
@@ -8791,43 +11542,164 @@ export namespace Prisma {
     }
 
     export type PostUpdateManyMutationInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         id?: StringFieldUpdateOperationsInput | string
-        createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-        updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
         title?: StringFieldUpdateOperationsInput | string
         content?: StringFieldUpdateOperationsInput | string
         published?: BoolFieldUpdateOperationsInput | boolean
     }
 
     export type PostUncheckedUpdateManyInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         id?: StringFieldUpdateOperationsInput | string
-        createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-        updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
         title?: StringFieldUpdateOperationsInput | string
         content?: StringFieldUpdateOperationsInput | string
         published?: BoolFieldUpdateOperationsInput | boolean
         authorId?: StringFieldUpdateOperationsInput | string
     }
 
-    export type StringFilter<$PrismaModel = never> = {
-        equals?: string | StringFieldRefInput<$PrismaModel>
-        in?: string[]
-        notIn?: string[]
-        lt?: string | StringFieldRefInput<$PrismaModel>
-        lte?: string | StringFieldRefInput<$PrismaModel>
-        gt?: string | StringFieldRefInput<$PrismaModel>
-        gte?: string | StringFieldRefInput<$PrismaModel>
-        contains?: string | StringFieldRefInput<$PrismaModel>
-        startsWith?: string | StringFieldRefInput<$PrismaModel>
-        endsWith?: string | StringFieldRefInput<$PrismaModel>
-        search?: string
-        not?: NestedStringFilter<$PrismaModel> | string
+    export type UserLearningItemCreateInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
+        id?: bigint | number
+        question_id: bigint | number
+        ef?: number | null
+        repetitions?: number | null
+        interval_days?: number | null
+        next_review_at?: Date | string | null
+        last_reviewed_at?: Date | string | null
+        lapses?: number | null
+        consecutive_fails?: number | null
+        priority?: number | null
+        learning_type: $Enums.LearningType
+        user: UserCreateNestedOneWithoutUser_learning_itemsInput
+    }
+
+    export type UserLearningItemUncheckedCreateInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
+        id?: bigint | number
+        user_id: string
+        question_id: bigint | number
+        ef?: number | null
+        repetitions?: number | null
+        interval_days?: number | null
+        next_review_at?: Date | string | null
+        last_reviewed_at?: Date | string | null
+        lapses?: number | null
+        consecutive_fails?: number | null
+        priority?: number | null
+        learning_type: $Enums.LearningType
+    }
+
+    export type UserLearningItemUpdateInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
+        id?: BigIntFieldUpdateOperationsInput | bigint | number
+        question_id?: BigIntFieldUpdateOperationsInput | bigint | number
+        ef?: NullableFloatFieldUpdateOperationsInput | number | null
+        repetitions?: NullableIntFieldUpdateOperationsInput | number | null
+        interval_days?: NullableIntFieldUpdateOperationsInput | number | null
+        next_review_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+        last_reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+        lapses?: NullableIntFieldUpdateOperationsInput | number | null
+        consecutive_fails?: NullableIntFieldUpdateOperationsInput | number | null
+        priority?: NullableFloatFieldUpdateOperationsInput | number | null
+        learning_type?: EnumLearningTypeFieldUpdateOperationsInput | $Enums.LearningType
+        user?: UserUpdateOneRequiredWithoutUser_learning_itemsNestedInput
+    }
+
+    export type UserLearningItemUncheckedUpdateInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
+        id?: BigIntFieldUpdateOperationsInput | bigint | number
+        user_id?: StringFieldUpdateOperationsInput | string
+        question_id?: BigIntFieldUpdateOperationsInput | bigint | number
+        ef?: NullableFloatFieldUpdateOperationsInput | number | null
+        repetitions?: NullableIntFieldUpdateOperationsInput | number | null
+        interval_days?: NullableIntFieldUpdateOperationsInput | number | null
+        next_review_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+        last_reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+        lapses?: NullableIntFieldUpdateOperationsInput | number | null
+        consecutive_fails?: NullableIntFieldUpdateOperationsInput | number | null
+        priority?: NullableFloatFieldUpdateOperationsInput | number | null
+        learning_type?: EnumLearningTypeFieldUpdateOperationsInput | $Enums.LearningType
+    }
+
+    export type UserLearningItemCreateManyInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
+        id?: bigint | number
+        user_id: string
+        question_id: bigint | number
+        ef?: number | null
+        repetitions?: number | null
+        interval_days?: number | null
+        next_review_at?: Date | string | null
+        last_reviewed_at?: Date | string | null
+        lapses?: number | null
+        consecutive_fails?: number | null
+        priority?: number | null
+        learning_type: $Enums.LearningType
+    }
+
+    export type UserLearningItemUpdateManyMutationInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
+        id?: BigIntFieldUpdateOperationsInput | bigint | number
+        question_id?: BigIntFieldUpdateOperationsInput | bigint | number
+        ef?: NullableFloatFieldUpdateOperationsInput | number | null
+        repetitions?: NullableIntFieldUpdateOperationsInput | number | null
+        interval_days?: NullableIntFieldUpdateOperationsInput | number | null
+        next_review_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+        last_reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+        lapses?: NullableIntFieldUpdateOperationsInput | number | null
+        consecutive_fails?: NullableIntFieldUpdateOperationsInput | number | null
+        priority?: NullableFloatFieldUpdateOperationsInput | number | null
+        learning_type?: EnumLearningTypeFieldUpdateOperationsInput | $Enums.LearningType
+    }
+
+    export type UserLearningItemUncheckedUpdateManyInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
+        id?: BigIntFieldUpdateOperationsInput | bigint | number
+        user_id?: StringFieldUpdateOperationsInput | string
+        question_id?: BigIntFieldUpdateOperationsInput | bigint | number
+        ef?: NullableFloatFieldUpdateOperationsInput | number | null
+        repetitions?: NullableIntFieldUpdateOperationsInput | number | null
+        interval_days?: NullableIntFieldUpdateOperationsInput | number | null
+        next_review_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+        last_reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+        lapses?: NullableIntFieldUpdateOperationsInput | number | null
+        consecutive_fails?: NullableIntFieldUpdateOperationsInput | number | null
+        priority?: NullableFloatFieldUpdateOperationsInput | number | null
+        learning_type?: EnumLearningTypeFieldUpdateOperationsInput | $Enums.LearningType
     }
 
     export type DateTimeFilter<$PrismaModel = never> = {
         equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-        in?: Date[] | string[]
-        notIn?: Date[] | string[]
+        in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+        notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
         lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
         lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
         gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -8837,8 +11709,8 @@ export namespace Prisma {
 
     export type StringNullableFilter<$PrismaModel = never> = {
         equals?: string | StringFieldRefInput<$PrismaModel> | null
-        in?: string[] | null
-        notIn?: string[] | null
+        in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+        notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
         lt?: string | StringFieldRefInput<$PrismaModel>
         lte?: string | StringFieldRefInput<$PrismaModel>
         gt?: string | StringFieldRefInput<$PrismaModel>
@@ -8846,14 +11718,29 @@ export namespace Prisma {
         contains?: string | StringFieldRefInput<$PrismaModel>
         startsWith?: string | StringFieldRefInput<$PrismaModel>
         endsWith?: string | StringFieldRefInput<$PrismaModel>
-        search?: string
+        mode?: QueryMode
         not?: NestedStringNullableFilter<$PrismaModel> | string | null
+    }
+
+    export type StringFilter<$PrismaModel = never> = {
+        equals?: string | StringFieldRefInput<$PrismaModel>
+        in?: string[] | ListStringFieldRefInput<$PrismaModel>
+        notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
+        lt?: string | StringFieldRefInput<$PrismaModel>
+        lte?: string | StringFieldRefInput<$PrismaModel>
+        gt?: string | StringFieldRefInput<$PrismaModel>
+        gte?: string | StringFieldRefInput<$PrismaModel>
+        contains?: string | StringFieldRefInput<$PrismaModel>
+        startsWith?: string | StringFieldRefInput<$PrismaModel>
+        endsWith?: string | StringFieldRefInput<$PrismaModel>
+        mode?: QueryMode
+        not?: NestedStringFilter<$PrismaModel> | string
     }
 
     export type DateTimeNullableFilter<$PrismaModel = never> = {
         equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-        in?: Date[] | string[] | null
-        notIn?: Date[] | string[] | null
+        in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+        notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
         lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
         lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
         gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -8868,8 +11755,8 @@ export namespace Prisma {
 
     export type IntFilter<$PrismaModel = never> = {
         equals?: number | IntFieldRefInput<$PrismaModel>
-        in?: number[]
-        notIn?: number[]
+        in?: number[] | ListIntFieldRefInput<$PrismaModel>
+        notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
         lt?: number | IntFieldRefInput<$PrismaModel>
         lte?: number | IntFieldRefInput<$PrismaModel>
         gt?: number | IntFieldRefInput<$PrismaModel>
@@ -8889,6 +11776,12 @@ export namespace Prisma {
         none?: UserRoleWhereInput
     }
 
+    export type UserLearningItemListRelationFilter = {
+        every?: UserLearningItemWhereInput
+        some?: UserLearningItemWhereInput
+        none?: UserLearningItemWhereInput
+    }
+
     export type SortOrderInput = {
         sort: SortOrder
         nulls?: NullsOrder
@@ -8902,18 +11795,16 @@ export namespace Prisma {
         _count?: SortOrder
     }
 
-    export type UserOrderByRelevanceInput = {
-        fields: UserOrderByRelevanceFieldEnum | UserOrderByRelevanceFieldEnum[]
-        sort: SortOrder
-        search: string
+    export type UserLearningItemOrderByRelationAggregateInput = {
+        _count?: SortOrder
     }
 
     export type UserCountOrderByAggregateInput = {
-        id?: SortOrder
         created_at?: SortOrder
         created_by?: SortOrder
         updated_at?: SortOrder
         updated_by?: SortOrder
+        id?: SortOrder
         avatar_url?: SortOrder
         bio?: SortOrder
         dob?: SortOrder
@@ -8950,11 +11841,11 @@ export namespace Prisma {
     }
 
     export type UserMaxOrderByAggregateInput = {
-        id?: SortOrder
         created_at?: SortOrder
         created_by?: SortOrder
         updated_at?: SortOrder
         updated_by?: SortOrder
+        id?: SortOrder
         avatar_url?: SortOrder
         bio?: SortOrder
         dob?: SortOrder
@@ -8984,11 +11875,11 @@ export namespace Prisma {
     }
 
     export type UserMinOrderByAggregateInput = {
-        id?: SortOrder
         created_at?: SortOrder
         created_by?: SortOrder
         updated_at?: SortOrder
         updated_by?: SortOrder
+        id?: SortOrder
         avatar_url?: SortOrder
         bio?: SortOrder
         dob?: SortOrder
@@ -9024,28 +11915,10 @@ export namespace Prisma {
         total_quizzes_completed?: SortOrder
     }
 
-    export type StringWithAggregatesFilter<$PrismaModel = never> = {
-        equals?: string | StringFieldRefInput<$PrismaModel>
-        in?: string[]
-        notIn?: string[]
-        lt?: string | StringFieldRefInput<$PrismaModel>
-        lte?: string | StringFieldRefInput<$PrismaModel>
-        gt?: string | StringFieldRefInput<$PrismaModel>
-        gte?: string | StringFieldRefInput<$PrismaModel>
-        contains?: string | StringFieldRefInput<$PrismaModel>
-        startsWith?: string | StringFieldRefInput<$PrismaModel>
-        endsWith?: string | StringFieldRefInput<$PrismaModel>
-        search?: string
-        not?: NestedStringWithAggregatesFilter<$PrismaModel> | string
-        _count?: NestedIntFilter<$PrismaModel>
-        _min?: NestedStringFilter<$PrismaModel>
-        _max?: NestedStringFilter<$PrismaModel>
-    }
-
     export type DateTimeWithAggregatesFilter<$PrismaModel = never> = {
         equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-        in?: Date[] | string[]
-        notIn?: Date[] | string[]
+        in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+        notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
         lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
         lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
         gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -9058,8 +11931,8 @@ export namespace Prisma {
 
     export type StringNullableWithAggregatesFilter<$PrismaModel = never> = {
         equals?: string | StringFieldRefInput<$PrismaModel> | null
-        in?: string[] | null
-        notIn?: string[] | null
+        in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+        notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
         lt?: string | StringFieldRefInput<$PrismaModel>
         lte?: string | StringFieldRefInput<$PrismaModel>
         gt?: string | StringFieldRefInput<$PrismaModel>
@@ -9067,17 +11940,35 @@ export namespace Prisma {
         contains?: string | StringFieldRefInput<$PrismaModel>
         startsWith?: string | StringFieldRefInput<$PrismaModel>
         endsWith?: string | StringFieldRefInput<$PrismaModel>
-        search?: string
+        mode?: QueryMode
         not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
         _count?: NestedIntNullableFilter<$PrismaModel>
         _min?: NestedStringNullableFilter<$PrismaModel>
         _max?: NestedStringNullableFilter<$PrismaModel>
     }
 
+    export type StringWithAggregatesFilter<$PrismaModel = never> = {
+        equals?: string | StringFieldRefInput<$PrismaModel>
+        in?: string[] | ListStringFieldRefInput<$PrismaModel>
+        notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
+        lt?: string | StringFieldRefInput<$PrismaModel>
+        lte?: string | StringFieldRefInput<$PrismaModel>
+        gt?: string | StringFieldRefInput<$PrismaModel>
+        gte?: string | StringFieldRefInput<$PrismaModel>
+        contains?: string | StringFieldRefInput<$PrismaModel>
+        startsWith?: string | StringFieldRefInput<$PrismaModel>
+        endsWith?: string | StringFieldRefInput<$PrismaModel>
+        mode?: QueryMode
+        not?: NestedStringWithAggregatesFilter<$PrismaModel> | string
+        _count?: NestedIntFilter<$PrismaModel>
+        _min?: NestedStringFilter<$PrismaModel>
+        _max?: NestedStringFilter<$PrismaModel>
+    }
+
     export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
         equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-        in?: Date[] | string[] | null
-        notIn?: Date[] | string[] | null
+        in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+        notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
         lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
         lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
         gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -9098,8 +11989,8 @@ export namespace Prisma {
 
     export type IntWithAggregatesFilter<$PrismaModel = never> = {
         equals?: number | IntFieldRefInput<$PrismaModel>
-        in?: number[]
-        notIn?: number[]
+        in?: number[] | ListIntFieldRefInput<$PrismaModel>
+        notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
         lt?: number | IntFieldRefInput<$PrismaModel>
         lte?: number | IntFieldRefInput<$PrismaModel>
         gt?: number | IntFieldRefInput<$PrismaModel>
@@ -9122,18 +12013,14 @@ export namespace Prisma {
         _count?: SortOrder
     }
 
-    export type RoleOrderByRelevanceInput = {
-        fields: RoleOrderByRelevanceFieldEnum | RoleOrderByRelevanceFieldEnum[]
-        sort: SortOrder
-        search: string
-    }
-
     export type RoleCountOrderByAggregateInput = {
+        created_at?: SortOrder
+        created_by?: SortOrder
+        updated_at?: SortOrder
+        updated_by?: SortOrder
         id?: SortOrder
         authority?: SortOrder
         description?: SortOrder
-        created_at?: SortOrder
-        updated_at?: SortOrder
     }
 
     export type RoleAvgOrderByAggregateInput = {
@@ -9141,29 +12028,27 @@ export namespace Prisma {
     }
 
     export type RoleMaxOrderByAggregateInput = {
+        created_at?: SortOrder
+        created_by?: SortOrder
+        updated_at?: SortOrder
+        updated_by?: SortOrder
         id?: SortOrder
         authority?: SortOrder
         description?: SortOrder
-        created_at?: SortOrder
-        updated_at?: SortOrder
     }
 
     export type RoleMinOrderByAggregateInput = {
+        created_at?: SortOrder
+        created_by?: SortOrder
+        updated_at?: SortOrder
+        updated_by?: SortOrder
         id?: SortOrder
         authority?: SortOrder
         description?: SortOrder
-        created_at?: SortOrder
-        updated_at?: SortOrder
     }
 
     export type RoleSumOrderByAggregateInput = {
         id?: SortOrder
-    }
-
-    export type PermissionOrderByRelevanceInput = {
-        fields: PermissionOrderByRelevanceFieldEnum | PermissionOrderByRelevanceFieldEnum[]
-        sort: SortOrder
-        search: string
     }
 
     export type PermissionResourceActionCompoundUniqueInput = {
@@ -9172,13 +12057,15 @@ export namespace Prisma {
     }
 
     export type PermissionCountOrderByAggregateInput = {
+        created_at?: SortOrder
+        created_by?: SortOrder
+        updated_at?: SortOrder
+        updated_by?: SortOrder
         id?: SortOrder
         name?: SortOrder
         description?: SortOrder
         resource?: SortOrder
         action?: SortOrder
-        created_at?: SortOrder
-        updated_at?: SortOrder
     }
 
     export type PermissionAvgOrderByAggregateInput = {
@@ -9186,23 +12073,27 @@ export namespace Prisma {
     }
 
     export type PermissionMaxOrderByAggregateInput = {
+        created_at?: SortOrder
+        created_by?: SortOrder
+        updated_at?: SortOrder
+        updated_by?: SortOrder
         id?: SortOrder
         name?: SortOrder
         description?: SortOrder
         resource?: SortOrder
         action?: SortOrder
-        created_at?: SortOrder
-        updated_at?: SortOrder
     }
 
     export type PermissionMinOrderByAggregateInput = {
+        created_at?: SortOrder
+        created_by?: SortOrder
+        updated_at?: SortOrder
+        updated_by?: SortOrder
         id?: SortOrder
         name?: SortOrder
         description?: SortOrder
         resource?: SortOrder
         action?: SortOrder
-        created_at?: SortOrder
-        updated_at?: SortOrder
     }
 
     export type PermissionSumOrderByAggregateInput = {
@@ -9219,18 +12110,16 @@ export namespace Prisma {
         isNot?: RoleWhereInput
     }
 
-    export type UserRoleOrderByRelevanceInput = {
-        fields: UserRoleOrderByRelevanceFieldEnum | UserRoleOrderByRelevanceFieldEnum[]
-        sort: SortOrder
-        search: string
-    }
-
     export type UserRoleUser_idRole_idCompoundUniqueInput = {
         user_id: string
         role_id: number
     }
 
     export type UserRoleCountOrderByAggregateInput = {
+        created_at?: SortOrder
+        created_by?: SortOrder
+        updated_at?: SortOrder
+        updated_by?: SortOrder
         user_id?: SortOrder
         role_id?: SortOrder
         assignedAt?: SortOrder
@@ -9241,12 +12130,20 @@ export namespace Prisma {
     }
 
     export type UserRoleMaxOrderByAggregateInput = {
+        created_at?: SortOrder
+        created_by?: SortOrder
+        updated_at?: SortOrder
+        updated_by?: SortOrder
         user_id?: SortOrder
         role_id?: SortOrder
         assignedAt?: SortOrder
     }
 
     export type UserRoleMinOrderByAggregateInput = {
+        created_at?: SortOrder
+        created_by?: SortOrder
+        updated_at?: SortOrder
+        updated_by?: SortOrder
         user_id?: SortOrder
         role_id?: SortOrder
         assignedAt?: SortOrder
@@ -9267,6 +12164,10 @@ export namespace Prisma {
     }
 
     export type RolePermissionCountOrderByAggregateInput = {
+        created_at?: SortOrder
+        created_by?: SortOrder
+        updated_at?: SortOrder
+        updated_by?: SortOrder
         role_id?: SortOrder
         permission_id?: SortOrder
         assignedAt?: SortOrder
@@ -9278,12 +12179,20 @@ export namespace Prisma {
     }
 
     export type RolePermissionMaxOrderByAggregateInput = {
+        created_at?: SortOrder
+        created_by?: SortOrder
+        updated_at?: SortOrder
+        updated_by?: SortOrder
         role_id?: SortOrder
         permission_id?: SortOrder
         assignedAt?: SortOrder
     }
 
     export type RolePermissionMinOrderByAggregateInput = {
+        created_at?: SortOrder
+        created_by?: SortOrder
+        updated_at?: SortOrder
+        updated_by?: SortOrder
         role_id?: SortOrder
         permission_id?: SortOrder
         assignedAt?: SortOrder
@@ -9294,16 +12203,12 @@ export namespace Prisma {
         permission_id?: SortOrder
     }
 
-    export type PostOrderByRelevanceInput = {
-        fields: PostOrderByRelevanceFieldEnum | PostOrderByRelevanceFieldEnum[]
-        sort: SortOrder
-        search: string
-    }
-
     export type PostCountOrderByAggregateInput = {
+        created_at?: SortOrder
+        created_by?: SortOrder
+        updated_at?: SortOrder
+        updated_by?: SortOrder
         id?: SortOrder
-        createdAt?: SortOrder
-        updatedAt?: SortOrder
         title?: SortOrder
         content?: SortOrder
         published?: SortOrder
@@ -9311,9 +12216,11 @@ export namespace Prisma {
     }
 
     export type PostMaxOrderByAggregateInput = {
+        created_at?: SortOrder
+        created_by?: SortOrder
+        updated_at?: SortOrder
+        updated_by?: SortOrder
         id?: SortOrder
-        createdAt?: SortOrder
-        updatedAt?: SortOrder
         title?: SortOrder
         content?: SortOrder
         published?: SortOrder
@@ -9321,13 +12228,197 @@ export namespace Prisma {
     }
 
     export type PostMinOrderByAggregateInput = {
+        created_at?: SortOrder
+        created_by?: SortOrder
+        updated_at?: SortOrder
+        updated_by?: SortOrder
         id?: SortOrder
-        createdAt?: SortOrder
-        updatedAt?: SortOrder
         title?: SortOrder
         content?: SortOrder
         published?: SortOrder
         authorId?: SortOrder
+    }
+
+    export type BigIntFilter<$PrismaModel = never> = {
+        equals?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+        in?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+        notIn?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+        lt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+        lte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+        gt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+        gte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+        not?: NestedBigIntFilter<$PrismaModel> | bigint | number
+    }
+
+    export type FloatNullableFilter<$PrismaModel = never> = {
+        equals?: number | FloatFieldRefInput<$PrismaModel> | null
+        in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+        notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+        lt?: number | FloatFieldRefInput<$PrismaModel>
+        lte?: number | FloatFieldRefInput<$PrismaModel>
+        gt?: number | FloatFieldRefInput<$PrismaModel>
+        gte?: number | FloatFieldRefInput<$PrismaModel>
+        not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+    }
+
+    export type IntNullableFilter<$PrismaModel = never> = {
+        equals?: number | IntFieldRefInput<$PrismaModel> | null
+        in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+        notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+        lt?: number | IntFieldRefInput<$PrismaModel>
+        lte?: number | IntFieldRefInput<$PrismaModel>
+        gt?: number | IntFieldRefInput<$PrismaModel>
+        gte?: number | IntFieldRefInput<$PrismaModel>
+        not?: NestedIntNullableFilter<$PrismaModel> | number | null
+    }
+
+    export type EnumLearningTypeFilter<$PrismaModel = never> = {
+        equals?: $Enums.LearningType | EnumLearningTypeFieldRefInput<$PrismaModel>
+        in?: $Enums.LearningType[] | ListEnumLearningTypeFieldRefInput<$PrismaModel>
+        notIn?: $Enums.LearningType[] | ListEnumLearningTypeFieldRefInput<$PrismaModel>
+        not?: NestedEnumLearningTypeFilter<$PrismaModel> | $Enums.LearningType
+    }
+
+    export type UserLearningItemUser_idQuestion_idCompoundUniqueInput = {
+        user_id: string
+        question_id: bigint | number
+    }
+
+    export type UserLearningItemCountOrderByAggregateInput = {
+        created_at?: SortOrder
+        created_by?: SortOrder
+        updated_at?: SortOrder
+        updated_by?: SortOrder
+        id?: SortOrder
+        user_id?: SortOrder
+        question_id?: SortOrder
+        ef?: SortOrder
+        repetitions?: SortOrder
+        interval_days?: SortOrder
+        next_review_at?: SortOrder
+        last_reviewed_at?: SortOrder
+        lapses?: SortOrder
+        consecutive_fails?: SortOrder
+        priority?: SortOrder
+        learning_type?: SortOrder
+    }
+
+    export type UserLearningItemAvgOrderByAggregateInput = {
+        id?: SortOrder
+        question_id?: SortOrder
+        ef?: SortOrder
+        repetitions?: SortOrder
+        interval_days?: SortOrder
+        lapses?: SortOrder
+        consecutive_fails?: SortOrder
+        priority?: SortOrder
+    }
+
+    export type UserLearningItemMaxOrderByAggregateInput = {
+        created_at?: SortOrder
+        created_by?: SortOrder
+        updated_at?: SortOrder
+        updated_by?: SortOrder
+        id?: SortOrder
+        user_id?: SortOrder
+        question_id?: SortOrder
+        ef?: SortOrder
+        repetitions?: SortOrder
+        interval_days?: SortOrder
+        next_review_at?: SortOrder
+        last_reviewed_at?: SortOrder
+        lapses?: SortOrder
+        consecutive_fails?: SortOrder
+        priority?: SortOrder
+        learning_type?: SortOrder
+    }
+
+    export type UserLearningItemMinOrderByAggregateInput = {
+        created_at?: SortOrder
+        created_by?: SortOrder
+        updated_at?: SortOrder
+        updated_by?: SortOrder
+        id?: SortOrder
+        user_id?: SortOrder
+        question_id?: SortOrder
+        ef?: SortOrder
+        repetitions?: SortOrder
+        interval_days?: SortOrder
+        next_review_at?: SortOrder
+        last_reviewed_at?: SortOrder
+        lapses?: SortOrder
+        consecutive_fails?: SortOrder
+        priority?: SortOrder
+        learning_type?: SortOrder
+    }
+
+    export type UserLearningItemSumOrderByAggregateInput = {
+        id?: SortOrder
+        question_id?: SortOrder
+        ef?: SortOrder
+        repetitions?: SortOrder
+        interval_days?: SortOrder
+        lapses?: SortOrder
+        consecutive_fails?: SortOrder
+        priority?: SortOrder
+    }
+
+    export type BigIntWithAggregatesFilter<$PrismaModel = never> = {
+        equals?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+        in?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+        notIn?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+        lt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+        lte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+        gt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+        gte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+        not?: NestedBigIntWithAggregatesFilter<$PrismaModel> | bigint | number
+        _count?: NestedIntFilter<$PrismaModel>
+        _avg?: NestedFloatFilter<$PrismaModel>
+        _sum?: NestedBigIntFilter<$PrismaModel>
+        _min?: NestedBigIntFilter<$PrismaModel>
+        _max?: NestedBigIntFilter<$PrismaModel>
+    }
+
+    export type FloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+        equals?: number | FloatFieldRefInput<$PrismaModel> | null
+        in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+        notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+        lt?: number | FloatFieldRefInput<$PrismaModel>
+        lte?: number | FloatFieldRefInput<$PrismaModel>
+        gt?: number | FloatFieldRefInput<$PrismaModel>
+        gte?: number | FloatFieldRefInput<$PrismaModel>
+        not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+        _count?: NestedIntNullableFilter<$PrismaModel>
+        _avg?: NestedFloatNullableFilter<$PrismaModel>
+        _sum?: NestedFloatNullableFilter<$PrismaModel>
+        _min?: NestedFloatNullableFilter<$PrismaModel>
+        _max?: NestedFloatNullableFilter<$PrismaModel>
+    }
+
+    export type IntNullableWithAggregatesFilter<$PrismaModel = never> = {
+        equals?: number | IntFieldRefInput<$PrismaModel> | null
+        in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+        notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+        lt?: number | IntFieldRefInput<$PrismaModel>
+        lte?: number | IntFieldRefInput<$PrismaModel>
+        gt?: number | IntFieldRefInput<$PrismaModel>
+        gte?: number | IntFieldRefInput<$PrismaModel>
+        not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+        _count?: NestedIntNullableFilter<$PrismaModel>
+        _avg?: NestedFloatNullableFilter<$PrismaModel>
+        _sum?: NestedIntNullableFilter<$PrismaModel>
+        _min?: NestedIntNullableFilter<$PrismaModel>
+        _max?: NestedIntNullableFilter<$PrismaModel>
+    }
+
+    export type EnumLearningTypeWithAggregatesFilter<$PrismaModel = never> = {
+        equals?: $Enums.LearningType | EnumLearningTypeFieldRefInput<$PrismaModel>
+        in?: $Enums.LearningType[] | ListEnumLearningTypeFieldRefInput<$PrismaModel>
+        notIn?: $Enums.LearningType[] | ListEnumLearningTypeFieldRefInput<$PrismaModel>
+        not?: NestedEnumLearningTypeWithAggregatesFilter<$PrismaModel> | $Enums.LearningType
+        _count?: NestedIntFilter<$PrismaModel>
+        _min?: NestedEnumLearningTypeFilter<$PrismaModel>
+        _max?: NestedEnumLearningTypeFilter<$PrismaModel>
     }
 
     export type PostCreateNestedManyWithoutAuthorInput = {
@@ -9344,6 +12435,13 @@ export namespace Prisma {
         connect?: UserRoleWhereUniqueInput | UserRoleWhereUniqueInput[]
     }
 
+    export type UserLearningItemCreateNestedManyWithoutUserInput = {
+        create?: XOR<UserLearningItemCreateWithoutUserInput, UserLearningItemUncheckedCreateWithoutUserInput> | UserLearningItemCreateWithoutUserInput[] | UserLearningItemUncheckedCreateWithoutUserInput[]
+        connectOrCreate?: UserLearningItemCreateOrConnectWithoutUserInput | UserLearningItemCreateOrConnectWithoutUserInput[]
+        createMany?: UserLearningItemCreateManyUserInputEnvelope
+        connect?: UserLearningItemWhereUniqueInput | UserLearningItemWhereUniqueInput[]
+    }
+
     export type PostUncheckedCreateNestedManyWithoutAuthorInput = {
         create?: XOR<PostCreateWithoutAuthorInput, PostUncheckedCreateWithoutAuthorInput> | PostCreateWithoutAuthorInput[] | PostUncheckedCreateWithoutAuthorInput[]
         connectOrCreate?: PostCreateOrConnectWithoutAuthorInput | PostCreateOrConnectWithoutAuthorInput[]
@@ -9358,8 +12456,11 @@ export namespace Prisma {
         connect?: UserRoleWhereUniqueInput | UserRoleWhereUniqueInput[]
     }
 
-    export type StringFieldUpdateOperationsInput = {
-        set?: string
+    export type UserLearningItemUncheckedCreateNestedManyWithoutUserInput = {
+        create?: XOR<UserLearningItemCreateWithoutUserInput, UserLearningItemUncheckedCreateWithoutUserInput> | UserLearningItemCreateWithoutUserInput[] | UserLearningItemUncheckedCreateWithoutUserInput[]
+        connectOrCreate?: UserLearningItemCreateOrConnectWithoutUserInput | UserLearningItemCreateOrConnectWithoutUserInput[]
+        createMany?: UserLearningItemCreateManyUserInputEnvelope
+        connect?: UserLearningItemWhereUniqueInput | UserLearningItemWhereUniqueInput[]
     }
 
     export type DateTimeFieldUpdateOperationsInput = {
@@ -9368,6 +12469,10 @@ export namespace Prisma {
 
     export type NullableStringFieldUpdateOperationsInput = {
         set?: string | null
+    }
+
+    export type StringFieldUpdateOperationsInput = {
+        set?: string
     }
 
     export type NullableDateTimeFieldUpdateOperationsInput = {
@@ -9414,6 +12519,20 @@ export namespace Prisma {
         deleteMany?: UserRoleScalarWhereInput | UserRoleScalarWhereInput[]
     }
 
+    export type UserLearningItemUpdateManyWithoutUserNestedInput = {
+        create?: XOR<UserLearningItemCreateWithoutUserInput, UserLearningItemUncheckedCreateWithoutUserInput> | UserLearningItemCreateWithoutUserInput[] | UserLearningItemUncheckedCreateWithoutUserInput[]
+        connectOrCreate?: UserLearningItemCreateOrConnectWithoutUserInput | UserLearningItemCreateOrConnectWithoutUserInput[]
+        upsert?: UserLearningItemUpsertWithWhereUniqueWithoutUserInput | UserLearningItemUpsertWithWhereUniqueWithoutUserInput[]
+        createMany?: UserLearningItemCreateManyUserInputEnvelope
+        set?: UserLearningItemWhereUniqueInput | UserLearningItemWhereUniqueInput[]
+        disconnect?: UserLearningItemWhereUniqueInput | UserLearningItemWhereUniqueInput[]
+        delete?: UserLearningItemWhereUniqueInput | UserLearningItemWhereUniqueInput[]
+        connect?: UserLearningItemWhereUniqueInput | UserLearningItemWhereUniqueInput[]
+        update?: UserLearningItemUpdateWithWhereUniqueWithoutUserInput | UserLearningItemUpdateWithWhereUniqueWithoutUserInput[]
+        updateMany?: UserLearningItemUpdateManyWithWhereWithoutUserInput | UserLearningItemUpdateManyWithWhereWithoutUserInput[]
+        deleteMany?: UserLearningItemScalarWhereInput | UserLearningItemScalarWhereInput[]
+    }
+
     export type PostUncheckedUpdateManyWithoutAuthorNestedInput = {
         create?: XOR<PostCreateWithoutAuthorInput, PostUncheckedCreateWithoutAuthorInput> | PostCreateWithoutAuthorInput[] | PostUncheckedCreateWithoutAuthorInput[]
         connectOrCreate?: PostCreateOrConnectWithoutAuthorInput | PostCreateOrConnectWithoutAuthorInput[]
@@ -9440,6 +12559,20 @@ export namespace Prisma {
         update?: UserRoleUpdateWithWhereUniqueWithoutUserInput | UserRoleUpdateWithWhereUniqueWithoutUserInput[]
         updateMany?: UserRoleUpdateManyWithWhereWithoutUserInput | UserRoleUpdateManyWithWhereWithoutUserInput[]
         deleteMany?: UserRoleScalarWhereInput | UserRoleScalarWhereInput[]
+    }
+
+    export type UserLearningItemUncheckedUpdateManyWithoutUserNestedInput = {
+        create?: XOR<UserLearningItemCreateWithoutUserInput, UserLearningItemUncheckedCreateWithoutUserInput> | UserLearningItemCreateWithoutUserInput[] | UserLearningItemUncheckedCreateWithoutUserInput[]
+        connectOrCreate?: UserLearningItemCreateOrConnectWithoutUserInput | UserLearningItemCreateOrConnectWithoutUserInput[]
+        upsert?: UserLearningItemUpsertWithWhereUniqueWithoutUserInput | UserLearningItemUpsertWithWhereUniqueWithoutUserInput[]
+        createMany?: UserLearningItemCreateManyUserInputEnvelope
+        set?: UserLearningItemWhereUniqueInput | UserLearningItemWhereUniqueInput[]
+        disconnect?: UserLearningItemWhereUniqueInput | UserLearningItemWhereUniqueInput[]
+        delete?: UserLearningItemWhereUniqueInput | UserLearningItemWhereUniqueInput[]
+        connect?: UserLearningItemWhereUniqueInput | UserLearningItemWhereUniqueInput[]
+        update?: UserLearningItemUpdateWithWhereUniqueWithoutUserInput | UserLearningItemUpdateWithWhereUniqueWithoutUserInput[]
+        updateMany?: UserLearningItemUpdateManyWithWhereWithoutUserInput | UserLearningItemUpdateManyWithWhereWithoutUserInput[]
+        deleteMany?: UserLearningItemScalarWhereInput | UserLearningItemScalarWhereInput[]
     }
 
     export type UserRoleCreateNestedManyWithoutRoleInput = {
@@ -9638,25 +12771,52 @@ export namespace Prisma {
         update?: XOR<XOR<UserUpdateToOneWithWhereWithoutPostsInput, UserUpdateWithoutPostsInput>, UserUncheckedUpdateWithoutPostsInput>
     }
 
-    export type NestedStringFilter<$PrismaModel = never> = {
-        equals?: string | StringFieldRefInput<$PrismaModel>
-        in?: string[]
-        notIn?: string[]
-        lt?: string | StringFieldRefInput<$PrismaModel>
-        lte?: string | StringFieldRefInput<$PrismaModel>
-        gt?: string | StringFieldRefInput<$PrismaModel>
-        gte?: string | StringFieldRefInput<$PrismaModel>
-        contains?: string | StringFieldRefInput<$PrismaModel>
-        startsWith?: string | StringFieldRefInput<$PrismaModel>
-        endsWith?: string | StringFieldRefInput<$PrismaModel>
-        search?: string
-        not?: NestedStringFilter<$PrismaModel> | string
+    export type UserCreateNestedOneWithoutUser_learning_itemsInput = {
+        create?: XOR<UserCreateWithoutUser_learning_itemsInput, UserUncheckedCreateWithoutUser_learning_itemsInput>
+        connectOrCreate?: UserCreateOrConnectWithoutUser_learning_itemsInput
+        connect?: UserWhereUniqueInput
+    }
+
+    export type BigIntFieldUpdateOperationsInput = {
+        set?: bigint | number
+        increment?: bigint | number
+        decrement?: bigint | number
+        multiply?: bigint | number
+        divide?: bigint | number
+    }
+
+    export type NullableFloatFieldUpdateOperationsInput = {
+        set?: number | null
+        increment?: number
+        decrement?: number
+        multiply?: number
+        divide?: number
+    }
+
+    export type NullableIntFieldUpdateOperationsInput = {
+        set?: number | null
+        increment?: number
+        decrement?: number
+        multiply?: number
+        divide?: number
+    }
+
+    export type EnumLearningTypeFieldUpdateOperationsInput = {
+        set?: $Enums.LearningType
+    }
+
+    export type UserUpdateOneRequiredWithoutUser_learning_itemsNestedInput = {
+        create?: XOR<UserCreateWithoutUser_learning_itemsInput, UserUncheckedCreateWithoutUser_learning_itemsInput>
+        connectOrCreate?: UserCreateOrConnectWithoutUser_learning_itemsInput
+        upsert?: UserUpsertWithoutUser_learning_itemsInput
+        connect?: UserWhereUniqueInput
+        update?: XOR<XOR<UserUpdateToOneWithWhereWithoutUser_learning_itemsInput, UserUpdateWithoutUser_learning_itemsInput>, UserUncheckedUpdateWithoutUser_learning_itemsInput>
     }
 
     export type NestedDateTimeFilter<$PrismaModel = never> = {
         equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-        in?: Date[] | string[]
-        notIn?: Date[] | string[]
+        in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+        notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
         lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
         lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
         gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -9666,8 +12826,8 @@ export namespace Prisma {
 
     export type NestedStringNullableFilter<$PrismaModel = never> = {
         equals?: string | StringFieldRefInput<$PrismaModel> | null
-        in?: string[] | null
-        notIn?: string[] | null
+        in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+        notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
         lt?: string | StringFieldRefInput<$PrismaModel>
         lte?: string | StringFieldRefInput<$PrismaModel>
         gt?: string | StringFieldRefInput<$PrismaModel>
@@ -9675,14 +12835,27 @@ export namespace Prisma {
         contains?: string | StringFieldRefInput<$PrismaModel>
         startsWith?: string | StringFieldRefInput<$PrismaModel>
         endsWith?: string | StringFieldRefInput<$PrismaModel>
-        search?: string
         not?: NestedStringNullableFilter<$PrismaModel> | string | null
+    }
+
+    export type NestedStringFilter<$PrismaModel = never> = {
+        equals?: string | StringFieldRefInput<$PrismaModel>
+        in?: string[] | ListStringFieldRefInput<$PrismaModel>
+        notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
+        lt?: string | StringFieldRefInput<$PrismaModel>
+        lte?: string | StringFieldRefInput<$PrismaModel>
+        gt?: string | StringFieldRefInput<$PrismaModel>
+        gte?: string | StringFieldRefInput<$PrismaModel>
+        contains?: string | StringFieldRefInput<$PrismaModel>
+        startsWith?: string | StringFieldRefInput<$PrismaModel>
+        endsWith?: string | StringFieldRefInput<$PrismaModel>
+        not?: NestedStringFilter<$PrismaModel> | string
     }
 
     export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
         equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-        in?: Date[] | string[] | null
-        notIn?: Date[] | string[] | null
+        in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+        notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
         lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
         lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
         gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -9697,8 +12870,8 @@ export namespace Prisma {
 
     export type NestedIntFilter<$PrismaModel = never> = {
         equals?: number | IntFieldRefInput<$PrismaModel>
-        in?: number[]
-        notIn?: number[]
+        in?: number[] | ListIntFieldRefInput<$PrismaModel>
+        notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
         lt?: number | IntFieldRefInput<$PrismaModel>
         lte?: number | IntFieldRefInput<$PrismaModel>
         gt?: number | IntFieldRefInput<$PrismaModel>
@@ -9706,28 +12879,10 @@ export namespace Prisma {
         not?: NestedIntFilter<$PrismaModel> | number
     }
 
-    export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
-        equals?: string | StringFieldRefInput<$PrismaModel>
-        in?: string[]
-        notIn?: string[]
-        lt?: string | StringFieldRefInput<$PrismaModel>
-        lte?: string | StringFieldRefInput<$PrismaModel>
-        gt?: string | StringFieldRefInput<$PrismaModel>
-        gte?: string | StringFieldRefInput<$PrismaModel>
-        contains?: string | StringFieldRefInput<$PrismaModel>
-        startsWith?: string | StringFieldRefInput<$PrismaModel>
-        endsWith?: string | StringFieldRefInput<$PrismaModel>
-        search?: string
-        not?: NestedStringWithAggregatesFilter<$PrismaModel> | string
-        _count?: NestedIntFilter<$PrismaModel>
-        _min?: NestedStringFilter<$PrismaModel>
-        _max?: NestedStringFilter<$PrismaModel>
-    }
-
     export type NestedDateTimeWithAggregatesFilter<$PrismaModel = never> = {
         equals?: Date | string | DateTimeFieldRefInput<$PrismaModel>
-        in?: Date[] | string[]
-        notIn?: Date[] | string[]
+        in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
+        notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel>
         lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
         lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
         gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -9740,8 +12895,8 @@ export namespace Prisma {
 
     export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
         equals?: string | StringFieldRefInput<$PrismaModel> | null
-        in?: string[] | null
-        notIn?: string[] | null
+        in?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+        notIn?: string[] | ListStringFieldRefInput<$PrismaModel> | null
         lt?: string | StringFieldRefInput<$PrismaModel>
         lte?: string | StringFieldRefInput<$PrismaModel>
         gt?: string | StringFieldRefInput<$PrismaModel>
@@ -9749,7 +12904,6 @@ export namespace Prisma {
         contains?: string | StringFieldRefInput<$PrismaModel>
         startsWith?: string | StringFieldRefInput<$PrismaModel>
         endsWith?: string | StringFieldRefInput<$PrismaModel>
-        search?: string
         not?: NestedStringNullableWithAggregatesFilter<$PrismaModel> | string | null
         _count?: NestedIntNullableFilter<$PrismaModel>
         _min?: NestedStringNullableFilter<$PrismaModel>
@@ -9758,8 +12912,8 @@ export namespace Prisma {
 
     export type NestedIntNullableFilter<$PrismaModel = never> = {
         equals?: number | IntFieldRefInput<$PrismaModel> | null
-        in?: number[] | null
-        notIn?: number[] | null
+        in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+        notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
         lt?: number | IntFieldRefInput<$PrismaModel>
         lte?: number | IntFieldRefInput<$PrismaModel>
         gt?: number | IntFieldRefInput<$PrismaModel>
@@ -9767,10 +12921,27 @@ export namespace Prisma {
         not?: NestedIntNullableFilter<$PrismaModel> | number | null
     }
 
+    export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
+        equals?: string | StringFieldRefInput<$PrismaModel>
+        in?: string[] | ListStringFieldRefInput<$PrismaModel>
+        notIn?: string[] | ListStringFieldRefInput<$PrismaModel>
+        lt?: string | StringFieldRefInput<$PrismaModel>
+        lte?: string | StringFieldRefInput<$PrismaModel>
+        gt?: string | StringFieldRefInput<$PrismaModel>
+        gte?: string | StringFieldRefInput<$PrismaModel>
+        contains?: string | StringFieldRefInput<$PrismaModel>
+        startsWith?: string | StringFieldRefInput<$PrismaModel>
+        endsWith?: string | StringFieldRefInput<$PrismaModel>
+        not?: NestedStringWithAggregatesFilter<$PrismaModel> | string
+        _count?: NestedIntFilter<$PrismaModel>
+        _min?: NestedStringFilter<$PrismaModel>
+        _max?: NestedStringFilter<$PrismaModel>
+    }
+
     export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
         equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
-        in?: Date[] | string[] | null
-        notIn?: Date[] | string[] | null
+        in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+        notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
         lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
         lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
         gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
@@ -9791,8 +12962,8 @@ export namespace Prisma {
 
     export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
         equals?: number | IntFieldRefInput<$PrismaModel>
-        in?: number[]
-        notIn?: number[]
+        in?: number[] | ListIntFieldRefInput<$PrismaModel>
+        notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
         lt?: number | IntFieldRefInput<$PrismaModel>
         lte?: number | IntFieldRefInput<$PrismaModel>
         gt?: number | IntFieldRefInput<$PrismaModel>
@@ -9807,8 +12978,8 @@ export namespace Prisma {
 
     export type NestedFloatFilter<$PrismaModel = never> = {
         equals?: number | FloatFieldRefInput<$PrismaModel>
-        in?: number[]
-        notIn?: number[]
+        in?: number[] | ListFloatFieldRefInput<$PrismaModel>
+        notIn?: number[] | ListFloatFieldRefInput<$PrismaModel>
         lt?: number | FloatFieldRefInput<$PrismaModel>
         lte?: number | FloatFieldRefInput<$PrismaModel>
         gt?: number | FloatFieldRefInput<$PrismaModel>
@@ -9816,19 +12987,110 @@ export namespace Prisma {
         not?: NestedFloatFilter<$PrismaModel> | number
     }
 
+    export type NestedBigIntFilter<$PrismaModel = never> = {
+        equals?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+        in?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+        notIn?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+        lt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+        lte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+        gt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+        gte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+        not?: NestedBigIntFilter<$PrismaModel> | bigint | number
+    }
+
+    export type NestedFloatNullableFilter<$PrismaModel = never> = {
+        equals?: number | FloatFieldRefInput<$PrismaModel> | null
+        in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+        notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+        lt?: number | FloatFieldRefInput<$PrismaModel>
+        lte?: number | FloatFieldRefInput<$PrismaModel>
+        gt?: number | FloatFieldRefInput<$PrismaModel>
+        gte?: number | FloatFieldRefInput<$PrismaModel>
+        not?: NestedFloatNullableFilter<$PrismaModel> | number | null
+    }
+
+    export type NestedEnumLearningTypeFilter<$PrismaModel = never> = {
+        equals?: $Enums.LearningType | EnumLearningTypeFieldRefInput<$PrismaModel>
+        in?: $Enums.LearningType[] | ListEnumLearningTypeFieldRefInput<$PrismaModel>
+        notIn?: $Enums.LearningType[] | ListEnumLearningTypeFieldRefInput<$PrismaModel>
+        not?: NestedEnumLearningTypeFilter<$PrismaModel> | $Enums.LearningType
+    }
+
+    export type NestedBigIntWithAggregatesFilter<$PrismaModel = never> = {
+        equals?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+        in?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+        notIn?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel>
+        lt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+        lte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+        gt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+        gte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+        not?: NestedBigIntWithAggregatesFilter<$PrismaModel> | bigint | number
+        _count?: NestedIntFilter<$PrismaModel>
+        _avg?: NestedFloatFilter<$PrismaModel>
+        _sum?: NestedBigIntFilter<$PrismaModel>
+        _min?: NestedBigIntFilter<$PrismaModel>
+        _max?: NestedBigIntFilter<$PrismaModel>
+    }
+
+    export type NestedFloatNullableWithAggregatesFilter<$PrismaModel = never> = {
+        equals?: number | FloatFieldRefInput<$PrismaModel> | null
+        in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+        notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+        lt?: number | FloatFieldRefInput<$PrismaModel>
+        lte?: number | FloatFieldRefInput<$PrismaModel>
+        gt?: number | FloatFieldRefInput<$PrismaModel>
+        gte?: number | FloatFieldRefInput<$PrismaModel>
+        not?: NestedFloatNullableWithAggregatesFilter<$PrismaModel> | number | null
+        _count?: NestedIntNullableFilter<$PrismaModel>
+        _avg?: NestedFloatNullableFilter<$PrismaModel>
+        _sum?: NestedFloatNullableFilter<$PrismaModel>
+        _min?: NestedFloatNullableFilter<$PrismaModel>
+        _max?: NestedFloatNullableFilter<$PrismaModel>
+    }
+
+    export type NestedIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+        equals?: number | IntFieldRefInput<$PrismaModel> | null
+        in?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+        notIn?: number[] | ListIntFieldRefInput<$PrismaModel> | null
+        lt?: number | IntFieldRefInput<$PrismaModel>
+        lte?: number | IntFieldRefInput<$PrismaModel>
+        gt?: number | IntFieldRefInput<$PrismaModel>
+        gte?: number | IntFieldRefInput<$PrismaModel>
+        not?: NestedIntNullableWithAggregatesFilter<$PrismaModel> | number | null
+        _count?: NestedIntNullableFilter<$PrismaModel>
+        _avg?: NestedFloatNullableFilter<$PrismaModel>
+        _sum?: NestedIntNullableFilter<$PrismaModel>
+        _min?: NestedIntNullableFilter<$PrismaModel>
+        _max?: NestedIntNullableFilter<$PrismaModel>
+    }
+
+    export type NestedEnumLearningTypeWithAggregatesFilter<$PrismaModel = never> = {
+        equals?: $Enums.LearningType | EnumLearningTypeFieldRefInput<$PrismaModel>
+        in?: $Enums.LearningType[] | ListEnumLearningTypeFieldRefInput<$PrismaModel>
+        notIn?: $Enums.LearningType[] | ListEnumLearningTypeFieldRefInput<$PrismaModel>
+        not?: NestedEnumLearningTypeWithAggregatesFilter<$PrismaModel> | $Enums.LearningType
+        _count?: NestedIntFilter<$PrismaModel>
+        _min?: NestedEnumLearningTypeFilter<$PrismaModel>
+        _max?: NestedEnumLearningTypeFilter<$PrismaModel>
+    }
+
     export type PostCreateWithoutAuthorInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         id?: string
-        createdAt?: Date | string
-        updatedAt?: Date | string
         title: string
         content: string
         published?: boolean
     }
 
     export type PostUncheckedCreateWithoutAuthorInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         id?: string
-        createdAt?: Date | string
-        updatedAt?: Date | string
         title: string
         content: string
         published?: boolean
@@ -9845,11 +13107,19 @@ export namespace Prisma {
     }
 
     export type UserRoleCreateWithoutUserInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         assignedAt?: Date | string
         role: RoleCreateNestedOneWithoutUsersInput
     }
 
     export type UserRoleUncheckedCreateWithoutUserInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         role_id: number
         assignedAt?: Date | string
     }
@@ -9861,6 +13131,52 @@ export namespace Prisma {
 
     export type UserRoleCreateManyUserInputEnvelope = {
         data: UserRoleCreateManyUserInput | UserRoleCreateManyUserInput[]
+        skipDuplicates?: boolean
+    }
+
+    export type UserLearningItemCreateWithoutUserInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
+        id?: bigint | number
+        question_id: bigint | number
+        ef?: number | null
+        repetitions?: number | null
+        interval_days?: number | null
+        next_review_at?: Date | string | null
+        last_reviewed_at?: Date | string | null
+        lapses?: number | null
+        consecutive_fails?: number | null
+        priority?: number | null
+        learning_type: $Enums.LearningType
+    }
+
+    export type UserLearningItemUncheckedCreateWithoutUserInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
+        id?: bigint | number
+        question_id: bigint | number
+        ef?: number | null
+        repetitions?: number | null
+        interval_days?: number | null
+        next_review_at?: Date | string | null
+        last_reviewed_at?: Date | string | null
+        lapses?: number | null
+        consecutive_fails?: number | null
+        priority?: number | null
+        learning_type: $Enums.LearningType
+    }
+
+    export type UserLearningItemCreateOrConnectWithoutUserInput = {
+        where: UserLearningItemWhereUniqueInput
+        create: XOR<UserLearningItemCreateWithoutUserInput, UserLearningItemUncheckedCreateWithoutUserInput>
+    }
+
+    export type UserLearningItemCreateManyUserInputEnvelope = {
+        data: UserLearningItemCreateManyUserInput | UserLearningItemCreateManyUserInput[]
         skipDuplicates?: boolean
     }
 
@@ -9884,9 +13200,11 @@ export namespace Prisma {
         AND?: PostScalarWhereInput | PostScalarWhereInput[]
         OR?: PostScalarWhereInput[]
         NOT?: PostScalarWhereInput | PostScalarWhereInput[]
+        created_at?: DateTimeFilter<"Post"> | Date | string
+        created_by?: StringNullableFilter<"Post"> | string | null
+        updated_at?: DateTimeFilter<"Post"> | Date | string
+        updated_by?: StringNullableFilter<"Post"> | string | null
         id?: StringFilter<"Post"> | string
-        createdAt?: DateTimeFilter<"Post"> | Date | string
-        updatedAt?: DateTimeFilter<"Post"> | Date | string
         title?: StringFilter<"Post"> | string
         content?: StringFilter<"Post"> | string
         published?: BoolFilter<"Post"> | boolean
@@ -9913,17 +13231,67 @@ export namespace Prisma {
         AND?: UserRoleScalarWhereInput | UserRoleScalarWhereInput[]
         OR?: UserRoleScalarWhereInput[]
         NOT?: UserRoleScalarWhereInput | UserRoleScalarWhereInput[]
+        created_at?: DateTimeFilter<"UserRole"> | Date | string
+        created_by?: StringNullableFilter<"UserRole"> | string | null
+        updated_at?: DateTimeFilter<"UserRole"> | Date | string
+        updated_by?: StringNullableFilter<"UserRole"> | string | null
         user_id?: StringFilter<"UserRole"> | string
         role_id?: IntFilter<"UserRole"> | number
         assignedAt?: DateTimeFilter<"UserRole"> | Date | string
     }
 
+    export type UserLearningItemUpsertWithWhereUniqueWithoutUserInput = {
+        where: UserLearningItemWhereUniqueInput
+        update: XOR<UserLearningItemUpdateWithoutUserInput, UserLearningItemUncheckedUpdateWithoutUserInput>
+        create: XOR<UserLearningItemCreateWithoutUserInput, UserLearningItemUncheckedCreateWithoutUserInput>
+    }
+
+    export type UserLearningItemUpdateWithWhereUniqueWithoutUserInput = {
+        where: UserLearningItemWhereUniqueInput
+        data: XOR<UserLearningItemUpdateWithoutUserInput, UserLearningItemUncheckedUpdateWithoutUserInput>
+    }
+
+    export type UserLearningItemUpdateManyWithWhereWithoutUserInput = {
+        where: UserLearningItemScalarWhereInput
+        data: XOR<UserLearningItemUpdateManyMutationInput, UserLearningItemUncheckedUpdateManyWithoutUserInput>
+    }
+
+    export type UserLearningItemScalarWhereInput = {
+        AND?: UserLearningItemScalarWhereInput | UserLearningItemScalarWhereInput[]
+        OR?: UserLearningItemScalarWhereInput[]
+        NOT?: UserLearningItemScalarWhereInput | UserLearningItemScalarWhereInput[]
+        created_at?: DateTimeFilter<"UserLearningItem"> | Date | string
+        created_by?: StringNullableFilter<"UserLearningItem"> | string | null
+        updated_at?: DateTimeFilter<"UserLearningItem"> | Date | string
+        updated_by?: StringNullableFilter<"UserLearningItem"> | string | null
+        id?: BigIntFilter<"UserLearningItem"> | bigint | number
+        user_id?: StringFilter<"UserLearningItem"> | string
+        question_id?: BigIntFilter<"UserLearningItem"> | bigint | number
+        ef?: FloatNullableFilter<"UserLearningItem"> | number | null
+        repetitions?: IntNullableFilter<"UserLearningItem"> | number | null
+        interval_days?: IntNullableFilter<"UserLearningItem"> | number | null
+        next_review_at?: DateTimeNullableFilter<"UserLearningItem"> | Date | string | null
+        last_reviewed_at?: DateTimeNullableFilter<"UserLearningItem"> | Date | string | null
+        lapses?: IntNullableFilter<"UserLearningItem"> | number | null
+        consecutive_fails?: IntNullableFilter<"UserLearningItem"> | number | null
+        priority?: FloatNullableFilter<"UserLearningItem"> | number | null
+        learning_type?: EnumLearningTypeFilter<"UserLearningItem"> | $Enums.LearningType
+    }
+
     export type UserRoleCreateWithoutRoleInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         assignedAt?: Date | string
         user: UserCreateNestedOneWithoutUser_rolesInput
     }
 
     export type UserRoleUncheckedCreateWithoutRoleInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         user_id: string
         assignedAt?: Date | string
     }
@@ -9939,11 +13307,19 @@ export namespace Prisma {
     }
 
     export type RolePermissionCreateWithoutRoleInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         assignedAt?: Date | string
         permission: PermissionCreateNestedOneWithoutRolesInput
     }
 
     export type RolePermissionUncheckedCreateWithoutRoleInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         permission_id: number
         assignedAt?: Date | string
     }
@@ -9994,17 +13370,29 @@ export namespace Prisma {
         AND?: RolePermissionScalarWhereInput | RolePermissionScalarWhereInput[]
         OR?: RolePermissionScalarWhereInput[]
         NOT?: RolePermissionScalarWhereInput | RolePermissionScalarWhereInput[]
+        created_at?: DateTimeFilter<"RolePermission"> | Date | string
+        created_by?: StringNullableFilter<"RolePermission"> | string | null
+        updated_at?: DateTimeFilter<"RolePermission"> | Date | string
+        updated_by?: StringNullableFilter<"RolePermission"> | string | null
         role_id?: IntFilter<"RolePermission"> | number
         permission_id?: IntFilter<"RolePermission"> | number
         assignedAt?: DateTimeFilter<"RolePermission"> | Date | string
     }
 
     export type RolePermissionCreateWithoutPermissionInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         assignedAt?: Date | string
         role: RoleCreateNestedOneWithoutPermissionsInput
     }
 
     export type RolePermissionUncheckedCreateWithoutPermissionInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         role_id: number
         assignedAt?: Date | string
     }
@@ -10036,11 +13424,11 @@ export namespace Prisma {
     }
 
     export type UserCreateWithoutUser_rolesInput = {
-        id?: string
         created_at?: Date | string
         created_by?: string | null
         updated_at?: Date | string
         updated_by?: string | null
+        id?: string
         avatar_url?: string | null
         bio?: string | null
         dob?: Date | string | null
@@ -10068,14 +13456,15 @@ export namespace Prisma {
         ranking_points?: number
         total_quizzes_completed?: number
         posts?: PostCreateNestedManyWithoutAuthorInput
+        user_learning_items?: UserLearningItemCreateNestedManyWithoutUserInput
     }
 
     export type UserUncheckedCreateWithoutUser_rolesInput = {
-        id?: string
         created_at?: Date | string
         created_by?: string | null
         updated_at?: Date | string
         updated_by?: string | null
+        id?: string
         avatar_url?: string | null
         bio?: string | null
         dob?: Date | string | null
@@ -10103,6 +13492,7 @@ export namespace Prisma {
         ranking_points?: number
         total_quizzes_completed?: number
         posts?: PostUncheckedCreateNestedManyWithoutAuthorInput
+        user_learning_items?: UserLearningItemUncheckedCreateNestedManyWithoutUserInput
     }
 
     export type UserCreateOrConnectWithoutUser_rolesInput = {
@@ -10111,19 +13501,23 @@ export namespace Prisma {
     }
 
     export type RoleCreateWithoutUsersInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         authority: string
         description?: string | null
-        created_at?: Date | string
-        updated_at?: Date | string
         permissions?: RolePermissionCreateNestedManyWithoutRoleInput
     }
 
     export type RoleUncheckedCreateWithoutUsersInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         id?: number
         authority: string
         description?: string | null
-        created_at?: Date | string
-        updated_at?: Date | string
         permissions?: RolePermissionUncheckedCreateNestedManyWithoutRoleInput
     }
 
@@ -10144,11 +13538,11 @@ export namespace Prisma {
     }
 
     export type UserUpdateWithoutUser_rolesInput = {
-        id?: StringFieldUpdateOperationsInput | string
         created_at?: DateTimeFieldUpdateOperationsInput | Date | string
         created_by?: NullableStringFieldUpdateOperationsInput | string | null
         updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
         updated_by?: NullableStringFieldUpdateOperationsInput | string | null
+        id?: StringFieldUpdateOperationsInput | string
         avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
         bio?: NullableStringFieldUpdateOperationsInput | string | null
         dob?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -10176,14 +13570,15 @@ export namespace Prisma {
         ranking_points?: IntFieldUpdateOperationsInput | number
         total_quizzes_completed?: IntFieldUpdateOperationsInput | number
         posts?: PostUpdateManyWithoutAuthorNestedInput
+        user_learning_items?: UserLearningItemUpdateManyWithoutUserNestedInput
     }
 
     export type UserUncheckedUpdateWithoutUser_rolesInput = {
-        id?: StringFieldUpdateOperationsInput | string
         created_at?: DateTimeFieldUpdateOperationsInput | Date | string
         created_by?: NullableStringFieldUpdateOperationsInput | string | null
         updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
         updated_by?: NullableStringFieldUpdateOperationsInput | string | null
+        id?: StringFieldUpdateOperationsInput | string
         avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
         bio?: NullableStringFieldUpdateOperationsInput | string | null
         dob?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -10211,6 +13606,7 @@ export namespace Prisma {
         ranking_points?: IntFieldUpdateOperationsInput | number
         total_quizzes_completed?: IntFieldUpdateOperationsInput | number
         posts?: PostUncheckedUpdateManyWithoutAuthorNestedInput
+        user_learning_items?: UserLearningItemUncheckedUpdateManyWithoutUserNestedInput
     }
 
     export type RoleUpsertWithoutUsersInput = {
@@ -10225,36 +13621,44 @@ export namespace Prisma {
     }
 
     export type RoleUpdateWithoutUsersInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         authority?: StringFieldUpdateOperationsInput | string
         description?: NullableStringFieldUpdateOperationsInput | string | null
-        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
         permissions?: RolePermissionUpdateManyWithoutRoleNestedInput
     }
 
     export type RoleUncheckedUpdateWithoutUsersInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         id?: IntFieldUpdateOperationsInput | number
         authority?: StringFieldUpdateOperationsInput | string
         description?: NullableStringFieldUpdateOperationsInput | string | null
-        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
         permissions?: RolePermissionUncheckedUpdateManyWithoutRoleNestedInput
     }
 
     export type RoleCreateWithoutPermissionsInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         authority: string
         description?: string | null
-        created_at?: Date | string
-        updated_at?: Date | string
         users?: UserRoleCreateNestedManyWithoutRoleInput
     }
 
     export type RoleUncheckedCreateWithoutPermissionsInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         id?: number
         authority: string
         description?: string | null
-        created_at?: Date | string
-        updated_at?: Date | string
         users?: UserRoleUncheckedCreateNestedManyWithoutRoleInput
     }
 
@@ -10264,22 +13668,26 @@ export namespace Prisma {
     }
 
     export type PermissionCreateWithoutRolesInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         name: string
         description?: string | null
         resource: string
         action: string
-        created_at?: Date | string
-        updated_at?: Date | string
     }
 
     export type PermissionUncheckedCreateWithoutRolesInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         id?: number
         name: string
         description?: string | null
         resource: string
         action: string
-        created_at?: Date | string
-        updated_at?: Date | string
     }
 
     export type PermissionCreateOrConnectWithoutRolesInput = {
@@ -10299,19 +13707,23 @@ export namespace Prisma {
     }
 
     export type RoleUpdateWithoutPermissionsInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         authority?: StringFieldUpdateOperationsInput | string
         description?: NullableStringFieldUpdateOperationsInput | string | null
-        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
         users?: UserRoleUpdateManyWithoutRoleNestedInput
     }
 
     export type RoleUncheckedUpdateWithoutPermissionsInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         id?: IntFieldUpdateOperationsInput | number
         authority?: StringFieldUpdateOperationsInput | string
         description?: NullableStringFieldUpdateOperationsInput | string | null
-        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
         users?: UserRoleUncheckedUpdateManyWithoutRoleNestedInput
     }
 
@@ -10327,30 +13739,34 @@ export namespace Prisma {
     }
 
     export type PermissionUpdateWithoutRolesInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         name?: StringFieldUpdateOperationsInput | string
         description?: NullableStringFieldUpdateOperationsInput | string | null
         resource?: StringFieldUpdateOperationsInput | string
         action?: StringFieldUpdateOperationsInput | string
-        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     }
 
     export type PermissionUncheckedUpdateWithoutRolesInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         id?: IntFieldUpdateOperationsInput | number
         name?: StringFieldUpdateOperationsInput | string
         description?: NullableStringFieldUpdateOperationsInput | string | null
         resource?: StringFieldUpdateOperationsInput | string
         action?: StringFieldUpdateOperationsInput | string
-        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
-        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
     }
 
     export type UserCreateWithoutPostsInput = {
-        id?: string
         created_at?: Date | string
         created_by?: string | null
         updated_at?: Date | string
         updated_by?: string | null
+        id?: string
         avatar_url?: string | null
         bio?: string | null
         dob?: Date | string | null
@@ -10378,14 +13794,15 @@ export namespace Prisma {
         ranking_points?: number
         total_quizzes_completed?: number
         user_roles?: UserRoleCreateNestedManyWithoutUserInput
+        user_learning_items?: UserLearningItemCreateNestedManyWithoutUserInput
     }
 
     export type UserUncheckedCreateWithoutPostsInput = {
-        id?: string
         created_at?: Date | string
         created_by?: string | null
         updated_at?: Date | string
         updated_by?: string | null
+        id?: string
         avatar_url?: string | null
         bio?: string | null
         dob?: Date | string | null
@@ -10413,6 +13830,7 @@ export namespace Prisma {
         ranking_points?: number
         total_quizzes_completed?: number
         user_roles?: UserRoleUncheckedCreateNestedManyWithoutUserInput
+        user_learning_items?: UserLearningItemUncheckedCreateNestedManyWithoutUserInput
     }
 
     export type UserCreateOrConnectWithoutPostsInput = {
@@ -10432,11 +13850,11 @@ export namespace Prisma {
     }
 
     export type UserUpdateWithoutPostsInput = {
-        id?: StringFieldUpdateOperationsInput | string
         created_at?: DateTimeFieldUpdateOperationsInput | Date | string
         created_by?: NullableStringFieldUpdateOperationsInput | string | null
         updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
         updated_by?: NullableStringFieldUpdateOperationsInput | string | null
+        id?: StringFieldUpdateOperationsInput | string
         avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
         bio?: NullableStringFieldUpdateOperationsInput | string | null
         dob?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -10464,14 +13882,15 @@ export namespace Prisma {
         ranking_points?: IntFieldUpdateOperationsInput | number
         total_quizzes_completed?: IntFieldUpdateOperationsInput | number
         user_roles?: UserRoleUpdateManyWithoutUserNestedInput
+        user_learning_items?: UserLearningItemUpdateManyWithoutUserNestedInput
     }
 
     export type UserUncheckedUpdateWithoutPostsInput = {
-        id?: StringFieldUpdateOperationsInput | string
         created_at?: DateTimeFieldUpdateOperationsInput | Date | string
         created_by?: NullableStringFieldUpdateOperationsInput | string | null
         updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
         updated_by?: NullableStringFieldUpdateOperationsInput | string | null
+        id?: StringFieldUpdateOperationsInput | string
         avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
         bio?: NullableStringFieldUpdateOperationsInput | string | null
         dob?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -10499,120 +13918,425 @@ export namespace Prisma {
         ranking_points?: IntFieldUpdateOperationsInput | number
         total_quizzes_completed?: IntFieldUpdateOperationsInput | number
         user_roles?: UserRoleUncheckedUpdateManyWithoutUserNestedInput
+        user_learning_items?: UserLearningItemUncheckedUpdateManyWithoutUserNestedInput
+    }
+
+    export type UserCreateWithoutUser_learning_itemsInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
+        id?: string
+        avatar_url?: string | null
+        bio?: string | null
+        dob?: Date | string | null
+        email: string
+        first_name?: string | null
+        full_name?: string | null
+        gender?: string | null
+        google_id?: string | null
+        is_active?: boolean
+        is_delete?: boolean
+        last_name?: string | null
+        locale?: string | null
+        location?: string | null
+        otp?: string | null
+        otp_generated_time?: Date | string | null
+        password: string
+        phone?: string | null
+        refresh_token?: string | null
+        reset_password_token?: string | null
+        reset_password_token_expiry?: Date | string | null
+        username: string
+        current_streak?: number
+        last_activity_date?: Date | string | null
+        longest_streak?: number
+        ranking_points?: number
+        total_quizzes_completed?: number
+        posts?: PostCreateNestedManyWithoutAuthorInput
+        user_roles?: UserRoleCreateNestedManyWithoutUserInput
+    }
+
+    export type UserUncheckedCreateWithoutUser_learning_itemsInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
+        id?: string
+        avatar_url?: string | null
+        bio?: string | null
+        dob?: Date | string | null
+        email: string
+        first_name?: string | null
+        full_name?: string | null
+        gender?: string | null
+        google_id?: string | null
+        is_active?: boolean
+        is_delete?: boolean
+        last_name?: string | null
+        locale?: string | null
+        location?: string | null
+        otp?: string | null
+        otp_generated_time?: Date | string | null
+        password: string
+        phone?: string | null
+        refresh_token?: string | null
+        reset_password_token?: string | null
+        reset_password_token_expiry?: Date | string | null
+        username: string
+        current_streak?: number
+        last_activity_date?: Date | string | null
+        longest_streak?: number
+        ranking_points?: number
+        total_quizzes_completed?: number
+        posts?: PostUncheckedCreateNestedManyWithoutAuthorInput
+        user_roles?: UserRoleUncheckedCreateNestedManyWithoutUserInput
+    }
+
+    export type UserCreateOrConnectWithoutUser_learning_itemsInput = {
+        where: UserWhereUniqueInput
+        create: XOR<UserCreateWithoutUser_learning_itemsInput, UserUncheckedCreateWithoutUser_learning_itemsInput>
+    }
+
+    export type UserUpsertWithoutUser_learning_itemsInput = {
+        update: XOR<UserUpdateWithoutUser_learning_itemsInput, UserUncheckedUpdateWithoutUser_learning_itemsInput>
+        create: XOR<UserCreateWithoutUser_learning_itemsInput, UserUncheckedCreateWithoutUser_learning_itemsInput>
+        where?: UserWhereInput
+    }
+
+    export type UserUpdateToOneWithWhereWithoutUser_learning_itemsInput = {
+        where?: UserWhereInput
+        data: XOR<UserUpdateWithoutUser_learning_itemsInput, UserUncheckedUpdateWithoutUser_learning_itemsInput>
+    }
+
+    export type UserUpdateWithoutUser_learning_itemsInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
+        id?: StringFieldUpdateOperationsInput | string
+        avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
+        bio?: NullableStringFieldUpdateOperationsInput | string | null
+        dob?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+        email?: StringFieldUpdateOperationsInput | string
+        first_name?: NullableStringFieldUpdateOperationsInput | string | null
+        full_name?: NullableStringFieldUpdateOperationsInput | string | null
+        gender?: NullableStringFieldUpdateOperationsInput | string | null
+        google_id?: NullableStringFieldUpdateOperationsInput | string | null
+        is_active?: BoolFieldUpdateOperationsInput | boolean
+        is_delete?: BoolFieldUpdateOperationsInput | boolean
+        last_name?: NullableStringFieldUpdateOperationsInput | string | null
+        locale?: NullableStringFieldUpdateOperationsInput | string | null
+        location?: NullableStringFieldUpdateOperationsInput | string | null
+        otp?: NullableStringFieldUpdateOperationsInput | string | null
+        otp_generated_time?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+        password?: StringFieldUpdateOperationsInput | string
+        phone?: NullableStringFieldUpdateOperationsInput | string | null
+        refresh_token?: NullableStringFieldUpdateOperationsInput | string | null
+        reset_password_token?: NullableStringFieldUpdateOperationsInput | string | null
+        reset_password_token_expiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+        username?: StringFieldUpdateOperationsInput | string
+        current_streak?: IntFieldUpdateOperationsInput | number
+        last_activity_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+        longest_streak?: IntFieldUpdateOperationsInput | number
+        ranking_points?: IntFieldUpdateOperationsInput | number
+        total_quizzes_completed?: IntFieldUpdateOperationsInput | number
+        posts?: PostUpdateManyWithoutAuthorNestedInput
+        user_roles?: UserRoleUpdateManyWithoutUserNestedInput
+    }
+
+    export type UserUncheckedUpdateWithoutUser_learning_itemsInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
+        id?: StringFieldUpdateOperationsInput | string
+        avatar_url?: NullableStringFieldUpdateOperationsInput | string | null
+        bio?: NullableStringFieldUpdateOperationsInput | string | null
+        dob?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+        email?: StringFieldUpdateOperationsInput | string
+        first_name?: NullableStringFieldUpdateOperationsInput | string | null
+        full_name?: NullableStringFieldUpdateOperationsInput | string | null
+        gender?: NullableStringFieldUpdateOperationsInput | string | null
+        google_id?: NullableStringFieldUpdateOperationsInput | string | null
+        is_active?: BoolFieldUpdateOperationsInput | boolean
+        is_delete?: BoolFieldUpdateOperationsInput | boolean
+        last_name?: NullableStringFieldUpdateOperationsInput | string | null
+        locale?: NullableStringFieldUpdateOperationsInput | string | null
+        location?: NullableStringFieldUpdateOperationsInput | string | null
+        otp?: NullableStringFieldUpdateOperationsInput | string | null
+        otp_generated_time?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+        password?: StringFieldUpdateOperationsInput | string
+        phone?: NullableStringFieldUpdateOperationsInput | string | null
+        refresh_token?: NullableStringFieldUpdateOperationsInput | string | null
+        reset_password_token?: NullableStringFieldUpdateOperationsInput | string | null
+        reset_password_token_expiry?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+        username?: StringFieldUpdateOperationsInput | string
+        current_streak?: IntFieldUpdateOperationsInput | number
+        last_activity_date?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+        longest_streak?: IntFieldUpdateOperationsInput | number
+        ranking_points?: IntFieldUpdateOperationsInput | number
+        total_quizzes_completed?: IntFieldUpdateOperationsInput | number
+        posts?: PostUncheckedUpdateManyWithoutAuthorNestedInput
+        user_roles?: UserRoleUncheckedUpdateManyWithoutUserNestedInput
     }
 
     export type PostCreateManyAuthorInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         id?: string
-        createdAt?: Date | string
-        updatedAt?: Date | string
         title: string
         content: string
         published?: boolean
     }
 
     export type UserRoleCreateManyUserInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         role_id: number
         assignedAt?: Date | string
     }
 
+    export type UserLearningItemCreateManyUserInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
+        id?: bigint | number
+        question_id: bigint | number
+        ef?: number | null
+        repetitions?: number | null
+        interval_days?: number | null
+        next_review_at?: Date | string | null
+        last_reviewed_at?: Date | string | null
+        lapses?: number | null
+        consecutive_fails?: number | null
+        priority?: number | null
+        learning_type: $Enums.LearningType
+    }
+
     export type PostUpdateWithoutAuthorInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         id?: StringFieldUpdateOperationsInput | string
-        createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-        updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
         title?: StringFieldUpdateOperationsInput | string
         content?: StringFieldUpdateOperationsInput | string
         published?: BoolFieldUpdateOperationsInput | boolean
     }
 
     export type PostUncheckedUpdateWithoutAuthorInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         id?: StringFieldUpdateOperationsInput | string
-        createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-        updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
         title?: StringFieldUpdateOperationsInput | string
         content?: StringFieldUpdateOperationsInput | string
         published?: BoolFieldUpdateOperationsInput | boolean
     }
 
     export type PostUncheckedUpdateManyWithoutAuthorInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         id?: StringFieldUpdateOperationsInput | string
-        createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-        updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
         title?: StringFieldUpdateOperationsInput | string
         content?: StringFieldUpdateOperationsInput | string
         published?: BoolFieldUpdateOperationsInput | boolean
     }
 
     export type UserRoleUpdateWithoutUserInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
         role?: RoleUpdateOneRequiredWithoutUsersNestedInput
     }
 
     export type UserRoleUncheckedUpdateWithoutUserInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         role_id?: IntFieldUpdateOperationsInput | number
         assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     }
 
     export type UserRoleUncheckedUpdateManyWithoutUserInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         role_id?: IntFieldUpdateOperationsInput | number
         assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     }
 
+    export type UserLearningItemUpdateWithoutUserInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
+        id?: BigIntFieldUpdateOperationsInput | bigint | number
+        question_id?: BigIntFieldUpdateOperationsInput | bigint | number
+        ef?: NullableFloatFieldUpdateOperationsInput | number | null
+        repetitions?: NullableIntFieldUpdateOperationsInput | number | null
+        interval_days?: NullableIntFieldUpdateOperationsInput | number | null
+        next_review_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+        last_reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+        lapses?: NullableIntFieldUpdateOperationsInput | number | null
+        consecutive_fails?: NullableIntFieldUpdateOperationsInput | number | null
+        priority?: NullableFloatFieldUpdateOperationsInput | number | null
+        learning_type?: EnumLearningTypeFieldUpdateOperationsInput | $Enums.LearningType
+    }
+
+    export type UserLearningItemUncheckedUpdateWithoutUserInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
+        id?: BigIntFieldUpdateOperationsInput | bigint | number
+        question_id?: BigIntFieldUpdateOperationsInput | bigint | number
+        ef?: NullableFloatFieldUpdateOperationsInput | number | null
+        repetitions?: NullableIntFieldUpdateOperationsInput | number | null
+        interval_days?: NullableIntFieldUpdateOperationsInput | number | null
+        next_review_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+        last_reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+        lapses?: NullableIntFieldUpdateOperationsInput | number | null
+        consecutive_fails?: NullableIntFieldUpdateOperationsInput | number | null
+        priority?: NullableFloatFieldUpdateOperationsInput | number | null
+        learning_type?: EnumLearningTypeFieldUpdateOperationsInput | $Enums.LearningType
+    }
+
+    export type UserLearningItemUncheckedUpdateManyWithoutUserInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
+        id?: BigIntFieldUpdateOperationsInput | bigint | number
+        question_id?: BigIntFieldUpdateOperationsInput | bigint | number
+        ef?: NullableFloatFieldUpdateOperationsInput | number | null
+        repetitions?: NullableIntFieldUpdateOperationsInput | number | null
+        interval_days?: NullableIntFieldUpdateOperationsInput | number | null
+        next_review_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+        last_reviewed_at?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+        lapses?: NullableIntFieldUpdateOperationsInput | number | null
+        consecutive_fails?: NullableIntFieldUpdateOperationsInput | number | null
+        priority?: NullableFloatFieldUpdateOperationsInput | number | null
+        learning_type?: EnumLearningTypeFieldUpdateOperationsInput | $Enums.LearningType
+    }
+
     export type UserRoleCreateManyRoleInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         user_id: string
         assignedAt?: Date | string
     }
 
     export type RolePermissionCreateManyRoleInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         permission_id: number
         assignedAt?: Date | string
     }
 
     export type UserRoleUpdateWithoutRoleInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
         user?: UserUpdateOneRequiredWithoutUser_rolesNestedInput
     }
 
     export type UserRoleUncheckedUpdateWithoutRoleInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         user_id?: StringFieldUpdateOperationsInput | string
         assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     }
 
     export type UserRoleUncheckedUpdateManyWithoutRoleInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         user_id?: StringFieldUpdateOperationsInput | string
         assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     }
 
     export type RolePermissionUpdateWithoutRoleInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
         permission?: PermissionUpdateOneRequiredWithoutRolesNestedInput
     }
 
     export type RolePermissionUncheckedUpdateWithoutRoleInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         permission_id?: IntFieldUpdateOperationsInput | number
         assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     }
 
     export type RolePermissionUncheckedUpdateManyWithoutRoleInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         permission_id?: IntFieldUpdateOperationsInput | number
         assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     }
 
     export type RolePermissionCreateManyPermissionInput = {
+        created_at?: Date | string
+        created_by?: string | null
+        updated_at?: Date | string
+        updated_by?: string | null
         role_id: number
         assignedAt?: Date | string
     }
 
     export type RolePermissionUpdateWithoutPermissionInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
         role?: RoleUpdateOneRequiredWithoutPermissionsNestedInput
     }
 
     export type RolePermissionUncheckedUpdateWithoutPermissionInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         role_id?: IntFieldUpdateOperationsInput | number
         assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     }
 
     export type RolePermissionUncheckedUpdateManyWithoutPermissionInput = {
+        created_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        created_by?: NullableStringFieldUpdateOperationsInput | string | null
+        updated_at?: DateTimeFieldUpdateOperationsInput | Date | string
+        updated_by?: NullableStringFieldUpdateOperationsInput | string | null
         role_id?: IntFieldUpdateOperationsInput | number
         assignedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     }
