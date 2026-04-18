@@ -10,12 +10,7 @@ const metadata: ModelMeta = {
     models: {
         user: {
             name: 'User', fields: {
-                id: {
-                    name: "id",
-                    type: "String",
-                    isId: true,
-                    attributes: [{ "name": "@default", "args": [{ "name": "value" }] }],
-                }, created_at: {
+                created_at: {
                     name: "created_at",
                     type: "DateTime",
                     attributes: [{ "name": "@default", "args": [{ "name": "value" }] }],
@@ -31,6 +26,11 @@ const metadata: ModelMeta = {
                     name: "updated_by",
                     type: "String",
                     isOptional: true,
+                }, id: {
+                    name: "id",
+                    type: "String",
+                    isId: true,
+                    attributes: [{ "name": "@default", "args": [{ "name": "value" }] }],
                 }, avatar_url: {
                     name: "avatar_url",
                     type: "String",
@@ -144,6 +144,12 @@ const metadata: ModelMeta = {
                     isDataModel: true,
                     isArray: true,
                     backLink: 'user',
+                }, user_learning_items: {
+                    name: "user_learning_items",
+                    type: "UserLearningItem",
+                    isDataModel: true,
+                    isArray: true,
+                    backLink: 'user',
                 },
             }, uniqueConstraints: {
                 id: {
@@ -166,7 +172,23 @@ const metadata: ModelMeta = {
         },
         role: {
             name: 'Role', fields: {
-                id: {
+                created_at: {
+                    name: "created_at",
+                    type: "DateTime",
+                    attributes: [{ "name": "@default", "args": [{ "name": "value" }] }],
+                }, created_by: {
+                    name: "created_by",
+                    type: "String",
+                    isOptional: true,
+                }, updated_at: {
+                    name: "updated_at",
+                    type: "DateTime",
+                    attributes: [{ "name": "@updatedAt", "args": [] }],
+                }, updated_by: {
+                    name: "updated_by",
+                    type: "String",
+                    isOptional: true,
+                }, id: {
                     name: "id",
                     type: "Int",
                     isId: true,
@@ -191,14 +213,6 @@ const metadata: ModelMeta = {
                     isDataModel: true,
                     isArray: true,
                     backLink: 'role',
-                }, created_at: {
-                    name: "created_at",
-                    type: "DateTime",
-                    attributes: [{ "name": "@default", "args": [{ "name": "value" }] }],
-                }, updated_at: {
-                    name: "updated_at",
-                    type: "DateTime",
-                    attributes: [{ "name": "@updatedAt", "args": [] }],
                 },
             }, uniqueConstraints: {
                 id: {
@@ -212,7 +226,23 @@ const metadata: ModelMeta = {
         },
         permission: {
             name: 'Permission', fields: {
-                id: {
+                created_at: {
+                    name: "created_at",
+                    type: "DateTime",
+                    attributes: [{ "name": "@default", "args": [{ "name": "value" }] }],
+                }, created_by: {
+                    name: "created_by",
+                    type: "String",
+                    isOptional: true,
+                }, updated_at: {
+                    name: "updated_at",
+                    type: "DateTime",
+                    attributes: [{ "name": "@updatedAt", "args": [] }],
+                }, updated_by: {
+                    name: "updated_by",
+                    type: "String",
+                    isOptional: true,
+                }, id: {
                     name: "id",
                     type: "Int",
                     isId: true,
@@ -237,14 +267,6 @@ const metadata: ModelMeta = {
                     isDataModel: true,
                     isArray: true,
                     backLink: 'permission',
-                }, created_at: {
-                    name: "created_at",
-                    type: "DateTime",
-                    attributes: [{ "name": "@default", "args": [{ "name": "value" }] }],
-                }, updated_at: {
-                    name: "updated_at",
-                    type: "DateTime",
-                    attributes: [{ "name": "@updatedAt", "args": [] }],
                 },
             }, uniqueConstraints: {
                 id: {
@@ -258,7 +280,23 @@ const metadata: ModelMeta = {
         },
         userRole: {
             name: 'UserRole', fields: {
-                user_id: {
+                created_at: {
+                    name: "created_at",
+                    type: "DateTime",
+                    attributes: [{ "name": "@default", "args": [{ "name": "value" }] }],
+                }, created_by: {
+                    name: "created_by",
+                    type: "String",
+                    isOptional: true,
+                }, updated_at: {
+                    name: "updated_at",
+                    type: "DateTime",
+                    attributes: [{ "name": "@updatedAt", "args": [] }],
+                }, updated_by: {
+                    name: "updated_by",
+                    type: "String",
+                    isOptional: true,
+                }, user_id: {
                     name: "user_id",
                     type: "String",
                     isId: true,
@@ -300,7 +338,23 @@ const metadata: ModelMeta = {
         },
         rolePermission: {
             name: 'RolePermission', fields: {
-                role_id: {
+                created_at: {
+                    name: "created_at",
+                    type: "DateTime",
+                    attributes: [{ "name": "@default", "args": [{ "name": "value" }] }],
+                }, created_by: {
+                    name: "created_by",
+                    type: "String",
+                    isOptional: true,
+                }, updated_at: {
+                    name: "updated_at",
+                    type: "DateTime",
+                    attributes: [{ "name": "@updatedAt", "args": [] }],
+                }, updated_by: {
+                    name: "updated_by",
+                    type: "String",
+                    isOptional: true,
+                }, role_id: {
                     name: "role_id",
                     type: "Int",
                     isId: true,
@@ -342,19 +396,27 @@ const metadata: ModelMeta = {
         },
         post: {
             name: 'Post', fields: {
-                id: {
+                created_at: {
+                    name: "created_at",
+                    type: "DateTime",
+                    attributes: [{ "name": "@default", "args": [{ "name": "value" }] }],
+                }, created_by: {
+                    name: "created_by",
+                    type: "String",
+                    isOptional: true,
+                }, updated_at: {
+                    name: "updated_at",
+                    type: "DateTime",
+                    attributes: [{ "name": "@updatedAt", "args": [] }],
+                }, updated_by: {
+                    name: "updated_by",
+                    type: "String",
+                    isOptional: true,
+                }, id: {
                     name: "id",
                     type: "String",
                     isId: true,
                     attributes: [{ "name": "@default", "args": [{ "name": "value" }] }],
-                }, createdAt: {
-                    name: "createdAt",
-                    type: "DateTime",
-                    attributes: [{ "name": "@default", "args": [{ "name": "value" }] }],
-                }, updatedAt: {
-                    name: "updatedAt",
-                    type: "DateTime",
-                    attributes: [{ "name": "@updatedAt", "args": [] }],
                 }, title: {
                     name: "title",
                     type: "String",
@@ -385,10 +447,96 @@ const metadata: ModelMeta = {
                 },
             },
         },
+        userLearningItem: {
+            name: 'UserLearningItem', fields: {
+                created_at: {
+                    name: "created_at",
+                    type: "DateTime",
+                    attributes: [{ "name": "@default", "args": [{ "name": "value" }] }],
+                }, created_by: {
+                    name: "created_by",
+                    type: "String",
+                    isOptional: true,
+                }, updated_at: {
+                    name: "updated_at",
+                    type: "DateTime",
+                    attributes: [{ "name": "@updatedAt", "args": [] }],
+                }, updated_by: {
+                    name: "updated_by",
+                    type: "String",
+                    isOptional: true,
+                }, id: {
+                    name: "id",
+                    type: "BigInt",
+                    isId: true,
+                    attributes: [{ "name": "@default", "args": [{ "name": "value" }] }],
+                    isAutoIncrement: true,
+                }, user: {
+                    name: "user",
+                    type: "User",
+                    isDataModel: true,
+                    backLink: 'user_learning_items',
+                    isRelationOwner: true,
+                    onDeleteAction: 'Cascade',
+                    foreignKeyMapping: { "id": "user_id" },
+                }, user_id: {
+                    name: "user_id",
+                    type: "String",
+                    isForeignKey: true,
+                    relationField: 'user',
+                }, question_id: {
+                    name: "question_id",
+                    type: "BigInt",
+                }, ef: {
+                    name: "ef",
+                    type: "Float",
+                    isOptional: true,
+                }, repetitions: {
+                    name: "repetitions",
+                    type: "Int",
+                    isOptional: true,
+                }, interval_days: {
+                    name: "interval_days",
+                    type: "Int",
+                    isOptional: true,
+                }, next_review_at: {
+                    name: "next_review_at",
+                    type: "DateTime",
+                    isOptional: true,
+                }, last_reviewed_at: {
+                    name: "last_reviewed_at",
+                    type: "DateTime",
+                    isOptional: true,
+                }, lapses: {
+                    name: "lapses",
+                    type: "Int",
+                    isOptional: true,
+                }, consecutive_fails: {
+                    name: "consecutive_fails",
+                    type: "Int",
+                    isOptional: true,
+                }, priority: {
+                    name: "priority",
+                    type: "Float",
+                    isOptional: true,
+                }, learning_type: {
+                    name: "learning_type",
+                    type: "LearningType",
+                },
+            }, uniqueConstraints: {
+                id: {
+                    name: "id",
+                    fields: ["id"]
+                }, user_id_question_id: {
+                    name: "user_id_question_id",
+                    fields: ["user_id", "question_id"]
+                },
+            },
+        },
 
     },
     deleteCascade: {
-        user: ['UserRole'],
+        user: ['UserRole', 'UserLearningItem'],
         role: ['UserRole', 'RolePermission'],
         permission: ['RolePermission'],
 

@@ -1,19 +1,18 @@
 services:
-  mysql:
-    image: mysql:8.4
-    container_name: quiz-be-mysql
+  postgres:
+    image: postgres:16
+    container_name: quiz-be-postgres
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: quiz_db
-      MYSQL_USER: quiz_user
-      MYSQL_PASSWORD: quiz_password
+      POSTGRES_DB: quiz_db
+      POSTGRES_USER: quiz_user
+      POSTGRES_PASSWORD: quiz_password
     ports:
-      - "3306:3306"
+      - "5432:5432"
     volumes:
-      - mysql_data:/var/lib/mysql
+      - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-uroot", "-proot"]
+      test: ["CMD-SHELL", "pg_isready -U quiz_user -d quiz_db"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -34,5 +33,5 @@ services:
       - minio_data:/data
 
 volumes:
-  mysql_data:
+  postgres_data:
   minio_data:

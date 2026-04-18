@@ -4,7 +4,7 @@
 //////////////////////////////////////////////////////////////////////////////////////////////
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -12,23 +12,30 @@ generator client {
   provider = "prisma-client-js"
 }
 
+enum LearningType {
+  NEW
+  LEARNING
+  REVIEW
+  RELEARNING
+}
+
 /// User model
 model User {
-  id                          String     @id() @default(cuid())
-  created_at                  DateTime   @default(now())
+  created_at                  DateTime           @default(now())
   created_by                  String?
-  updated_at                  DateTime   @updatedAt()
+  updated_at                  DateTime           @updatedAt()
   updated_by                  String?
+  id                          String             @id() @default(cuid())
   avatar_url                  String?
   bio                         String?
   dob                         DateTime?
-  email                       String     @unique()
+  email                       String             @unique()
   first_name                  String?
   full_name                   String?
   gender                      String?
-  google_id                   String?    @unique()
-  is_active                   Boolean    @default(true)
-  is_delete                   Boolean    @default(false)
+  google_id                   String?            @unique()
+  is_active                   Boolean            @default(true)
+  is_delete                   Boolean            @default(false)
   last_name                   String?
   locale                      String?
   location                    String?
@@ -39,43 +46,52 @@ model User {
   refresh_token               String?    @db.Text
   reset_password_token        String?
   reset_password_token_expiry DateTime?
-  username                    String     @unique()
-  current_streak              Int        @default(0)
+  username                    String             @unique()
+  current_streak              Int                @default(0)
   last_activity_date          DateTime?
-  longest_streak              Int        @default(0)
-  ranking_points              Int        @default(0)
-  total_quizzes_completed     Int        @default(0)
+  longest_streak              Int                @default(0)
+  ranking_points              Int                @default(0)
+  total_quizzes_completed     Int                @default(0)
   posts                       Post[]
   user_roles                  UserRole[]
+  user_learning_items         UserLearningItem[]
 }
 
 /// Role model
 model Role {
+  created_at  DateTime         @default(now())
+  created_by  String?
+  updated_at  DateTime         @updatedAt()
+  updated_by  String?
   id          Int              @id() @default(autoincrement())
   authority   String           @unique()
   description String?
   users       UserRole[]
   permissions RolePermission[]
-  created_at  DateTime         @default(now())
-  updated_at  DateTime         @updatedAt()
 }
 
 /// Permission model
 model Permission {
+  created_at  DateTime         @default(now())
+  created_by  String?
+  updated_at  DateTime         @updatedAt()
+  updated_by  String?
   id          Int              @id() @default(autoincrement())
   name        String
   description String?
   resource    String
   action      String
   roles       RolePermission[]
-  created_at  DateTime         @default(now())
-  updated_at  DateTime         @updatedAt()
 
   @@unique([resource, action])
 }
 
 /// User-role link
 model UserRole {
+  created_at DateTime @default(now())
+  created_by String?
+  updated_at DateTime @updatedAt()
+  updated_by String?
   user_id    String
   role_id    Int
   assignedAt DateTime @default(now())
@@ -87,6 +103,10 @@ model UserRole {
 
 /// Role-permission link
 model RolePermission {
+  created_at    DateTime   @default(now())
+  created_by    String?
+  updated_at    DateTime   @updatedAt()
+  updated_by    String?
   role_id       Int
   permission_id Int
   assignedAt    DateTime   @default(now())
@@ -98,12 +118,39 @@ model RolePermission {
 
 /// Post model
 model Post {
-  id        String   @id() @default(cuid())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt()
-  title     String
-  content   String
-  published Boolean  @default(false)
-  author    User     @relation(fields: [authorId], references: [id])
-  authorId  String
+  created_at DateTime @default(now())
+  created_by String?
+  updated_at DateTime @updatedAt()
+  updated_by String?
+  id         String   @id() @default(cuid())
+  title      String
+  content    String
+  published  Boolean  @default(false)
+  author     User     @relation(fields: [authorId], references: [id])
+  authorId   String
+}
+
+/// User learning item model
+model UserLearningItem {
+  created_at        DateTime     @default(now())
+  created_by        String?
+  updated_at        DateTime     @updatedAt()
+  updated_by        String?
+  id                BigInt       @id() @default(autoincrement())
+  user              User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id           String
+  question_id       BigInt
+  ef                Float?
+  repetitions       Int?
+  interval_days     Int?
+  next_review_at    DateTime?
+  last_reviewed_at  DateTime?
+  lapses            Int?
+  consecutive_fails Int?
+  priority          Float?
+  learning_type     LearningType
+
+  @@unique([user_id, question_id])
+  @@index([user_id])
+  @@index([question_id])
 }
